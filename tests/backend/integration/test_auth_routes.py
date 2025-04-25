@@ -2,7 +2,6 @@ import pytest
 
 from function.backend.app import create_app
 from function.backend.extensions import db
-from function.backend.models.user import User
 
 
 @pytest.fixture
@@ -17,11 +16,21 @@ def client():
 
 
 def test_login_success(client):
-    res = client.post("/api/auth/login", json={"username": "admin", "password": "admin123"})
-    assert res.status_code == 200
-    assert "token" in res.get_json()
+    """Test erfolgreicher Login"""
+    response = client.post("/api/auth/login", json={
+        "username": "admin",
+        "password": "admin123"
+    })
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "token" in data
+    assert data["user"]["username"] == "admin"
 
 
 def test_login_fail(client):
-    res = client.post("/api/auth/login", json={"username": "admin", "password": "wrong"})
-    assert res.status_code == 401
+    """Test fehlgeschlagener Login"""
+    response = client.post("/api/auth/login", json={
+        "username": "admin",
+        "password": "wrongpassword"
+    })
+    assert response.status_code == 401
