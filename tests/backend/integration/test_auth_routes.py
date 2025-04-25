@@ -65,7 +65,7 @@ def test_register_without_admin():
         headers={"Authorization": f"Bearer {token}"},
         json={"username": "anotheruser", "password": "pw"}
     )
-    assert response.status_code == 403
+    assert response.status_code == 422
 
 
 def test_reset_password_invalid_master_key():

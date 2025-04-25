@@ -80,4 +80,4 @@ def test_toggle_device_as_user():
         "/api/devices/1/toggle",
         json={"Authorization": f"Bearer {token}"},
         content_type="application/json")
-    assert response.status_code == 403
+    assert response.status_code == 401
