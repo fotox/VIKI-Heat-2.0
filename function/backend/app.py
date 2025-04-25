@@ -4,7 +4,7 @@ from flask_cors import CORS
 from function.backend.api.devices.routes import devices_bp
 from function.backend.config import Config
 from function.backend.extensions import db, jwt, socketio
-from function.backend.models.routes import auth_bp
+from function.backend.api.auth.routes import auth_bp
 
 
 def create_app():

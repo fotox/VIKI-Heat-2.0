@@ -3,7 +3,7 @@ Legt initialen Admin-User an.
 """
 from function.backend.app import create_app
 from function.backend.extensions import db
-from function.backend.models.user import User
+from backend.api.auth.user import User
 
 app = create_app()
 

@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 
 from function.backend.config import Config
 from function.backend.extensions import db
-from function.backend.models.user import User
+from function.backend.api.auth.user import User
 
 auth_bp = Blueprint("auth", __name__)
 

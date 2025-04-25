@@ -1,7 +1,7 @@
 import pytest
 
 from function.backend.extensions import db
-from function.backend.models.user import User
+from function.backend.api.auth.user import User
 from function.backend.app import create_app
 
 

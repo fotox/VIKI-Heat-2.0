@@ -1,5 +1,7 @@
 import pytest
+from flask_jwt_extended import create_access_token
 
+from function.backend.api.auth.user import User
 from function.backend.app import create_app
 from function.backend.extensions import db
 
@@ -40,3 +42,38 @@ def test_login_fail(client):
                            },
                            content_type="application/json")
     assert response.status_code == 401
+
+
+def test_register_without_admin():
+    """Registration ohne Admin-Rechte → 403"""
+    app = create_app()
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["JWT_SECRET_KEY"] = "test-jwt-secret"
+
+    with app.app_context():
+        db.create_all()
+        user = User(username="user_test_register", role="user")
+        user.set_password("secret")
+        db.session.add(user)
+        db.session.commit()
+        token = create_access_token(identity={"id": user.id, "role": user.role})
+
+    client = app.test_client()
+    response = client.post(
+        "/api/auth/register",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"username": "anotheruser", "password": "pw"}
+    )
+    assert response.status_code == 403
+
+
+def test_reset_password_invalid_master_key():
+    """Reset mit falschem Master-Key → 403"""
+    client = create_app().test_client()
+    response = client.post("/api/auth/reset-password", json={
+        "username": "admin",
+        "new_password": "newpw",
+        "master_key": "wrongkey"
+    })
+    assert response.status_code == 403

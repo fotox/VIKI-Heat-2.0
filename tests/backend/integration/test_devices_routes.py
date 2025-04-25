@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token
 
 from function.backend.app import create_app
 from function.backend.extensions import db
-from function.backend.models.user import User
+from function.backend.api.auth.user import User
 
 
 @pytest.fixture
@@ -51,3 +51,33 @@ def test_toggle_device(client_and_token):
     assert response.status_code == 200
     data = response.get_json()
     assert "Switch" in data["msg"]
+
+
+def test_list_devices_without_auth():
+    """Zugriff ohne Auth-Token → 401"""
+    client = create_app().test_client()
+    response = client.get("/api/devices/")
+    assert response.status_code == 401
+
+
+def test_toggle_device_as_user():
+    """Nur Admin darf togglen → User = 403"""
+    app = create_app()
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["JWT_SECRET_KEY"] = "test-jwt-secret"
+
+    with app.app_context():
+        db.create_all()
+        user = User(username="user_test_toggle", role="user")
+        user.set_password("user123")
+        db.session.add(user)
+        db.session.commit()
+        token = create_access_token(identity={"id": user.id, "role": user.role})
+
+    client = app.test_client()
+    response = client.post(
+        "/api/devices/1/toggle",
+        json={"Authorization": f"Bearer {token}"},
+        content_type="application/json")
+    assert response.status_code == 403

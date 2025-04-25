@@ -1,4 +1,4 @@
-from function.backend.models.user import User
+from function.backend.api.auth.user import User
 
 
 def test_set_and_check_password():
