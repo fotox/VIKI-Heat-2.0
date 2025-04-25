@@ -15,8 +15,9 @@ def client():
         db.drop_all()
 
 
-"""
+@pytest.fixture
 def test_login_success(client):
+    """Test gültigen Login"""
     response = client.post("/api/auth/login",
                            json={
                                "username": "admin",
@@ -27,9 +28,9 @@ def test_login_success(client):
     data = response.get_json()
     assert "token" in data
     assert data["user"]["username"] == "admin"
-"""
 
 
+@pytest.fixture
 def test_login_fail(client):
     """Test fehlgeschlagener Login"""
     response = client.post("/api/auth/login",
