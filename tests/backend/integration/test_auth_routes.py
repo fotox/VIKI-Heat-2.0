@@ -1,8 +1,8 @@
 import pytest
 
-from backend.app import create_app
-from backend.extensions import db
-from backend.models.user import User
+from function.backend.app import create_app
+from function.backend.extensions import db
+from function.backend.models.user import User
 
 
 @pytest.fixture

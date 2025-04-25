@@ -1,4 +1,4 @@
-from backend.services.control_service import ControlService
+from function.backend.services.control_service import ControlService
 
 
 def test_should_activate_switch_logic():
