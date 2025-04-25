@@ -46,3 +46,5 @@ ENV/
 *.gz
 *zip
 /function/.env
+package-lock.json
+node_modules/
