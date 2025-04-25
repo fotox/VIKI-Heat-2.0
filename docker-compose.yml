@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  flask-app:
+    image: python_project:latest
+    container_name: python_project
+    hostname: python_project
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+    ports:
+      - "80:5000"
+    restart: always
+    privileged: true
+    volumes:
+      - /var/log/python_project:/app/logs

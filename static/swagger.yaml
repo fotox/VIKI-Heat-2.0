@@ -1,0 +1,8 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "JobRad Chat"
+  description: "API Documentation for JobRad Chat"
+schemes:
+  - "http"
+paths:
