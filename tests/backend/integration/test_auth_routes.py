@@ -12,11 +12,8 @@ def client():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.app_context():
         db.create_all()
-        user = User(username="admin", role="admin")
-        user.set_password("admin123")
-        db.session.add(user)
-        db.session.commit()
-    return app.test_client()
+        yield app.test_client()
+        db.drop_all()
 
 
 def test_login_success(client):
