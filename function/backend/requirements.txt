@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-sqlalchemy
+flask-jwt-extended
+flask-socketio
+python-socketio
+eventlet
+werkzeug
+requests
+requests

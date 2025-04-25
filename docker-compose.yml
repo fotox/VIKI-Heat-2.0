@@ -1,18 +1,53 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  flask-app:
-    image: python_project:latest
-    container_name: python_project
-    hostname: python_project
+  backend:
     build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - FLASK_ENV=production
-    ports:
-      - "80:5000"
-    restart: always
-    privileged: true
+      context: ./function/backend
+    container_name: viki-backend
     volumes:
-      - /var/log/python_project:/app/logs
+      - ./function/backend:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=dev-secret
+      - JWT_SECRET_KEY=super-secret
+      - MASTER_RESET_KEY=viki-masterkey
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: viki-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./function/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./function/nginx/certbot/www:/var/www/certbot
+      - ./function/nginx/certbot/conf:/etc/letsencrypt
+    depends_on:
+      - backend
+      - frontend
+
+  certbot:
+    image: certbot/certbot
+    container_name: viki-certbot
+    volumes:
+      - ./function/nginx/certbot/www:/var/www/certbot
+      - ./function/nginx/certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
+      --email you@example.com --agree-tos --no-eff-email
+      -d controller.local"
+
+  postgres:
+    image: postgres:14
+    container_name: viki-postgres
+    environment:
+      POSTGRES_USER: viki
+      POSTGRES_PASSWORD: viki
+      POSTGRES_DB: viki_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
