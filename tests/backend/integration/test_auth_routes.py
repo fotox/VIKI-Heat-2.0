@@ -17,7 +17,6 @@ def client():
 
 """
 def test_login_success(client):
-    """Test erfolgreicher Login"""
     response = client.post("/api/auth/login",
                            json={
                                "username": "admin",
