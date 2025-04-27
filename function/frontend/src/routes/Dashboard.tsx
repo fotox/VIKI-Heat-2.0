@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card } from '@shadcn/ui';
+import { Button, Card } from '@/components/ui';
 import io from 'socket.io-client';
 
 interface Device { id: number; name: string; state: boolean; }

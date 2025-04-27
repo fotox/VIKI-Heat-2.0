@@ -4,6 +4,7 @@ services:
   backend:
     build:
       context: ./function/backend
+      dockerfile: Dockerfile
     container_name: viki-backend
     volumes:
       - ./function/backend:/app
@@ -13,6 +14,21 @@ services:
       - SECRET_KEY=dev-secret
       - JWT_SECRET_KEY=super-secret
       - MASTER_RESET_KEY=viki-masterkey
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./function/frontend
+      dockerfile: Dockerfile
+    container_name: viki-frontend
+    volumes:
+      - ./function/frontend:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
     restart: unless-stopped
 
   nginx:
@@ -28,6 +44,7 @@ services:
     depends_on:
       - backend
       - frontend
+    restart: unless-stopped
 
   certbot:
     image: certbot/certbot
@@ -39,15 +56,3 @@ services:
       sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
       --email you@example.com --agree-tos --no-eff-email
       -d controller.local"
-
-  postgres:
-    image: postgres:14
-    container_name: viki-postgres
-    environment:
-      POSTGRES_USER: viki
-      POSTGRES_PASSWORD: viki
-      POSTGRES_DB: viki_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"

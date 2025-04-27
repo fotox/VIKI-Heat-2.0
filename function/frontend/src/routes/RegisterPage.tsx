@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');

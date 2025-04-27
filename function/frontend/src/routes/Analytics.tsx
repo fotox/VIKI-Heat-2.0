@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from '@shadcn/ui';
+import { Card } from '@/components/ui';
 
 interface AnalyticsData {
   timestamp: string;

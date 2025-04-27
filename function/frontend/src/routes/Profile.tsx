@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input } from '@shadcn/ui';
+import { Button, Input } from '@/components/ui';
 
 export default function Profile() {
   const [username, setUsername] = useState('');

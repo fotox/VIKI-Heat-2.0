@@ -1,6 +1,7 @@
+// @ts-ignore
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button } from '@shadcn/ui';
+import { Button } from '@/components/ui';
 
 export default function Header() {
   const navigate = useNavigate();

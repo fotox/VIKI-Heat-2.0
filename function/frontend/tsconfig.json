@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
@@ -9,6 +10,11 @@
     ],
     "module": "ESNext",
     "moduleResolution": "Node",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

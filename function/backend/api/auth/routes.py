@@ -5,9 +5,9 @@ Routen zur Authentifizierung (Login, Registrierung, Passwort-Reset).
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
-from function.backend.config import Config
-from function.backend.extensions import db
-from function.backend.api.auth.user import User
+from config import Config
+from extensions import db
+from api.auth.user import User
 
 auth_bp = Blueprint("auth", __name__)
 

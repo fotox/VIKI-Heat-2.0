@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input } from '@shadcn/ui';
+import { Button, Input } from '@/components/ui';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');

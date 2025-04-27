@@ -5,7 +5,7 @@ Routen zur Steuerung und Abfrage von Geräten (Schalter).
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from function.backend.services.switch_service import get_switch_state, toggle_switch
+from services.switch_service import get_switch_state, toggle_switch
 
 devices_bp = Blueprint("devices", __name__)
 

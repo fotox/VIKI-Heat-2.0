@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
 
-from function.backend.api.devices.routes import devices_bp
-from function.backend.config import Config
-from function.backend.extensions import db, jwt, socketio
-from function.backend.api.auth.routes import auth_bp
+from api.devices.routes import devices_bp
+from config import Config
+from extensions import db, jwt, socketio
+from api.auth.routes import auth_bp
 
 
 def create_app():
@@ -23,11 +23,11 @@ def create_app():
 
     @app.route("/")
     def index():
-        return {"message": "VIKI Backend API läuft"}
+        return {"message": "VIKI Backend API run..."}
 
     return app
 
 
 if __name__ == "__main__":
-    app = create_app()
-    socketio.run(app, host="0.0.0.0", port=5000)
+    viki = create_app()
+    socketio.run(viki, host="127.0.0.1", port=5000, debug=True)
