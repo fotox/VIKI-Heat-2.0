@@ -60,3 +60,12 @@ def update_photovoltaic_module(module_id: int):
 
     db.session.commit()
     return jsonify(module.to_dict()), 200
+
+
+@settings_bp.route("/photovoltaic/<int:module_id>", methods=["DELETE"])
+@jwt_required()
+def delete_photovoltaic_module(module_id):
+    mod = PhotovoltaicSetting.query.get_or_404(module_id)
+    db.session.delete(mod)
+    db.session.commit()
+    return '', 204

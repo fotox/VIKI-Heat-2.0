@@ -10,6 +10,7 @@ class PhotovoltaicSetting(db.Model):
 
     def to_dict(self):
         return {
+            "id": self.id,
             "system_id": self.system_id,
             "location": self.location,
             "max_output": self.max_output,
