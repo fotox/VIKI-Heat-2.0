@@ -16,34 +16,16 @@ services:
       - MASTER_RESET_KEY=viki-masterkey
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./function/frontend
-      dockerfile: Dockerfile
-    container_name: viki-frontend
-    volumes:
-      - ./function/frontend:/app
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    depends_on:
-      - backend
-    restart: unless-stopped
-
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: function/nginx/Dockerfile
     container_name: viki-nginx
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./function/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./function/nginx/certbot/www:/var/www/certbot
-      - ./function/nginx/certbot/conf:/etc/letsencrypt
     depends_on:
       - backend
-      - frontend
     restart: unless-stopped
 
   certbot:

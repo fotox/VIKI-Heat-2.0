@@ -1,19 +1,35 @@
-# function/frontend/Dockerfile
+# --- Stage 1: Build ---
+FROM node:18-slim AS builder
 
-# 1. Abhängigkeiten installieren
-FROM node:18-slim AS deps
 WORKDIR /app
-# Nur package.json & package-lock kopieren für deterministische install
+
+# Nur Manifest-Dateien kopieren für besseren Cache
 COPY package.json package-lock.json ./
-# CI-Install für exakte Reproduzierbarkeit
+
+# DevDependencies & ProdDependencies installieren
 RUN npm ci
 
-# 2. Quellcode kopieren und (Dev-)Server starten
-FROM node:18-slim AS dev
-WORKDIR /app
-# node_modules aus deps übernehmen
-COPY --from=deps /app/node_modules ./node_modules
-# Restlichen Code kopieren (inkl. index.html, src/, components/ui/)
+# gesamten Quellcode kopieren
 COPY . .
-# Dev-Server starten
-CMD ["npm", "run", "dev"]
+
+# Produktion-Build erzeugen
+RUN npm run build
+
+
+# --- Stage 2: Production Image ---
+FROM nginx:alpine AS production
+
+# standardmäßiges nginx-HTML-Verzeichnis leeren (optional)
+RUN rm -rf /usr/share/nginx/html/*
+
+# fertige Assets aus dem Builder kopieren
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Wenn Du eine eigene Nginx-Config brauchst, kopiere sie hierhin:
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Port 80 exposed (optional, da Nginx standardmäßig 80 nutzt)
+EXPOSE 80
+
+# Nginx im Vordergrund starten
+CMD ["nginx", "-g", "daemon off;"]
