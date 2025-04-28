@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input } from '@/components/ui';
+import {getCsrfToken} from "@/utils/getCsrf";
 
 export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [username, setUsername] = useState('');
@@ -12,7 +13,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', "X-CSRF-TOKEN": getCsrfToken() },
       body: JSON.stringify({ username, password })
     });
     if (res.ok) {

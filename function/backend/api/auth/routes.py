@@ -13,17 +13,21 @@ auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/login", methods=["POST"])
-def login() -> tuple:
-    """Login per Username & Passwort"""
+def login():
     data = request.get_json()
     user = User.query.filter_by(username=data.get("username")).first()
+    if not user or not user.check_password(data.get("password")):
+        return jsonify(msg="Ungültige Anmeldedaten"), 401
 
-    if user and user.check_password(data.get("password")):
-        token = create_access_token(identity={"id": user.id, "role": user.role})
-        resp = jsonify(user=user.to_dict())
-        set_access_cookies(resp, token)
-        return resp, 200
-    return jsonify(msg="Ungültige Anmeldedaten"), 401
+    additional = {"role": user.role}
+    token = create_access_token(
+        identity=str(user.id),
+        additional_claims=additional
+    )
+
+    resp = jsonify(user=user.to_dict())
+    set_access_cookies(resp, token)
+    return resp, 200
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -65,6 +69,6 @@ def reset_password() -> tuple:
 @jwt_required()
 def profile():
     """Gibt Username und Rolle des eingeloggten Nutzers zurück"""
-    identity = get_jwt_identity()  # {"id": ..., "role": ...}
+    identity = get_jwt_identity()
     user = User.query.get(identity["id"])
     return jsonify(username=user.username, role=user.role), 200

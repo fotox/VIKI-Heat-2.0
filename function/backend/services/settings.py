@@ -1,0 +1,16 @@
+from extensions import db
+
+
+class PhotovoltaicSetting(db.Model):
+    __tablename__ = "photovoltaic_settings"
+    id = db.Column(db.Integer, primary_key=True)
+    system_id = db.Column(db.String(64), nullable=False)
+    location = db.Column(db.String(128), nullable=True)
+    max_output = db.Column(db.Integer, nullable=True)
+
+    def to_dict(self):
+        return {
+            "system_id": self.system_id,
+            "location": self.location,
+            "max_output": self.max_output,
+        }

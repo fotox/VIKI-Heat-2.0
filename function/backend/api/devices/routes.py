@@ -16,6 +16,7 @@ def list_devices() -> tuple:
     devices = [
         {"id": 1, "name": "Heizung", "state": get_switch_state(1)},
         {"id": 2, "name": "Pumpe", "state": get_switch_state(2)},
+        {"id": 3, "name": "Lüftung", "state": get_switch_state(1)},
     ]
     return jsonify(devices=devices), 200
 

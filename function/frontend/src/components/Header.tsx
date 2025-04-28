@@ -1,4 +1,3 @@
-// function/frontend/src/components/Header.tsx
 import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui'
