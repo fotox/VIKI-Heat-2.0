@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input } from '@/components/ui';
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -16,7 +16,8 @@ export default function LoginPage() {
       body: JSON.stringify({ username, password })
     });
     if (res.ok) {
-      navigate('/dashboard');
+      onLogin()
+      navigate('/dashboard')
     } else {
       alert('Login fehlgeschlagen');
     }

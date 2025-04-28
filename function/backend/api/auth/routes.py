@@ -3,7 +3,7 @@ Routen zur Authentifizierung (Login, Registrierung, Passwort-Reset).
 """
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies
 
 from config import Config
 from extensions import db
@@ -20,7 +20,9 @@ def login() -> tuple:
 
     if user and user.check_password(data.get("password")):
         token = create_access_token(identity={"id": user.id, "role": user.role})
-        return jsonify(token=token, user=user.to_dict()), 200
+        resp = jsonify(user=user.to_dict())
+        set_access_cookies(resp, token)
+        return resp, 200
     return jsonify(msg="Ungültige Anmeldedaten"), 401
 
 
@@ -57,3 +59,12 @@ def reset_password() -> tuple:
     user.set_password(data["new_password"])
     db.session.commit()
     return jsonify(msg="Passwort erfolgreich zurückgesetzt"), 200
+
+
+@auth_bp.route("/profile", methods=["GET"])
+@jwt_required()
+def profile():
+    """Gibt Username und Rolle des eingeloggten Nutzers zurück"""
+    identity = get_jwt_identity()  # {"id": ..., "role": ...}
+    user = User.query.get(identity["id"])
+    return jsonify(username=user.username, role=user.role), 200

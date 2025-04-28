@@ -11,7 +11,6 @@ devices_bp = Blueprint("devices", __name__)
 
 
 @devices_bp.route("/", methods=["GET"])
-@jwt_required()
 def list_devices() -> tuple:
     """Liefert Geräte mit aktuellem Status"""
     devices = [

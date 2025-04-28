@@ -9,4 +9,8 @@ class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "super-secret")
     SQLALCHEMY_DATABASE_URI = "sqlite:///viki.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MASTER_RESET_KEY = os.environ.get("MASTER_RESET_KEY", "viki-masterkey")
+    MASTER_RESET_KEY = (os.environ.get("MASTER_RESET_KEY", "viki-masterkey"))
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = False
+    JWT_ACCESS_COOKIE_PATH = "/"
+    JWT_COOKIE_CSRF_PROTECT = False
