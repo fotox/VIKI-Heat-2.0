@@ -9,3 +9,4 @@ werkzeug
 requests
 requests
 paho-mqtt
+python-dotenv

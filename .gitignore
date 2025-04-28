@@ -45,10 +45,10 @@ ENV/
 *.tar
 *.gz
 *zip
-/function/.env
+.env
 package-lock.json
 node_modules/
-/function/nginx/certbot/conf/.certbot.lock
-/function/nginx/certbot/conf/accounts/acme-v02.api.letsencrypt.org/directory/0ae0b42e5841322c4fff3fba40f0262d/private_key.json
-/function/nginx/certbot/conf/accounts/acme-v02.api.letsencrypt.org/directory/0ae0b42e5841322c4fff3fba40f0262d/regr.json
-/function/nginx/certbot/conf/accounts/acme-v02.api.letsencrypt.org/directory/0ae0b42e5841322c4fff3fba40f0262d/meta.json
+.certbot.lock
+private_key.json
+regr.json
+meta.json

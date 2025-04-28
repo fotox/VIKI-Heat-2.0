@@ -1,9 +1,9 @@
 """
 Legt initialen Admin-User an.
 """
-from function.backend.app import create_app
-from function.backend.extensions import db
 from backend.api.auth.user import User
+from backend.app import create_app
+from backend.extensions import db
 
 app = create_app()
 
