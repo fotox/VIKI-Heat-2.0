@@ -38,7 +38,7 @@ export default function Sidebar({
       )}
     >
       {/* Logo & Collapse-Button */}
-      <div className="flex items-center justify-between h-16 px-3">
+      <div className="flex items-center justify-between h-16 px-6">
         {!collapsed && <span className="text-xl font-bold">VIKI</span>}
         {onToggleCollapse && (
           <button
@@ -53,23 +53,7 @@ export default function Sidebar({
           </button>
         )}
       </div>
-
-      {/* Ganz unten: Profil-Icon */}
-      <div className="mt-auto p-4">
-        <NavLink
-          to="/settings/profile"
-          onClick={onClose}
-          className="block w-12 h-12 rounded-full overflow-hidden mx-auto hover:ring-2 ring-offset-2 ring-blue-500"
-        >
-          <img
-            src="/api/auth/profile/photo"
-            alt="Dein Profil"
-            className="object-cover w-full h-full"
-          />
-        </NavLink>
-      </div>
-
-      <nav className="flex-1 px-2 py-4 space-y-1">
+      <nav className="flex-1 px-5 py-4 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -91,6 +75,22 @@ export default function Sidebar({
           </NavLink>
         ))}
       </nav>
+      <div className="mt-auto flex justify-center p-4">
+        <NavLink
+          to="/profile"
+          onClick={onClose}
+          className="block"
+        >
+          <img
+            src="/api/auth/profile/photo"
+            alt="Profilbild"
+            className={cn(
+              'rounded-full object-cover',
+              collapsed ? 'w-10 h-10' : 'w-20 h-20'
+            )}
+          />
+        </NavLink>
+      </div>
     </aside>
   )
 }
