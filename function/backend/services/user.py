@@ -1,7 +1,3 @@
-"""
-User-Modell für Authentifizierung und Rollenverwaltung.
-"""
-
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from extensions import db
@@ -13,6 +9,7 @@ class User(db.Model):
     username: str = db.Column(db.String(64), unique=True, nullable=False)
     password_hash: str = db.Column(db.String(128), nullable=False)
     role: str = db.Column(db.String(20), default="user")
+    photo = db.Column(db.LargeBinary(length=(5 * 1024 * 1024)), nullable=True)
 
     def set_password(self, password: str) -> None:
         """Speichert einen Passwort-Hash"""
@@ -27,5 +24,5 @@ class User(db.Model):
         return {
             "id": self.id,
             "username": self.username,
-            "role": self.role,
+            "role": self.role
         }

@@ -1,7 +1,7 @@
 """
 Legt initialen Admin-User an.
 """
-from backend.api.auth.user import User
+from backend.services.user import User
 from backend.app import create_app
 from backend.extensions import db
 

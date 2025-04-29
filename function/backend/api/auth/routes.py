@@ -1,13 +1,15 @@
-"""
-Routen zur Authentifizierung (Login, Registrierung, Passwort-Reset).
-"""
-
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies
+from flask import Blueprint, request, jsonify, send_file
+from flask_jwt_extended import (
+    create_access_token,
+    set_access_cookies,
+    jwt_required,
+    get_jwt_identity,
+)
 
 from config import Config
 from extensions import db
-from api.auth.user import User
+from services.user import User
+import io
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -28,6 +30,22 @@ def login():
     resp = jsonify(user=user.to_dict())
     set_access_cookies(resp, token)
     return resp, 200
+
+
+@auth_bp.route("/profile/photo", methods=["GET"])
+@jwt_required()
+def profile_photo():
+    """Gibt das Avatar-Bild als image/jpeg oder image/png zurück."""
+    user = User.query.get(get_jwt_identity())
+    if not user or not user.photo:
+        return send_file(
+            io.BytesIO(open("function/backend/static/default-avatar.png", "rb").read()),
+            mimetype="image/png"
+        )
+    return send_file(
+        io.BytesIO(user.photo),
+        mimetype="image/jpeg"
+    )
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -72,3 +90,34 @@ def profile():
     identity = get_jwt_identity()
     user = User.query.get(identity["id"])
     return jsonify(username=user.username, role=user.role), 200
+
+
+@auth_bp.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    """
+    Aktualisiert Username, evtl. Passwort (optional) und Photo.
+    Erwartet multipart/form-data mit Feldern:
+    - username (string)
+    - password (optional, string)
+    - photo (optional, file)
+    """
+    user = User.query.get(get_jwt_identity())
+    form = request.form
+    if "username" in form:
+        user.username = form["username"]
+    if "password" in form and form["password"]:
+        user.set_password(form["password"])
+    if "photo" in request.files:
+        file = request.files["photo"]
+        if file and file.mimetype in ("image/png", "image/jpeg"):
+            data = file.read()
+            if len(data) <= 5 * 1024 * 1024:
+                user.photo = data
+            else:
+                return jsonify(msg="Datei zu groß"), 413
+        else:
+            return jsonify(msg="Ungültiges Dateiformat"), 415
+
+    db.session.commit()
+    return jsonify(msg="Profil aktualisiert"), 200

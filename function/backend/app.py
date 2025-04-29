@@ -27,7 +27,7 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-        from api.auth.user import User
+        from services.user import User
         with app.app_context():
             db.create_all()
             # Default-Admin anlegen, falls noch nicht existiert

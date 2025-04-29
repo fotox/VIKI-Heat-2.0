@@ -16,7 +16,6 @@ import Profile from './routes/Profile'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import Breadcrumb from './components/Breadcrumb'
-
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
 
 export default function App() {

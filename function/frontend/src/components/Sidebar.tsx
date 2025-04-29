@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import {
@@ -53,6 +52,21 @@ export default function Sidebar({
             )}
           </button>
         )}
+      </div>
+
+      {/* Ganz unten: Profil-Icon */}
+      <div className="mt-auto p-4">
+        <NavLink
+          to="/settings/profile"
+          onClick={onClose}
+          className="block w-12 h-12 rounded-full overflow-hidden mx-auto hover:ring-2 ring-offset-2 ring-blue-500"
+        >
+          <img
+            src="/api/auth/profile/photo"
+            alt="Dein Profil"
+            className="object-cover w-full h-full"
+          />
+        </NavLink>
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-1">

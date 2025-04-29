@@ -1,7 +1,7 @@
 import pytest
 from flask_jwt_extended import create_access_token
 
-from function.backend.api.auth.user import User
+from backend.services.user import User
 from function.backend.app import create_app
 from function.backend.extensions import db
 
