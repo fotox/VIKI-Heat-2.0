@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from '@/components/ui'
 
-interface OthersData {
+interface TanksData {
   timestamp: string
   power: number
 }
 
-export default function Others() {
-  const [data, setData] = useState<OthersData[]>([])
+export default function Tanks() {
+  const [data, setData] = useState<TanksData[]>([])
 
   useEffect(() => {
-    fetch('/api/settings/others', { credentials: 'include' })
+    fetch('/api/settings/tanks', { credentials: 'include' })
       .then(res => res.json())
       .then(json => setData(json.records))
       .catch(console.error)
@@ -18,7 +18,7 @@ export default function Others() {
 
   return (
     <div className="space-y-4 p-6">
-      <h3 className="text-xl font-semibold">Andere-Einstellungen</h3>
+      <h3 className="text-xl font-semibold">Speichertank-Einstellungen</h3>
       {data.length === 0 ? (
         <p>Keine Daten vorhanden.</p>
       ) : (

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from '@/components/ui'
 
-interface WaterTankData {
+interface HeatingData {
   timestamp: string
   power: number
 }
 
-export default function Watertank() {
-  const [data, setData] = useState<WaterTankData[]>([])
+export default function Heating() {
+  const [data, setData] = useState<HeatingData[]>([])
 
   useEffect(() => {
-    fetch('/api/settings/watertank', { credentials: 'include' })
+    fetch('/api/settings/heating', { credentials: 'include' })
       .then(res => res.json())
       .then(json => setData(json.records))
       .catch(console.error)
@@ -18,7 +18,7 @@ export default function Watertank() {
 
   return (
     <div className="space-y-4 p-6">
-      <h3 className="text-xl font-semibold">Wassertank-Einstellungen</h3>
+      <h3 className="text-xl font-semibold">Wärmeerzeugung-Einstellungen</h3>
       {data.length === 0 ? (
         <p>Keine Daten vorhanden.</p>
       ) : (
