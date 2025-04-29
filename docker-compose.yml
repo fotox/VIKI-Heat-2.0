@@ -1,11 +1,26 @@
 version: "3.9"
 
 services:
+  db:
+    image: postgres:14-alpine
+    container_name: viki-db
+    environment:
+      POSTGRES_USER: viki
+      POSTGRES_PASSWORD: viki-secret
+      POSTGRES_DB: viki
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
   backend:
     build:
       context: ./function/backend
       dockerfile: Dockerfile
     container_name: viki-backend
+    depends_on:
+      - db
     volumes:
       - ./function/backend:/app
     ports:
@@ -14,6 +29,7 @@ services:
       - SECRET_KEY=dev-secret
       - JWT_SECRET_KEY=super-secret
       - MASTER_RESET_KEY=viki-masterkey
+      - DATABASE_URL=postgresql://viki:viki-secret@db:5432/viki
     restart: unless-stopped
 
   nginx:
@@ -38,3 +54,6 @@ services:
       sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
       --email you@example.com --agree-tos --no-eff-email
       -d controller.local"
+
+volumes:
+  db-data:

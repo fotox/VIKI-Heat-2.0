@@ -30,7 +30,6 @@ def create_app():
         from services.user import User
         with app.app_context():
             db.create_all()
-            # Default-Admin anlegen, falls noch nicht existiert
             if not User.query.filter_by(username="admin").first():
                 admin = User(username="admin", role="admin")
                 admin.set_password("admin123")

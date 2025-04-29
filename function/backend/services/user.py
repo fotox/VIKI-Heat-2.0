@@ -1,13 +1,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Text
 
 from extensions import db
 
 
 class User(db.Model):
-    """Benutzermodell mit Passwort-Hashing und Rollen"""
+    __tablename__ = "users"
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash: str = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(Text, nullable=False)
     role: str = db.Column(db.String(20), default="user")
     photo = db.Column(db.LargeBinary(length=(5 * 1024 * 1024)), nullable=True)
 
