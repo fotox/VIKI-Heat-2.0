@@ -32,14 +32,13 @@ export default function Sidebar({
       <aside
           className={cn(
               // Breite je nach collapsed-Flag
-              collapsed ? 'w-15' : 'w-64',
+              collapsed ? 'w-15' : 'w-50',
               'flex flex-col h-screen border-r bg-white transition-width duration-200',
               className
           )}
       >
         {/* Logo & Collapse-Button */}
-        <div className="flex items-center justify-between h-16 px-6">
-          {!collapsed && <span className="text-xl font-bold">VIKI</span>}
+        <div className="flex justify-left h-16 px-6">
           {onToggleCollapse && (
               <button
                   onClick={onToggleCollapse}
@@ -53,7 +52,7 @@ export default function Sidebar({
               </button>
           )}
         </div>
-        <div className="mt-auto flex justify-left p-4">
+        <div className="mt-auto flex justify-center p-4">
           <NavLink
               to="/profile"
               onClick={onClose}

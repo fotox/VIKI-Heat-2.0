@@ -20,6 +20,7 @@ export default function Header({isAuthenticated, onOpenSidebar}: {
                 <Menu className="h-5 w-5"/>
             </Button>
             <div className="hidden md:block"/>
+            <span className="text-xl font-bold">VIKI</span>
             {
                 isAuthenticated ? (
                     <Button variant="ghost" onClick={handleLogout}>

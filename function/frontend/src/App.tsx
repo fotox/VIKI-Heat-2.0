@@ -11,6 +11,11 @@ import LoginPage from './routes/LoginPage'
 import Dashboard from './routes/Dashboard'
 import Analytics from './routes/Analytics'
 import SettingsLayout from './routes/SettingsLayout'
+import Energy from './routes/settings/Energy'
+import Photovoltaic from './routes/settings/Photovoltaic'
+import Heating from './routes/settings/Heating'
+import Tanks from './routes/settings/Tanks'
+import Weather from './routes/settings/Weather'
 import Profile from './routes/Profile'
 
 import Sidebar from './components/Sidebar'
@@ -69,7 +74,13 @@ export default function App() {
             {isAuthenticated && (
               <>
                 <Route path="/analytics" element={<Analytics />} />
-                <Route path="/settings/*" element={<SettingsLayout />} />
+                <Route path="/settings" element={<SettingsLayout />}>
+                  <Route path="energy" element={<Energy />} />
+                  <Route path="photovoltaic" element={<Photovoltaic />} />
+                  <Route path="heating" element={<Heating />} />
+                  <Route path="tanks" element={<Tanks />} />
+                  <Route path="weather" element={<Weather />} />
+                </Route>
                 <Route path="/profile" element={<Profile />} />
               </>
             )}

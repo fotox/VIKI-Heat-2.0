@@ -86,9 +86,8 @@ def reset_password() -> tuple:
 @auth_bp.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
-    """Gibt Username und Rolle des eingeloggten Nutzers zurück"""
-    identity = get_jwt_identity()
-    user = User.query.get(identity["id"])
+    user_id = get_jwt_identity()      # gibt z.B. 1 zurück
+    user = User.query.get(user_id)
     return jsonify(username=user.username, role=user.role), 200
 
 

@@ -3,10 +3,11 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 export default function SettingsLayout() {
   const tabs = [
-    { path: 'photovoltaik', label: 'Photovoltaik' },
-    { path: 'wasserspeicher', label: 'Wasserspeicher' },
-    { path: 'wetter', label: 'Wetter' },
-    { path: 'others', label: 'Weitere' }
+    { path: 'energy', label: 'Energie' },
+    { path: 'photovoltaic', label: 'Photovoltaik' },
+    { path: 'tanks', label: 'Wasserspeicher' },
+    { path: 'heating', label: 'Wärmeerzeugung' },
+    { path: 'weather', label: 'Wetter' }
   ];
 
   return (

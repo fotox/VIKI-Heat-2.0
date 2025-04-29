@@ -1,11 +1,5 @@
-"""
-Service zur Ansteuerung von Switchen.
-Diese Logik kann GPIO, Relais-HAT oder Mock-Logik kapseln.
-"""
-
 from typing import Dict
 
-# Dummy-Daten für Beispielzwecke
 switch_states: Dict[int, bool] = {
     1: False,
     2: True

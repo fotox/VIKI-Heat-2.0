@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from api.auth.routes import auth_bp
-from api.devices.routes import devices_bp
+from api.dashboard.routes import dashboard_bp
 from api.settings import settings_bp
 
 from extensions import db, jwt, socketio
@@ -21,7 +21,7 @@ def create_app():
 
     # Blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(devices_bp, url_prefix="/api/devices")
+    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(settings_bp, url_prefix="/api/settings")
 
     with app.app_context():

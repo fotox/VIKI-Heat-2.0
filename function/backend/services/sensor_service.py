@@ -7,7 +7,7 @@ from typing import Optional
 
 
 class SensorService:
-    def __init__(self, base_dir: str = "/sys/bus/w1/devices/"):
+    def __init__(self, base_dir: str = "/sys/bus/w1/dashboard/"):
         self.base_dir = base_dir
 
     def get_sensor_ids(self) -> list[str]:

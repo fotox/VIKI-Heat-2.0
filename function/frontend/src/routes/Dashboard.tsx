@@ -16,7 +16,7 @@ export default function Dashboard() {
           .split("; ")
           .find(row => row.startsWith("csrf_access_token="))
           ?.split("=")[1] || "";
-        const res = await fetch('/api/devices/', { credentials: 'include', headers: { "X-CSRF-TOKEN": csrf } })
+        const res = await fetch('/api/dashboard/', { credentials: 'include', headers: { "X-CSRF-TOKEN": csrf } })
         if (!res.ok) {
           throw new Error(`Server-Antwort: ${res.status}`)
         }
@@ -29,7 +29,7 @@ export default function Dashboard() {
 
     fetchDevices()
 
-    socket.on('switch_updated', (d: { id: number; new_state: boolean }) => {
+    socket.on('switch_updated', d => {
       setDevices(curr =>
         curr.map(dev =>
           dev.id === d.id ? { ...dev, state: d.new_state } : dev
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   const toggle = async (id: number) => {
     try {
-      const res = await fetch(`/api/devices/${id}/toggle`, {
+      const res = await fetch(`/api/dashboard/${id}/toggle`, {
         method: 'POST',
         credentials: 'include'
       })

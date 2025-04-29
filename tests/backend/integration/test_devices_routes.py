@@ -32,18 +32,18 @@ def client_and_token():
 def test_list_devices(client_and_token):
     client, token = client_and_token
     response = client.get(
-        "/api/devices/",
+        "/api/dashboard/",
         headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
     data = response.get_json()
-    assert "devices" in data
+    assert "dashboard" in data
 
 
 @pytest.fixture
 def test_toggle_device(client_and_token):
     client, token = client_and_token
-    response = client.post("/api/devices/1/toggle",
+    response = client.post("/api/dashboard/1/toggle",
                            json={
                                "Authorization": f"Bearer {token}"
                            },
@@ -56,7 +56,7 @@ def test_toggle_device(client_and_token):
 def test_list_devices_without_auth():
     """Zugriff ohne Auth-Token → 401"""
     client = create_app().test_client()
-    response = client.get("/api/devices/")
+    response = client.get("/api/dashboard/")
     assert response.status_code == 401
 
 
@@ -77,7 +77,7 @@ def test_toggle_device_as_user():
 
     client = app.test_client()
     response = client.post(
-        "/api/devices/1/toggle",
+        "/api/dashboard/1/toggle",
         json={"Authorization": f"Bearer {token}"},
         content_type="application/json")
     assert response.status_code == 401
