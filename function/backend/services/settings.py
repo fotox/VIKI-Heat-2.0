@@ -7,11 +7,11 @@ from extensions import db
 class PhotovoltaicSetting(db.Model):
     __tablename__ = "photovoltaic_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    duration = db.Column(db.Integer, nullable=True)
-    angle = db.Column(db.Integer, nullable=True)
-    max_output = db.Column(db.Integer, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    duration: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    angle: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    max_output: db.Mapped[int] = db.Column(db.Integer, nullable=True)
 
     def to_dict(self):
         return {
@@ -26,9 +26,9 @@ class PhotovoltaicSetting(db.Model):
 class ManufacturerSetting(db.Model):
     __tablename__ = "manufacturer_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    description = db.Column(db.Integer, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    description: db.Mapped[int] = db.Column(db.Integer, nullable=True)
 
     def to_dict(self):
         return {
@@ -41,13 +41,13 @@ class ManufacturerSetting(db.Model):
 class ElectricityProviderSetting(db.Model):
     __tablename__ = "electricity_provider_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    provider = db.Column(db.String(64), nullable=False)
-    ip = db.Column(db.String(256), nullable=True)
-    url = db.Column(db.String(256), nullable=True)
-    api = db.Column(db.String(256), nullable=True)
-    selected = db.Column(db.String(256), nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    provider: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    ip: db.Mapped[str] = db.Column(db.String(16), nullable=True)
+    url: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    selected: db.Mapped[str] = db.Column(db.String(256), nullable=True)
 
     def to_dict(self):
         return {
@@ -64,14 +64,14 @@ class ElectricityProviderSetting(db.Model):
 class EnergySetting(db.Model):
     __tablename__ = "energy_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
-    ip = db.Column(db.String(256), nullable=True)
-    url = db.Column(db.String(256), nullable=True)
-    battery_api = db.Column(db.String(256), nullable=True)
-    feed_in_api = db.Column(db.String(256), nullable=True)
-    production_api = db.Column(db.String(256), nullable=True)
+    ip: db.Mapped[str] = db.Column(db.String(16), nullable=True)
+    url: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    battery_api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    feed_in_api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    production_api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
 
     def to_dict(self):
         return {
@@ -89,10 +89,10 @@ class EnergySetting(db.Model):
 class HeatingModeSetting(db.Model):
     __tablename__ = "heating_mode_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    description = db.Column(db.Integer, nullable=True)
-    selected = db.Column(db.Boolean, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    description: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    selected: db.Mapped[bool] = db.Column(db.Boolean, nullable=True)
 
     def to_dict(self):
         return {
@@ -106,15 +106,15 @@ class HeatingModeSetting(db.Model):
 class HeatingSetting(db.Model):
     __tablename__ = "heating_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    manufacturer = db.Column(db.String(64), nullable=True)
-    api = db.Column(db.String(256), nullable=True)
-    ip = db.Column(db.String(256), nullable=True)
-    url = db.Column(db.String(256), nullable=True)
-    price = db.Column(db.Double, nullable=True)
-    power_factor = db.Column(db.Double, nullable=True)
-    selected = db.Column(db.Integer, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    manufacturer: db.Mapped[str] = db.Column(db.String(64), nullable=True)
+    api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    ip: db.Mapped[str] = db.Column(db.String(16), nullable=True)
+    url: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    price: db.Mapped[float] = db.Column(db.Double, nullable=True)
+    power_factor: db.Mapped[float] = db.Column(db.Double, nullable=True)
+    selected: db.Mapped[int] = db.Column(db.Integer, nullable=True)
 
     def to_dict(self):
         return {
@@ -133,13 +133,13 @@ class HeatingSetting(db.Model):
 class WeatherSetting(db.Model):
     __tablename__ = "weather_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    provider = db.Column(db.String(64), nullable=True)
-    api = db.Column(db.String(256), nullable=True)
-    ip = db.Column(db.String(256), nullable=True)
-    url = db.Column(db.String(256), nullable=True)
-    selected = db.Column(db.Integer, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    provider: db.Mapped[str] = db.Column(db.String(64), nullable=True)
+    api: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    ip: db.Mapped[str] = db.Column(db.String(16), nullable=True)
+    url: db.Mapped[str] = db.Column(db.String(256), nullable=True)
+    selected: db.Mapped[int] = db.Column(db.Integer, nullable=True)
 
     def to_dict(self):
         return {
@@ -156,16 +156,16 @@ class WeatherSetting(db.Model):
 class TankSetting(db.Model):
     __tablename__ = "tank_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    description = db.Column(db.String(64), nullable=True)
-    capacity = db.Column(db.Integer, nullable=True)
-    destination_temp = db.Column(db.Integer, nullable=True)
-    heating_element = db.Column(db.Boolean, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    description: db.Mapped[str] = db.Column(db.String(64), nullable=True)
+    capacity: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    destination_temp: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    heating_element: db.Mapped[bool] = db.Column(db.Boolean, nullable=True)
     temp_sensors: db.Mapped[List["TempSensorSetting"]] = db.relationship(back_populates="tank")
-    legionellen_days = db.Column(db.Integer, nullable=True)
-    legionellen_temp = db.Column(db.Integer, nullable=True)
-    legionellen_enabled = db.Column(db.Boolean, nullable=True)
+    legionellen_days: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    legionellen_temp: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    legionellen_enabled: db.Mapped[bool] = db.Column(db.Boolean, nullable=True)
 
     def to_dict(self):
         return {
@@ -185,12 +185,12 @@ class TankSetting(db.Model):
 class TempSensorSetting(db.Model):
     __tablename__ = "temp_sensor_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    system_id = db.Column(db.String(64), nullable=False)
-    description = db.Column(db.String(64), nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    description: db.Mapped[str] = db.Column(db.String(64), nullable=True)
     tank_id: db.Mapped[int] = db.mapped_column(ForeignKey("tank_settings.id"))
     tank: db.Mapped["TankSetting"] = db.relationship(back_populates="temp_sensors")
-    tank_binding = db.Column(db.String(64), nullable=True)
+    tank_binding: db.Mapped[str] = db.Column(db.String(64), nullable=True)
 
     def to_dict(self):
         return {
@@ -206,12 +206,12 @@ class TempSensorSetting(db.Model):
 class LocationSetting(db.Model):
     __tablename__ = "location_settings"
 
-    id = db.Column(db.Integer, primary_key=True)
-    city = db.Column(db.String(64), nullable=False)
-    latitude = db.Column(db.Double, nullable=True)
-    longitude = db.Column(db.Double, nullable=True)
-    street = db.Column(db.String(64), nullable=False)
-    street_number = db.Column(db.Integer, nullable=True)
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    city: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    latitude: db.Mapped[float] = db.Column(db.Double, nullable=True)
+    longitude: db.Mapped[float] = db.Column(db.Double, nullable=True)
+    street: db.Mapped[str] = db.Column(db.String(64), nullable=False)
+    street_number: db.Mapped[int] = db.Column(db.Integer, nullable=True)
 
     def to_dict(self):
         return {
