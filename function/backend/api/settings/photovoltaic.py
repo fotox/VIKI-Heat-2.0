@@ -27,11 +27,10 @@ def create_photovoltaic_module():
       - max_output (number)
     """
     data = request.get_json() or {}
-    print(data)
     required = ["system_id", "duration", "angle", "max_output"]
     missing = [f for f in required if f not in data]
     if missing:
-        return jsonify(msg=f"Fehlende Felder: {', '.join(missing)}"), 422
+        return jsonify(msg=f"Missing fields: {', '.join(missing)}"), 422
 
     module = PhotovoltaicSetting(
         system_id=data["system_id"],

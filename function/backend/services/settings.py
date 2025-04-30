@@ -28,7 +28,7 @@ class ManufacturerSetting(db.Model):
 
     id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
     system_id: db.Mapped[str] = db.Column(db.String(64), nullable=False)
-    description: db.Mapped[int] = db.Column(db.Integer, nullable=True)
+    description: db.Mapped[str] = db.Column(db.String(64), nullable=False)
 
     def to_dict(self):
         return {
