@@ -22,19 +22,21 @@ def create_photovoltaic_module():
     POST /api/settings/photovoltaik
     Legt ein neues PV-Modul an. Erwartet JSON mit mindestens:
       - system_id (string)
-      - location (string)
+      - duration (number)
+      - angle (number)
       - max_output (number)
     """
     data = request.get_json() or {}
-    # Mindestfelder prüfen
-    required = ["system_id", "location", "max_output"]
+    print(data)
+    required = ["system_id", "duration", "angle", "max_output"]
     missing = [f for f in required if f not in data]
     if missing:
         return jsonify(msg=f"Fehlende Felder: {', '.join(missing)}"), 422
 
     module = PhotovoltaicSetting(
         system_id=data["system_id"],
-        location=data["location"],
+        duration=data["duration"],
+        angle=data["angle"],
         max_output=data["max_output"]
     )
     db.session.add(module)
@@ -49,12 +51,12 @@ def update_photovoltaic_module(module_id: int):
     PUT /api/settings/photovoltaik/<module_id>
     Aktualisiert ein bestehendes PV-Modul.
     JSON kann eines oder mehrere dieser Felder enthalten:
-      - system_id, location, max_output
+      - system_id, duration, angle, max_output
     """
     module = PhotovoltaicSetting.query.get_or_404(module_id)
     data = request.get_json() or {}
 
-    for key in ("system_id", "location", "max_output"):
+    for key in ("system_id", "duration", "angle", "max_output"):
         if key in data:
             setattr(module, key, data[key])
 

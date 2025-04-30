@@ -16,7 +16,8 @@ import { Trash2, Edit3, Plus } from 'lucide-react'
 interface PVModule {
   id: number
   system_id: string
-  location: string
+  duration: number
+  angle: number
   max_output: number
 }
 
@@ -24,16 +25,13 @@ export default function Photovoltaic() {
   const [modules, setModules] = useState<PVModule[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  // Für Edit-Dialog
   const [editModule, setEditModule] = useState<PVModule | null>(null)
-
-  // Form-State (Add & Edit)
   const [systemId, setSystemId] = useState('')
-  const [location, setLocation] = useState('')
+  const [duration, setDuration] = useState<number>(0.0)
+  const [angle, setAngle] = useState<number>(0.0)
   const [maxOutput, setMaxOutput] = useState<number>(0)
 
-  // 1) Lädt alle Module
+  // Load Modules
   const fetchModules = async () => {
     setLoading(true)
     try {
@@ -54,7 +52,7 @@ export default function Photovoltaic() {
     fetchModules()
   }, [])
 
-  // 2) Löschen
+  // Delete Modules
   const handleDelete = async (id: number) => {
     if (!confirm('Modul wirklich löschen?')) return
     await fetch(`/api/settings/photovoltaic/${id}`, {
@@ -64,24 +62,25 @@ export default function Photovoltaic() {
     fetchModules()
   }
 
-  // 3) Modul anlegen
+  // Create Modules
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     await fetch('/api/settings/photovoltaic', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, location, max_output: maxOutput })
+      body: JSON.stringify({ system_id: systemId, duration: duration, angle: angle, max_output: maxOutput })
     })
-    setSystemId(''); setLocation(''); setMaxOutput(0)
+    setSystemId(''); setDuration(''); setAngle(''); setMaxOutput(0)
     fetchModules()
   }
 
-  // 4) Modul editieren
+  // Update Modules
   const openEdit = (mod: PVModule) => {
     setEditModule(mod)
     setSystemId(mod.system_id)
-    setLocation(mod.location)
+    setDuration(mod.duration)
+    setAngle(mod.angle)
     setMaxOutput(mod.max_output)
   }
   const handleEdit = async (e: React.FormEvent) => {
@@ -91,7 +90,7 @@ export default function Photovoltaic() {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, location, max_output: maxOutput })
+      body: JSON.stringify({ system_id: systemId, duration: duration, angle: angle, max_output: maxOutput })
     })
     setEditModule(null)
     fetchModules()
@@ -104,8 +103,6 @@ export default function Photovoltaic() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Photovoltaik-Module</h3>
-
-        {/* Add-Dialog */}
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">
@@ -116,21 +113,30 @@ export default function Photovoltaic() {
             <DialogHeader>
               <DialogTitle>Neues PV-Modul hinzufügen</DialogTitle>
             </DialogHeader>
+
             <form onSubmit={handleAdd} className="space-y-4">
-              <Input
+              Bezeichnung: <Input
                 label="System-ID"
                 value={systemId}
                 onChange={e => setSystemId(e.target.value)}
                 required
               />
-              <Input
-                label="Ort"
-                value={location}
-                onChange={e => setLocation(e.target.value)}
+              Ausrichtung: <Input
+                label="Ausrichtung"
+                value={duration}
+                type="number"
+                onChange={e => setDuration(Number(e.target.value))}
                 required
               />
-              <Input
-                label="Max. Output (kW)"
+              Anstellwinkel: <Input
+                label="Anstellwinkel"
+                type="number"
+                value={angle}
+                onChange={e => setAngle(Number(e.target.value))}
+                required
+              />
+              Leistung (Wp): <Input
+                label="Leistung (Wp)"
                 type="number"
                 value={maxOutput}
                 onChange={e => setMaxOutput(Number(e.target.value))}
@@ -153,8 +159,9 @@ export default function Photovoltaic() {
           <Card key={mod.id} className="relative p-4">
             <div className="space-y-2">
               <p><strong>System:</strong> {mod.system_id}</p>
-              <p><strong>Ort:</strong> {mod.location}</p>
-              <p><strong>Max. Output:</strong> {mod.max_output} kW</p>
+              <p><strong>Ausrichtung:</strong> {mod.duration}</p>
+              <p><strong>Anstellwinkel:</strong> {mod.angle}</p>
+              <p><strong>Leistung (Wp):</strong> {mod.max_output} kW</p>
             </div>
             {/* Edit/Delete Buttons */}
             <div className="absolute bottom-4 right-4 flex space-x-2">
@@ -185,20 +192,28 @@ export default function Photovoltaic() {
               <DialogTitle>Modul bearbeiten</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleEdit} className="space-y-4">
-              <Input
+              Bezeichnung: <Input
                 label="System-ID"
                 value={systemId}
                 onChange={e => setSystemId(e.target.value)}
                 required
               />
-              <Input
-                label="Ort"
-                value={location}
-                onChange={e => setLocation(e.target.value)}
+              Ausrichtung: <Input
+                label="Ausrichtung"
+                value={duration}
+                type="number"
+                onChange={e => setDuration(Number(e.target.value))}
                 required
               />
-              <Input
-                label="Max. Output (kW)"
+              Anstellwinkel: <Input
+                label="Anstellwinkel"
+                type="number"
+                value={angle}
+                onChange={e => setAngle(Number(e.target.value))}
+                required
+              />
+              Leistung (Wp): <Input
+                label="Leistung (Wp)"
                 type="number"
                 value={maxOutput}
                 onChange={e => setMaxOutput(Number(e.target.value))}
