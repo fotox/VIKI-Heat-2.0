@@ -1,35 +1,36 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Card } from '@/components/ui'
 import io from 'socket.io-client'
 
-interface Device { id: number; name: string; state: boolean; }
+interface Device { id: number; name: string; state: boolean }
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [error,   setError]   = useState<string | null>(null)
   const socket = React.useMemo(() => io(), [])
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const csrf = document.cookie
-          .split("; ")
-          .find(row => row.startsWith("csrf_access_token="))
-          ?.split("=")[1] || "";
-        const res = await fetch('/api/dashboard/', { credentials: 'include', headers: { "X-CSRF-TOKEN": csrf } })
-        if (!res.ok) {
-          throw new Error(`Server-Antwort: ${res.status}`)
-        }
-        const json = await res.json()
-        setDevices(json.devices ?? [])
-      } catch (err: any) {
-        setError(err.message)
-      }
+  const fetchDevices = useCallback(async () => {
+    try {
+      const csrf = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrf_access_token='))
+        ?.split('=')[1] || ''
+      const res = await fetch('/api/dashboard/', {
+        credentials: 'include',
+        headers: { 'X-CSRF-TOKEN': csrf }
+      })
+      if (!res.ok) throw new Error(`Status ${res.status}`)
+      const json = await res.json()
+      setDevices(json.devices ?? [])
+    } catch (err: any) {
+      setError(err.message)
     }
+  }, [])
 
+  useEffect(() => {
     fetchDevices()
 
-    socket.on('switch_updated', d => {
+    socket.on('switch_updated', (d: {id:number, new_state:boolean}) => {
       setDevices(curr =>
         curr.map(dev =>
           dev.id === d.id ? { ...dev, state: d.new_state } : dev
@@ -37,18 +38,37 @@ export default function Dashboard() {
       )
     })
 
-    return () => { socket.disconnect() }
-  }, [socket])
+    const interval = setInterval(fetchDevices, 500)
 
-  const toggle = async (id: number) => {
+    return () => {
+      clearInterval(interval)
+      socket.disconnect()
+    }
+  }, [socket, fetchDevices])
+
+  // 3) Toggle-Handler: sofort setzen & auf Server-Antwort vertrauen
+  const handleToggle = async (id: number) => {
     try {
+      const csrf = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrf_access_token='))
+        ?.split('=')[1] || ''
+
       const res = await fetch(`/api/dashboard/${id}/toggle`, {
-        method: 'POST',
-        credentials: 'include'
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'X-CSRF-TOKEN': csrf }
       })
-      if (!res.ok) {
-        throw new Error(`Toggle fehlgeschlagen: ${res.status}`)
-      }
+      if (!res.ok) throw new Error(`Status ${res.status}`)
+
+      const { new_state } = await res.json()
+      setDevices(curr =>
+        curr.map(dev =>
+          dev.id === id
+            ? { ...dev, state: new_state }
+            : dev
+        )
+      )
     } catch (err: any) {
       setError(err.message)
     }
@@ -75,8 +95,10 @@ export default function Dashboard() {
             <div className="flex justify-between items-center">
               <span>{dev.name}</span>
               <button
-                className="px-3 py-1 bg-blue-500 text-white rounded"
-                onClick={() => toggle(dev.id)}
+                className={`px-3 py-1 rounded ${
+                  dev.state ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`}
+                onClick={() => handleToggle(dev.id)}
               >
                 {dev.state ? 'Aus' : 'An'}
               </button>
