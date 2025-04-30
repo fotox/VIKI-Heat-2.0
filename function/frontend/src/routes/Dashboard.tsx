@@ -38,7 +38,7 @@ export default function Dashboard() {
       )
     })
 
-    const interval = setInterval(fetchDevices, 500)
+    const interval = setInterval(fetchDevices, 2000) // in prod switch to 500
 
     return () => {
       clearInterval(interval)

@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect, useState } from 'react'
 import {
   Routes,
@@ -16,6 +15,8 @@ import Photovoltaic from './routes/settings/Photovoltaic'
 import Heating from './routes/settings/Heating'
 import Tanks from './routes/settings/Tanks'
 import Weather from './routes/settings/Weather'
+import Sensors from './routes/settings/Sensors'
+import Location from './routes/settings/Location'
 import Profile from './routes/Profile'
 
 import Sidebar from './components/Sidebar'
@@ -29,7 +30,6 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const location = useLocation()
 
-  // Prüfen, ob wir eingeloggt sind
   useEffect(() => {
     fetch('/api/auth/profile', { credentials: 'include' })
       .then(res => {
@@ -59,12 +59,10 @@ export default function App() {
           onOpenSidebar={() => setSidebarOpen(true)}
         />
 
-        {/* Breadcrumb-Leiste */}
         <div className="border-b bg-white px-4 py-2">
           <Breadcrumb path={location.pathname} />
         </div>
 
-        {/* Haupt-Content */}
         <main className="flex-1 overflow-auto p-4">
           <Routes>
             <Route path="/login" element={<LoginPage onLogin={() => setAuthStatus('authenticated')} />} />
@@ -77,8 +75,10 @@ export default function App() {
                 <Route path="/settings" element={<SettingsLayout />}>
                   <Route path="energy" element={<Energy />} />
                   <Route path="photovoltaic" element={<Photovoltaic />} />
+                  <Route path="sensors" element={<Sensors />} />
                   <Route path="heating" element={<Heating />} />
                   <Route path="tanks" element={<Tanks />} />
+                  <Route path="location" element={<Location />} />
                   <Route path="weather" element={<Weather />} />
                 </Route>
                 <Route path="/profile" element={<Profile />} />

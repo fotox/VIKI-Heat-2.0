@@ -101,7 +101,7 @@ def update_profile():
     - password (optional, string)
     - photo (optional, file)
     """
-    user = User.query.get(get_jwt_identity())
+    user = User.query.get(get_jwt_identity())   # TODO: Erweitern auf alle Benutzerprofilinformationen
     form = request.form
     if "username" in form:
         user.username = form["username"]
