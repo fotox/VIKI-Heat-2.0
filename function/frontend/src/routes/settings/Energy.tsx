@@ -44,7 +44,7 @@ export default function Energy() {
       const res = await fetch('/api/settings/energy', {
         credentials: 'include'
       })
-      if (!res.ok) throw new Error(`Fehler ${res.status}`)
+      if (!res.ok) throw new Error(`Error ${res.status}`)
       const json = await res.json()
       setModules(json.modules || [])
     } catch (err: any) {
@@ -116,7 +116,7 @@ export default function Energy() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Energie-Module</h3>
+        <h3 className="text-xl font-semibold">Wechselrichter-Module</h3>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">

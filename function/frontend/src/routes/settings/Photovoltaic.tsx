@@ -38,7 +38,7 @@ export default function Photovoltaic() {
       const res = await fetch('/api/settings/photovoltaic', {
         credentials: 'include'
       })
-      if (!res.ok) throw new Error(`Fehler ${res.status}`)
+      if (!res.ok) throw new Error(`Error ${res.status}`)
       const json = await res.json()
       setModules(json.modules || [])
     } catch (err: any) {
