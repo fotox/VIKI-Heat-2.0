@@ -4,6 +4,7 @@ from flask_cors import CORS
 from api.auth.routes import auth_bp
 from api.dashboard.routes import dashboard_bp
 from api.settings import settings_bp
+from database.seed_db import seed_users, seed_roles
 
 from extensions import db, jwt, socketio
 from config import Config
@@ -26,15 +27,8 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-
-        from services.user import User
-        with app.app_context():
-            db.create_all()
-            if not User.query.filter_by(username="admin").first():
-                admin = User(username="admin", role="admin")
-                admin.set_password("admin123")
-                db.session.add(admin)
-                db.session.commit()
+        seed_roles()
+        seed_users()
 
     @app.route("/")
     def index():

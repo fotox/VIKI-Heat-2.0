@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 
 from config import Config
 from extensions import db
-from services.user import User
+from database.users import User
 import io
 
 auth_bp = Blueprint("auth", __name__)

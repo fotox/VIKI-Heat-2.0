@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required
 from extensions import db
-from services.settings import EnergySetting
+from database.settings import EnergySetting
 from . import settings_bp
 
 

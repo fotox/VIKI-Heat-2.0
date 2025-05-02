@@ -1,4 +1,4 @@
-from backend.services.user import User
+from backend.database.users import User
 
 
 def test_set_and_check_password():

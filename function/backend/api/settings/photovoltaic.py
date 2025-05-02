@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required
 from extensions import db
-from services.settings import PhotovoltaicSetting
+from database.settings import PhotovoltaicSetting
 from . import settings_bp
 
 

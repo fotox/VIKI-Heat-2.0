@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token
 
 from function.backend.app import create_app
 from function.backend.extensions import db
-from backend.services.user import User
+from backend.database.users import User
 
 
 @pytest.fixture
