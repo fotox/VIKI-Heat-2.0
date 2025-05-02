@@ -52,3 +52,4 @@ node_modules/
 private_key.json
 regr.json
 meta.json
+.bkp
