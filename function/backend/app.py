@@ -4,7 +4,7 @@ from flask_cors import CORS
 from api.auth.routes import auth_bp
 from api.dashboard.routes import dashboard_bp
 from api.settings import settings_bp
-from database.seed_db import seed_users, seed_roles
+from database.init_db import seed_users, seed_roles
 
 from extensions import db, jwt, socketio
 from config import Config

@@ -1,11 +1,47 @@
-from database.users import User
+from .users import User, Role
 from extensions import db
 
 
-def create_admin_default_user():
-    db.create_all()
-    if not User.query.filter_by(username="admin").first():
-        admin = User(username="admin", role="admin")
-        admin.set_password("admin123")
-        db.session.add(admin)
-        db.session.commit()
+def seed_roles():
+    # Init admin role
+    existing = Role.query.filter_by(role_name='admin').first()
+    if existing:
+        print("⚠️ Role 'admin' all ready exists.")
+        return
+
+    admin = Role(
+        id=1,
+        role_name='admin'
+    )
+    db.session.add(admin)
+
+    # Init user role
+    existing = Role.query.filter_by(role_name='user').first()
+    if existing:
+        print("⚠️ Role 'user' all ready exists.")
+        return
+
+    user = Role(
+        id=2,
+        role_name='user'
+    )
+    db.session.add(user)
+    db.session.commit()
+    print('✅ User role added')
+
+
+def seed_users():
+    existing = User.query.filter_by(username='viki').first()
+    if existing:
+        print("⚠️ User 'viki' existiert bereits.")
+        return
+
+    admin = User(
+        id=1,
+        username="viki",
+        role="admin"
+    )
+    admin.set_password("viki")
+    db.session.add(admin)
+    db.session.commit()
+    print("✅ Admin erstellt.")
