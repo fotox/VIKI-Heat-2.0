@@ -41,5 +41,4 @@ class User(db.Model):
             "lastname": self.lastname,
             "password_hash": self.password_hash,
             "role": self.role,
-            "photo": self.photo,
         }

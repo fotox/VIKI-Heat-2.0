@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   HomeIcon,
@@ -7,8 +7,10 @@ import {
   UserIcon,
   ChevronLeft,
   ChevronRight,
+  Image
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui";
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: HomeIcon },
@@ -28,6 +30,10 @@ export default function Sidebar({
   onClose?: () => void
   onToggleCollapse?: () => void
 }) {
+  const [username, setUsername] = useState('')
+  const [preview, setPreview] = useState<string>('/api/auth/profile/photo')
+
+
   return (
       <aside
           className={cn(
@@ -58,14 +64,18 @@ export default function Sidebar({
               onClick={onClose}
               className="block"
           >
-            <img
-                src="/api/auth/profile/photo"
-                alt="Profilbild"
+            <Avatar className="h-24 w-24">
+              <AvatarImage
+                src={preview}
+                alt="Profilfoto"
                 className={cn(
-                    'rounded-full object-cover',
-                    collapsed ? 'w-10 h-10' : 'w-20 h-20'
+                    collapsed ? 'w-10 h-10' : 'w-20 h-20'  // TODO: Rounded small image wrong
                 )}
-            />
+              />
+              <AvatarFallback className="text-2xl">
+                {username.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </NavLink>
         </div>
         <nav className="flex-1 px-5 py-4 space-y-1">

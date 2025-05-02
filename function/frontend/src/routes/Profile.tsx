@@ -20,8 +20,8 @@ export default function Profile() {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('')
   const [phone, setPhone] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
+  const [firstname, setFirstName] = useState('')
+  const [lastname, setLastName] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -33,8 +33,12 @@ export default function Profile() {
       const res = await fetch('/api/auth/profile', { credentials: 'include' })
       if (res.ok) {
         const { user } = await res.json()
+        setUsername(user.firstname)
+        setUsername(user.lastname)
         setUsername(user.username)
         setRole(user.role)
+        setUsername(user.email)
+        setUsername(user.phone)
       }
     })()
   }, [])
@@ -91,12 +95,11 @@ export default function Profile() {
       </CardHeader>
       <CardContent className="space-y-6">
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Grid für Basis-Daten */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Vorname</Label>
               <Input
-                value={firstName}
+                value={firstname}
                 onChange={e => setFirstName(e.target.value)}
                 placeholder="Vorname"
               />
@@ -104,7 +107,7 @@ export default function Profile() {
             <div>
               <Label>Nachname</Label>
               <Input
-                value={lastName}
+                value={lastname}
                 onChange={e => setLastName(e.target.value)}
                 placeholder="Nachname"
               />

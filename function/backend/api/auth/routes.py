@@ -35,11 +35,10 @@ def login():
 @auth_bp.route("/profile/photo", methods=["GET"])
 @jwt_required()
 def profile_photo():
-    """Gibt das Avatar-Bild als image/jpeg oder image/png zurück."""
     user = User.query.get(get_jwt_identity())
     if not user or not user.photo:
         return send_file(
-            io.BytesIO(open("function/backend/static/default-avatar.png", "rb").read()),
+            io.BytesIO(open("function/backend/static/blank_user.png", "rb").read()),
             mimetype="image/png"
         )
     return send_file(
@@ -86,9 +85,15 @@ def reset_password() -> tuple:
 @auth_bp.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
-    user_id = get_jwt_identity()      # gibt z.B. 1 zurück
+    user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    return jsonify(username=user.username, role=user.role), 200
+    return jsonify(
+        firstname=user.firstname,
+        lastname=user.lastname,
+        username=user.username,
+        role=user.role,
+        email=user.email,
+        phone=user.phone), 200
 
 
 @auth_bp.route("/profile", methods=["PUT"])
@@ -97,16 +102,28 @@ def update_profile():
     """
     Aktualisiert Username, evtl. Passwort (optional) und Photo.
     Erwartet multipart/form-data mit Feldern:
+    - firstname (optional, string)
+    - lastname (optional, string)
     - username (string)
-    - password (optional, string)
+    - role (string)
+    - email (optional, string)
     - photo (optional, file)
+    - password (optional, string)
     """
-    user = User.query.get(get_jwt_identity())   # TODO: Erweitern auf alle Benutzerprofilinformationen
+    user = User.query.get(get_jwt_identity())
     form = request.form
+    if "firstname" in form:
+        user.firstname = form["firstname"]
+    if "lastname" in form:
+        user.lastname = form["lastname"]
     if "username" in form:
         user.username = form["username"]
     if "password" in form and form["password"]:
         user.set_password(form["password"])
+    if "email" in form:
+        user.email = form["email"]
+    if "phone" in form:
+        user.phone = form["phone"]
     if "photo" in request.files:
         file = request.files["photo"]
         if file and file.mimetype in ("image/png", "image/jpeg"):
