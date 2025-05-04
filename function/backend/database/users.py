@@ -23,6 +23,8 @@ class User(db.Model):
     username: db.Mapped[str] = db.Column(db.VARCHAR(64), unique=True, nullable=False)
     firstname: db.Mapped[str] = db.Column(db.VARCHAR(64), unique=True, nullable=True)
     lastname: db.Mapped[str] = db.Column(db.VARCHAR(64), unique=True, nullable=True)
+    email: db.Mapped[str] = db.Column(db.VARCHAR(64), nullable=True)
+    phone: db.Mapped[str] = db.Column(db.VARCHAR(64), nullable=True)
     password_hash: db.Mapped[str] = db.Column(db.TEXT, nullable=False)
     role: db.Mapped["Role"] = db.mapped_column(ForeignKey(Role.role_name), nullable=False)
     photo: db.Mapped[bytes] = db.Column(db.LargeBinary(length=(5 * 1024 * 1024)), nullable=True)
@@ -39,6 +41,8 @@ class User(db.Model):
             "username": self.username,
             "firstname": self.firstname,
             "lastname": self.lastname,
+            "email": self.email,
+            "phone": self.phone,
             "password_hash": self.password_hash,
             "role": self.role,
         }

@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, request, jsonify, send_file
 from flask_jwt_extended import (
     create_access_token,
@@ -38,7 +40,7 @@ def profile_photo():
     user = User.query.get(get_jwt_identity())
     if not user or not user.photo:
         return send_file(
-            io.BytesIO(open("function/backend/static/blank_user.png", "rb").read()),
+            io.BytesIO(open(f"{os.path.dirname(os.getcwd())}\\backend\\static\\blank_user.png", "rb").read()),
             mimetype="image/png"
         )
     return send_file(

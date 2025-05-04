@@ -32,13 +32,13 @@ export default function Profile() {
     (async () => {
       const res = await fetch('/api/auth/profile', { credentials: 'include' })
       if (res.ok) {
-        const { user } = await res.json()
-        setUsername(user.firstname)
-        setUsername(user.lastname)
+        const user = await res.json()
+        setFirstName(user.firstname ?? '')
+        setLastName(user.lastname ?? '')
         setUsername(user.username)
         setRole(user.role)
-        setUsername(user.email)
-        setUsername(user.phone)
+        setEmail(user.email ?? '')
+        setPhone(user.phone ?? '')
       }
     })()
   }, [])
@@ -63,7 +63,12 @@ export default function Profile() {
       return alert('Passwörter stimmen nicht überein')
     }
     const form = new FormData()
+    form.append('firstname', firstname)
+    form.append('lastname', lastname)
     form.append('username', username)
+    form.append('email', email)
+    form.append('phone', phone)
+
     if (currentPassword && newPassword) {
       form.append('password', newPassword)
       form.append('current_password', currentPassword)
@@ -99,6 +104,7 @@ export default function Profile() {
             <div>
               <Label>Vorname</Label>
               <Input
+                type="text"
                 value={firstname}
                 onChange={e => setFirstName(e.target.value)}
                 placeholder="Vorname"
@@ -107,6 +113,7 @@ export default function Profile() {
             <div>
               <Label>Nachname</Label>
               <Input
+                type="text"
                 value={lastname}
                 onChange={e => setLastName(e.target.value)}
                 placeholder="Nachname"
@@ -115,6 +122,7 @@ export default function Profile() {
             <div>
               <Label>Benutzername</Label>
               <Input
+                type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Username"
@@ -124,6 +132,7 @@ export default function Profile() {
             <div>
               <Label>Rolle</Label>
               <Input
+                type="text"
                 value={role}
                 onChange={e => setRole(e.target.value)}
                 placeholder="Rolle"
@@ -141,6 +150,7 @@ export default function Profile() {
             <div>
               <Label>Telefonnummer</Label>
               <Input
+                type="text"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 placeholder="+49 123 456789"
