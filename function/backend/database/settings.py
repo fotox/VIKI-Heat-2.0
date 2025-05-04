@@ -1,5 +1,4 @@
 from sqlalchemy import ForeignKey
-from typing import List
 
 from extensions import db, sql
 
@@ -13,7 +12,7 @@ class ManufacturerSetting(db.Model):
     model_type: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     url: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
     api: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
-    power_factor: db.Mapped[float] = db.Column(db.NUMERIC(2, 2), nullable=True)
+    power_factor: db.Mapped[float] = db.Column(db.NUMERIC(3, 2), nullable=True)
     power_size: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
 
     def to_dict(self):
@@ -162,7 +161,7 @@ class HeatingSetting(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "system_id": self.system_id,
+            "description": self.description,
             "manufacturer": self.manufacturer,
             "ip": self.ip,
             "api_key": self.api_key,

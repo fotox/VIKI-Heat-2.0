@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 export default function SettingsLayout() {
   const tabs = [
+    { path: 'manufacturer', label: 'Hersteller' },
     { path: 'energy', label: 'Energie' },
     { path: 'heating', label: 'Wärmeerzeugung' },
     { path: 'location', label: 'Standort' },

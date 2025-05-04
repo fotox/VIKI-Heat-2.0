@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Card } from '@/components/ui'
+import {Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui'
+import {Plus} from "lucide-react";
 
 interface SensorData {
   timestamp: string
@@ -17,20 +18,23 @@ export default function Energy() {
   }, [])
 
   return (
-    <div className="space-y-4 p-6">
-      <h3 className="text-xl font-semibold">Sensor-Einstellungen</h3>
-      {data.length === 0 ? (
-        <p>Keine Daten vorhanden.</p>
-      ) : (
-        data.map((rec, i) => (
-          <Card key={i} className="p-4">
-            <div className="flex justify-between">
-              <span>{new Date(rec.timestamp).toLocaleString()}</span>
-              <span>{rec.power} kW</span>
-            </div>
-          </Card>
-        ))
-      )}
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold">Sensor-Module</h3>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <Plus className="mr-2 h-4 w-4" /> Neues Sensor-Modul
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Neues Sensor-Module hinzufügen</DialogTitle>
+            </DialogHeader>
+              // TODO: Add Code
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }

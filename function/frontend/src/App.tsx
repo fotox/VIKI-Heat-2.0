@@ -11,6 +11,7 @@ import Dashboard from './routes/Dashboard'
 import Analytics from './routes/Analytics'
 import SettingsLayout from './routes/SettingsLayout'
 import Energy from './routes/settings/Energy'
+import Manufacturer from './routes/settings/Manufacturer'
 import Photovoltaic from './routes/settings/Photovoltaic'
 import Heating from './routes/settings/Heating'
 import Tanks from './routes/settings/Tanks'
@@ -73,6 +74,7 @@ export default function App() {
               <>
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/settings" element={<SettingsLayout />}>
+                  <Route path="manufacturer" element={<Manufacturer />} />
                   <Route path="energy" element={<Energy />} />
                   <Route path="photovoltaic" element={<Photovoltaic />} />
                   <Route path="sensors" element={<Sensors />} />

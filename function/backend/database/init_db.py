@@ -13,6 +13,7 @@ def seed_roles():
             role_name='admin'
         )
         db.session.add(admin)
+        print('✅ Admin role added')
 
     # Init user role
     existing = Role.query.filter_by(role_name='user').first()
@@ -24,9 +25,9 @@ def seed_roles():
             role_name='user'
         )
         db.session.add(user)
+        print('✅ User role added')
 
     db.session.commit()
-    print('✅ User roles added')
 
 
 def seed_users():

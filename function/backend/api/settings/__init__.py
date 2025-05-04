@@ -9,3 +9,4 @@ if True:
     from . import tanks
     from . import weather
     from . import energy
+    from . import manufacturer
