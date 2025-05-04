@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   HomeIcon,
@@ -6,11 +6,10 @@ import {
   SettingsIcon,
   UserIcon,
   ChevronLeft,
-  ChevronRight,
-  Image
+  ChevronRight, Image
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui";
+import {Avatar, AvatarFallback, AvatarImage, Label} from "@/components/ui";
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: HomeIcon },
@@ -33,17 +32,24 @@ export default function Sidebar({
   const [username, setUsername] = useState('')
   const [preview, setPreview] = useState<string>('/api/auth/profile/photo')
 
+  useEffect(() => {
+    (async () => {
+      const res = await fetch('/api/auth/profile', { credentials: 'include' })
+      if (res.ok) {
+        const user = await res.json()
+        setUsername(user.username)
+      }
+    })()
+  }, [])
 
   return (
       <aside
           className={cn(
-              // Breite je nach collapsed-Flag
               collapsed ? 'w-15' : 'w-50',
               'flex flex-col h-screen border-r bg-white transition-width duration-200',
               className
           )}
       >
-        {/* Logo & Collapse-Button */}
         <div className="flex justify-left h-16 px-6">
           {onToggleCollapse && (
               <button
@@ -64,13 +70,10 @@ export default function Sidebar({
               onClick={onClose}
               className="block"
           >
-            <Avatar className="h-24 w-24">
+            <Avatar className={cn(collapsed ? 'w-10 h-10' : 'w-24 h-24')}>
               <AvatarImage
                 src={preview}
                 alt="Profilfoto"
-                className={cn(
-                    collapsed ? 'w-10 h-10' : 'w-20 h-20'  // TODO: Rounded small image wrong
-                )}
               />
               <AvatarFallback className="text-2xl">
                 {username.charAt(0).toUpperCase()}
