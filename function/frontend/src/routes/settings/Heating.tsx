@@ -98,6 +98,8 @@ export default function Heating() {
     setIp(mod.ip)
     setApiKey(mod.api_key)
   }
+
+  // Edit Module
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editModule) return
@@ -111,6 +113,15 @@ export default function Heating() {
     fetchModules()
   }
 
+  // Reset Prefill
+  const resetForm = () => {
+    setEditModule(null)
+    setDescription("")
+    setSelectedManufacturer(null)
+    setIp("")
+    setApiKey("")
+  }
+
   if (loading) return <p>Lädt Module…</p>
   if (error)   return <p className="text-red-600">Fehler: {error}</p>
 
@@ -120,7 +131,7 @@ export default function Heating() {
         <h3 className="text-xl font-semibold">Wärmeerzeugungs-Module</h3>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => resetForm()}>
               <Plus className="mr-2 h-4 w-4" /> Neues Modul
             </Button>
           </DialogTrigger>
