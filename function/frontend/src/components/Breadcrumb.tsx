@@ -1,4 +1,3 @@
-// src/components/Breadcrumb.tsx
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
@@ -9,17 +8,22 @@ interface BreadcrumbProps {
 }
 
 export default function Breadcrumb({ path }: BreadcrumbProps) {
-  // Wir teilen den Pfad und ignorieren leere Segmente
   const segments = path
     .split('/')
     .filter(Boolean)
     .map((seg, i, arr) => ({
-      // Wir mappen englische Route auf deutsche Bezeichnung
       name: {
         dashboard:     'Dashboard',
         analytics:     'Analyse',
         settings:      'Einstellungen',
+        manufacturer:  'Hersteller',
+        energy:        'Energie',
+        heating:       'Wärmeerzeugung',
+        location:      'Standort',
         photovoltaic:  'Photovoltaik',
+        sensors:       'Sensoren',
+        tanks:         'Speichertanks',
+        weather:       'Wetter',
         profile:       'Profil'
       }[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1),
       // Pfad zum jeweiligen Segment
