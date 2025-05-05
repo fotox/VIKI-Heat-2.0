@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -13,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {data} from "autoprefixer";
 
 export type SelectedManufacturerType = {
   id: number
@@ -23,6 +22,7 @@ export type SelectedManufacturerType = {
 type Props = {
   value: SelectedManufacturerType | null
   onChange: (manufacturer: SelectedManufacturerType | null) => void
+  manufacturers: SelectedManufacturerType[]
 }
 
 export function getManufacturerLabel(
@@ -36,22 +36,8 @@ export function getManufacturerLabel(
   )
 }
 
-export function ManufacturerSelect({ value, onChange }: Props) {
+export function ManufacturerSelect({ value, onChange, manufacturers }: Props) {
   const [open, setOpen] = useState(false)
-  const [manufacturers, setManufacturers] = useState<SelectedManufacturerType[]>([])
-
-  useEffect(() => {
-    fetch("/api/settings/manufacturer", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) =>
-        setManufacturers(
-          data.manufacturers.map((m: any) => ({
-            id: m.id,
-            label: `${m.manufacturer} - ${m.model_type}`,
-          }))
-        )
-      )
-  }, [])
 
   return (
     <div className="flex flex-col space-y-1">

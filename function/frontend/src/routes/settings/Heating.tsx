@@ -30,21 +30,21 @@ export default function Heating() {
   const [description, setDescription] = useState<string>('')
   const [selectedManufacturer, setSelectedManufacturer] = useState<SelectedManufacturerType | null>(null)
   const [manufacturers, setManufacturers] = useState<SelectedManufacturerType[]>([])
+  const [ip, setIp] = useState<string>('')
+  const [api_key, setApiKey] = useState<string>('')
 
   useEffect(() => {
     fetch("/api/settings/manufacturer", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => {
-        const list = data.manufacturers.map((m: any) => ({
-          id: m.id,
-          label: `${m.manufacturer} - ${m.model_type}`
-        }))
-        setManufacturers(list)
-      })
+      .then((res) => res.json())
+      .then((data) =>
+        setManufacturers(
+          data.manufacturers.map((m: any) => ({
+            id: m.id,
+            label: `${m.manufacturer} - ${m.model_type}`,
+          }))
+        )
+      )
   }, [])
-
-  const [ip, setIp] = useState<string>('')
-  const [api_key, setApiKey] = useState<string>('')
 
   // Load Modules
   const fetchModules = async () => {
@@ -93,7 +93,8 @@ export default function Heating() {
   const openEdit = (mod: HeatingModule) => {
     setEditModule(mod)
     setDescription(mod.description)
-    setSelectedManufacturer(mod.manufacturer)
+    const found = manufacturers.find((m) => m.id === mod.manufacturer?.id || m.id === mod.manufacturer)
+    setSelectedManufacturer(found ?? null)
     setIp(mod.ip)
     setApiKey(mod.api_key)
   }
@@ -114,7 +115,7 @@ export default function Heating() {
   if (error)   return <p className="text-red-600">Fehler: {error}</p>
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Wärmeerzeugungs-Module</h3>
         <Dialog>
@@ -123,7 +124,7 @@ export default function Heating() {
               <Plus className="mr-2 h-4 w-4" /> Neues Modul
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-max">
             <DialogHeader>
               <DialogTitle>Neues Wärmeerzeugungs-Modul hinzufügen</DialogTitle>
             </DialogHeader>
@@ -143,6 +144,7 @@ export default function Heating() {
                 <ManufacturerSelect
                     value={selectedManufacturer}
                     onChange={setSelectedManufacturer}
+                    manufacturers={manufacturers}
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
@@ -205,7 +207,7 @@ export default function Heating() {
 
       {editModule && (
         <Dialog open onOpenChange={open => !open && setEditModule(null)}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-max">
             <DialogHeader>
               <DialogTitle>Modul bearbeiten</DialogTitle>
             </DialogHeader>
@@ -222,8 +224,9 @@ export default function Heating() {
               <div className="grid grid-cols-2 items-center gap-2">
                 <label htmlFor="manufacturer">Hersteller:</label>
                 <ManufacturerSelect
-                    value={selectedManufacturer}  //TODO: Prefill with database object
+                    value={selectedManufacturer}
                     onChange={setSelectedManufacturer}
+                    manufacturers={manufacturers}
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
