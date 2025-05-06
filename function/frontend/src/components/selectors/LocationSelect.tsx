@@ -25,13 +25,13 @@ type Props = {
   locations: SelectedLocationType[]
 }
 
-export function getManufacturerLabel(
+export function getLocationLabel(
   locations: SelectedLocationType[],
   id: number
 ): string {
   return (
     locations.find(
-      (m) => m.id === id
+      (l) => l.id === id
     )?.label ?? `${id}`
   )
 }

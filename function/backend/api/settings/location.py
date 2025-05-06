@@ -6,7 +6,7 @@ from . import settings_bp
 
 
 @settings_bp.route("/location", methods=["GET"])
-def list_manufacturer_modules():
+def list_location_modules():
     """
     GET /api/settings/location
     Return all location-modules as list.
@@ -17,7 +17,7 @@ def list_manufacturer_modules():
 
 
 @settings_bp.route("/location/<int:location_id>", methods=["GET"])
-def manufacturer_module_by_id(location_id):
+def location_module_by_id(location_id):
     """
     GET /api/settings/location/<int:location_id>
     Return location-module by id.
