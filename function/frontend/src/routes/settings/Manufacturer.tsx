@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import {Plus} from "lucide-react";
 import {
     Button,
-    Card,
-    Dialog, DialogClose,
+    Dialog,
     DialogContent,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
-    Input
+    DialogTrigger
 } from '@/components/ui'
-import {Plus} from "lucide-react";
-import {ManufacturerSelect} from "@/components/ManufacturerSelect";
 
 interface ManufacturerData {
   description: string
