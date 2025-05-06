@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Trash2, Edit3, Plus } from 'lucide-react'
 import {
   Card,
   Input,
@@ -11,14 +12,26 @@ import {
   DialogFooter,
   DialogClose
 } from '@/components/ui'
-import { Trash2, Edit3, Plus } from 'lucide-react'
+import {
+  ManufacturerSelect,
+  SelectedManufacturerType,
+  getManufacturerLabel,
+  getManufacturerPowerSize
+} from "@/components/selectors/ManufacturerSelect";
+import {
+  LocationSelect,
+  SelectedLocationType,
+  getLocationLabel
+} from "@/components/selectors/LocationSelect";
 
 interface PVModule {
   id: number
-  system_id: string
+  description: string
+  manufacturer: SelectedManufacturerType
   duration: number
   angle: number
-  max_output: number
+  module_count: number
+  location: SelectedLocationType
 }
 
 export default function Photovoltaic() {
@@ -26,10 +39,40 @@ export default function Photovoltaic() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editModule, setEditModule] = useState<PVModule | null>(null)
-  const [systemId, setSystemId] = useState('')
+  const [description, setDescription] = useState('')
+  const [selectedManufacturer, setSelectedManufacturer] = useState<SelectedManufacturerType | null>(null)
+  const [manufacturers, setManufacturers] = useState<SelectedManufacturerType[]>([])
   const [duration, setDuration] = useState<number>(0.0)
   const [angle, setAngle] = useState<number>(0.0)
-  const [maxOutput, setMaxOutput] = useState<number>(0)
+  const [moduleCount, setModuleCount] = useState<number>(0)
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocationType | null>(null)
+  const [locations, setLocations] = useState<SelectedLocationType[]>([])
+
+  useEffect(() => {
+    fetch("/api/settings/manufacturer", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) =>
+        setManufacturers(
+          data.manufacturers.map((m: any) => ({
+            id: m.id,
+            label: `${m.manufacturer} - ${m.model_type}`,
+          }))
+        )
+      )
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/settings/location", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) =>
+        setLocations(
+          data.locations.map((l: any) => ({
+            id: l.id,
+            label: `${l.description}`,
+          }))
+        )
+      )
+  }, [])
 
   // Load Modules
   const fetchModules = async () => {
@@ -69,20 +112,28 @@ export default function Photovoltaic() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, duration: duration, angle: angle, max_output: maxOutput })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, duration: duration,
+        angle: angle, module_count: moduleCount, location: selectedLocation?.id })
     })
-    setSystemId(''); setDuration(''); setAngle(''); setMaxOutput(0)
     fetchModules()
   }
 
   // Update Modules
   const openEdit = (mod: PVModule) => {
     setEditModule(mod)
-    setSystemId(mod.system_id)
+    setDescription(mod.description)
+    const found_manufacturer = manufacturers.find((m) =>
+        m.id === mod.manufacturer?.id || m.id === Number(mod.manufacturer))
+    setSelectedManufacturer(found_manufacturer ?? null)
     setDuration(mod.duration)
     setAngle(mod.angle)
-    setMaxOutput(mod.max_output)
+    setModuleCount(mod.module_count)
+    const found_location = locations.find((l) =>
+        l.id === mod.location?.id || l.id === Number(mod.location))
+    setSelectedLocation(found_location ?? null)
   }
+
+  // Edit Module
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editModule) return
@@ -90,10 +141,22 @@ export default function Photovoltaic() {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, duration: duration, angle: angle, max_output: maxOutput })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, duration: duration,
+        angle: angle, module_count: moduleCount, location: selectedLocation?.id })
     })
     setEditModule(null)
     fetchModules()
+  }
+
+  // Reset Prefill
+  const resetForm = () => {
+    setEditModule(null)
+    setDescription("")
+    setSelectedManufacturer(null)
+    setDuration(0.0)
+    setAngle(0.0)
+    setModuleCount(0)
+    setSelectedLocation(null)
   }
 
   if (loading) return <p>Lädt Module…</p>
@@ -105,43 +168,68 @@ export default function Photovoltaic() {
         <h3 className="text-xl font-semibold">Photovoltaik-Module</h3>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => resetForm()}>
               <Plus className="mr-2 h-4 w-4" /> Neues Modul
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-max">
             <DialogHeader>
-              <DialogTitle>Neues PV-Modul hinzufügen</DialogTitle>
+              <DialogTitle>Neues Photovoltaik-Modul hinzufügen</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleAdd} className="space-y-4">
-              Bezeichnung: <Input
-                label="System-ID"
-                value={systemId}
-                onChange={e => setSystemId(e.target.value)}
-                required
-              />
-              Ausrichtung: <Input
-                label="Ausrichtung"
-                value={duration}
-                type="number"
-                onChange={e => setDuration(Number(e.target.value))}
-                required
-              />
-              Anstellwinkel: <Input
-                label="Anstellwinkel"
-                type="number"
-                value={angle}
-                onChange={e => setAngle(Number(e.target.value))}
-                required
-              />
-              Leistung (Wp): <Input
-                label="Leistung (Wp)"
-                type="number"
-                value={maxOutput}
-                onChange={e => setMaxOutput(Number(e.target.value))}
-                required
-              />
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="description">Bezeichnung:</label>
+                <Input
+                    id="description"
+                    type="string"
+                    value={description} onChange={e => setDescription(e.target.value)}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="manufacturer">Hersteller:</label>
+                <ManufacturerSelect
+                    value={selectedManufacturer}
+                    onChange={setSelectedManufacturer}
+                    manufacturers={manufacturers}
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="duration">Ausrichtung:</label>
+                <Input
+                    id="duration"
+                    type="number"
+                    value={duration} onChange={e => setDuration(Number(e.target.value))}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="angle">Anstellwinkel:</label>
+                <Input
+                    id="angle"
+                    type="number"
+                    value={angle} onChange={e => setAngle(Number(e.target.value))}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="module_count">Anzahl der Module:</label>
+                <Input
+                    id="module_count"
+                    type="number"
+                    value={moduleCount} onChange={e => setModuleCount(Number(e.target.value))}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="location">Standort:</label>
+                <LocationSelect
+                    value={selectedLocation}
+                    onChange={setSelectedLocation}
+                    locations={locations}
+                />
+              </div>
               <DialogFooter>
                 <Button type="submit">Hinzufügen</Button>
                 <DialogClose asChild>
@@ -156,78 +244,106 @@ export default function Photovoltaic() {
       {/* Module-Liste */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {modules.map((mod) => (
-          <Card key={mod.id} className="relative p-4">
-            <div className="space-y-2">
-              <p><strong>System:</strong> {mod.system_id}</p>
-              <p><strong>Ausrichtung:</strong> {mod.duration}</p>
-              <p><strong>Anstellwinkel:</strong> {mod.angle}</p>
-              <p><strong>Leistung (Wp):</strong> {mod.max_output} kW</p>
-            </div>
-            {/* Edit/Delete Buttons */}
-            <div className="absolute bottom-4 right-4 flex space-x-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => openEdit(mod)}
-              >
-                <Edit3 className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleDelete(mod.id)}
-              >
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </Button>
-            </div>
-          </Card>
+            <Card key={mod.id} className="relative p-4">
+              <div className="space-y-2">
+                <p><strong>System:</strong> {mod.description}</p>
+                <p><strong>Hersteller:</strong> {getManufacturerLabel(manufacturers, Number(mod.manufacturer))}</p>
+                <p><strong>Ausrichtung:</strong> {mod.duration}</p>
+                <p><strong>Anstellwinkel:</strong> {mod.angle}</p>
+                <p><strong>Module:</strong> {mod.module_count} </p>
+                <p><strong>Gesamtleitung:</strong> {mod.module_count * Number(getManufacturerPowerSize(manufacturers, Number(mod.manufacturer)))}</p>
+                <p><strong>Standort:</strong> {getLocationLabel(locations, Number(mod.location))}</p>
+              </div>
+              {/* Edit/Delete Buttons */}
+              <div className="absolute bottom-4 right-4 flex space-x-2">
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => openEdit(mod)}
+                >
+                  <Edit3 className="h-4 w-4"/>
+                </Button>
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(mod.id)}
+                >
+                  <Trash2 className="h-4 w-4 text-red-600"/>
+                </Button>
+              </div>
+            </Card>
         ))}
       </div>
 
       {/* Edit-Dialog */}
       {editModule && (
-        <Dialog open onOpenChange={open => !open && setEditModule(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Modul bearbeiten</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleEdit} className="space-y-4">
-              Bezeichnung: <Input
-                label="System-ID"
-                value={systemId}
-                onChange={e => setSystemId(e.target.value)}
-                required
-              />
-              Ausrichtung: <Input
-                label="Ausrichtung"
-                value={duration}
-                type="number"
-                onChange={e => setDuration(Number(e.target.value))}
-                required
-              />
-              Anstellwinkel: <Input
-                label="Anstellwinkel"
-                type="number"
-                value={angle}
-                onChange={e => setAngle(Number(e.target.value))}
-                required
-              />
-              Leistung (Wp): <Input
-                label="Leistung (Wp)"
-                type="number"
-                value={maxOutput}
-                onChange={e => setMaxOutput(Number(e.target.value))}
-                required
-              />
-              <DialogFooter>
-                <Button type="submit">Speichern</Button>
-                <DialogClose asChild>
-                  <Button variant="ghost">Abbrechen</Button>
-                </DialogClose>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <Dialog open onOpenChange={open => !open && setEditModule(null)}>
+            <DialogContent className="sm:max-w-max">
+              <DialogHeader>
+                <DialogTitle>Modul bearbeiten</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleEdit} className="space-y-4">
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="description">Bezeichnung:</label>
+                  <Input
+                      id="description"
+                      type="string"
+                      value={description} onChange={e => setDescription(e.target.value)}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="manufacturer">Hersteller:</label>
+                  <ManufacturerSelect
+                      value={selectedManufacturer}
+                      onChange={setSelectedManufacturer}
+                      manufacturers={manufacturers}
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="duration">Ausrichtung:</label>
+                  <Input
+                      id="duration"
+                      type="number"
+                      value={duration} onChange={e => setDuration(Number(e.target.value))}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="angle">Anstellwinkel:</label>
+                  <Input
+                      id="angle"
+                      type="number"
+                      value={angle} onChange={e => setAngle(Number(e.target.value))}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="module_count">Anzahl der Module:</label>
+                  <Input
+                      id="module_count"
+                      type="number"
+                      value={moduleCount} onChange={e => setModuleCount(Number(e.target.value))}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="location">Standort:</label>
+                  <LocationSelect
+                      value={selectedLocation}
+                      onChange={setSelectedLocation}
+                      locations={locations}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Hinzufügen</Button>
+                  <DialogClose asChild>
+                    <Button variant="ghost">Abbrechen</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
       )}
     </div>
   )
