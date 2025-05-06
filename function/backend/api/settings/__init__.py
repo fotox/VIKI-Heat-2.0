@@ -10,3 +10,5 @@ if True:
     from . import weather
     from . import energy
     from . import manufacturer
+    from . import location
+    from . import sensors
