@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogClose
 } from '@/components/ui'
-import {ManufacturerSelect, SelectedManufacturerType, getManufacturerLabel } from "@/components/ManufacturerSelect";
+import {ManufacturerSelect, SelectedManufacturerType, getManufacturerLabel } from "@/components/selectors/ManufacturerSelect";
 
 interface HeatingModule {
   id: number
