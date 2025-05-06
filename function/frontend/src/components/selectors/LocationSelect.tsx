@@ -14,29 +14,29 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export type SelectedManufacturerType = {
+export type SelectedLocationType = {
   id: number
   label: string
 }
 
 type Props = {
-  value: SelectedManufacturerType | null
-  onChange: (manufacturer: SelectedManufacturerType | null) => void
-  manufacturers: SelectedManufacturerType[]
+  value: SelectedLocationType | null
+  onChange: (location: SelectedLocationType | null) => void
+  locations: SelectedLocationType[]
 }
 
 export function getManufacturerLabel(
-  manufacturers: SelectedManufacturerType[],
+  locations: SelectedLocationType[],
   id: number
 ): string {
   return (
-    manufacturers.find(
+    locations.find(
       (m) => m.id === id
     )?.label ?? `${id}`
   )
 }
 
-export function ManufacturerSelect({ value, onChange, manufacturers }: Props) {
+export function LocationSelect({ value, onChange, locations }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -44,7 +44,7 @@ export function ManufacturerSelect({ value, onChange, manufacturers }: Props) {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-start">
-            {value ? value.label : <>+ Hersteller wählen</>}
+            {value ? value.label : <>+ Standort wählen</>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0" side="right" align="start">
@@ -52,16 +52,16 @@ export function ManufacturerSelect({ value, onChange, manufacturers }: Props) {
             <CommandInput placeholder="Suchen..." />
             <CommandList>
               <CommandEmpty>
-                Kein Hersteller gefunden.{" "}
+                Kein Standort gefunden.{" "}
                 <Button
                   variant="link"
-                  onClick={() => window.location.href = "/settings/manufacturer"}
+                  onClick={() => window.location.href = "/settings/location"}
                 >
                   Jetzt hinzufügen
                 </Button>
               </CommandEmpty>
               <CommandGroup>
-                {manufacturers.map((man) => (
+                {locations.map((man) => (
                   <CommandItem
                     key={man.id}
                     value={man.label}
