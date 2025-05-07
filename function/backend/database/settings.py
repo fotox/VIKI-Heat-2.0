@@ -10,10 +10,11 @@ class ManufacturerSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     model_type: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
-    url: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
-    api: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
+    url: db.Mapped[int] = db.Column(db.VARCHAR(256), nullable=True)
+    api: db.Mapped[int] = db.Column(db.VARCHAR(256), nullable=True)
     power_factor: db.Mapped[float] = db.Column(db.NUMERIC(3, 2), nullable=True)
     power_size: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
+    notice: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
 
     def to_dict(self):
         return {
