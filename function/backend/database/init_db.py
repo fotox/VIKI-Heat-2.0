@@ -4,7 +4,7 @@ from extensions import db
 import pandas as pd
 
 
-CSV_PATH = r'C:\Users\AdmCarsten\Desktop\waermepumpen_netzwerkfaehig.csv'
+CSV_PATH = r'database/resources/manufacturer.csv'
 
 
 def seed_roles() -> None:
