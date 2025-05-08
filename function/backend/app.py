@@ -4,7 +4,7 @@ from flask_cors import CORS
 from api.auth.routes import auth_bp
 from api.dashboard.routes import dashboard_bp
 from api.settings import settings_bp
-from database.init_db import seed_users, seed_roles, seed_manufacturers
+from database.init_db import seed_users, seed_roles, seed_manufacturers, seed_category, seed_location
 
 from extensions import db, jwt, socketio
 from config import Config
@@ -29,7 +29,9 @@ def create_app():
         db.create_all()
         seed_roles()
         seed_users()
+        seed_category()
         seed_manufacturers()
+        seed_location()
 
     @app.route("/")
     def index():
