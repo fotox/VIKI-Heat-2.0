@@ -63,10 +63,6 @@ export default function Heating() {
     }
   }
 
-  useEffect(() => {
-    fetchModules()
-  }, [])
-
   // Delete Modules
   const handleDelete = async (id: number) => {
     if (!confirm('Energiequelle wirklich löschen?')) return
@@ -84,7 +80,8 @@ export default function Heating() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip, api_key: api_key })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
+        api_key: api_key })
     })
     fetchModules()
   }
@@ -107,7 +104,8 @@ export default function Heating() {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip, api_key: api_key })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
+        api_key: api_key })
     })
     setEditModule(null)
     fetchModules()
@@ -121,6 +119,10 @@ export default function Heating() {
     setIp("")
     setApiKey("")
   }
+
+  useEffect(() => {
+    fetchModules()
+  }, [])
 
   if (loading) return <p>Lädt Module…</p>
   if (error)   return <p className="text-red-600">Fehler: {error}</p>
