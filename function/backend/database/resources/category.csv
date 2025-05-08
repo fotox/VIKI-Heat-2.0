@@ -1,0 +1,8 @@
+id,description,category
+1,Wärmepumpe,heatpump
+2,Photovoltaik,photovoltaic
+3,Wechselrichter,inverter
+4,Ölheizung,oil_heating
+5,Gasheizung,gas_heating
+6,Palletheizung,pallet_heating
+7,Batteriespeicher,battery
