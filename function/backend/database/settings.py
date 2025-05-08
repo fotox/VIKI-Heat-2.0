@@ -79,6 +79,8 @@ class SensorSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
+    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
@@ -87,6 +89,8 @@ class SensorSetting(db.Model):
             "description": self.description,
             "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
             "ip": self.ip,
+            "url": self.url,
+            "api": self.api,
             "api_key": self.api_key,
         }
 
@@ -120,6 +124,8 @@ class EnergySetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
+    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
     price: db.Mapped[float] = db.Column(db.NUMERIC(10, 2), nullable=True)
 
@@ -129,6 +135,8 @@ class EnergySetting(db.Model):
             "system_id": self.system_id,
             "manufacturer": self.manufacturer,
             "ip": self.ip,
+            "url": self.url,
+            "api": self.api,
             "api_key": self.api_key,
             "price": self.price,
         }
@@ -141,6 +149,8 @@ class HeatingSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
+    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
@@ -149,6 +159,8 @@ class HeatingSetting(db.Model):
             "description": self.description,
             "manufacturer": self.manufacturer,
             "ip": self.ip,
+            "url": self.url,
+            "api": self.api,
             "api_key": self.api_key,
         }
 
@@ -161,6 +173,8 @@ class WeatherSetting(db.Model):
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     location: db.Mapped["LocationSetting"] = db.mapped_column(ForeignKey(LocationSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
+    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
@@ -169,6 +183,8 @@ class WeatherSetting(db.Model):
             "description": self.description,
             "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
             "ip": self.ip,
+            "url": self.url,
+            "api": self.api,
             "api_key": self.api_key,
             "location": self.location.description,
         }
@@ -180,12 +196,11 @@ class TankSetting(db.Model):
     id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     volume: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
-    sensors: db.Mapped["SensorSetting"] = db.mapped_column(ForeignKey(SensorSetting.id), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id,
             "description": self.description,
             "volume": self.volume,
-            "sensors": self.sensors.description,
+            "sensors": [s.description for s in self.sensors]
         }
