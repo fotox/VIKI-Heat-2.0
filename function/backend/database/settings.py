@@ -3,11 +3,28 @@ from sqlalchemy import ForeignKey
 from extensions import db, sql
 
 
+class ManufacturerCategorySetting(db.Model):
+    __tablename__ = "manufacturer_category"
+
+    id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
+    description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
+    category: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "description": self.description,
+            "category": self.category,
+        }
+
+
 class ManufacturerSetting(db.Model):
     __tablename__ = "manufacturer"
 
     id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
+    category: db.Mapped["ManufacturerCategorySetting"] = db.mapped_column(ForeignKey(
+        ManufacturerCategorySetting.id), nullable=False)
     manufacturer: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     model_type: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     url: db.Mapped[int] = db.Column(db.VARCHAR(256), nullable=True)
@@ -20,6 +37,7 @@ class ManufacturerSetting(db.Model):
         return {
             "id": self.id,
             "description": self.description,
+            "category": self.category,
             "manufacturer": self.manufacturer,
             "model_type": self.model_type,
             "url": self.url,
@@ -54,36 +72,6 @@ class LocationSetting(db.Model):
         }
 
 
-class ApiSetting(db.Model):
-    __tablename__ = "api"
-
-    id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
-    description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
-    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "description": self.description,
-            "api": self.api,
-        }
-
-
-class UrlSetting(db.Model):
-    __tablename__ = "url"
-
-    id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
-    description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
-    url: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=False)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "description": self.description,
-            "url": self.url,
-        }
-
-
 class SensorSetting(db.Model):
     __tablename__ = "sensors"
 
@@ -91,8 +79,6 @@ class SensorSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
-    url: db.Mapped["UrlSetting"] = db.mapped_column(ForeignKey(UrlSetting.id), nullable=True)
-    api: db.Mapped["ApiSetting"] = db.mapped_column(ForeignKey(ApiSetting.id), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
@@ -101,8 +87,6 @@ class SensorSetting(db.Model):
             "description": self.description,
             "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
             "ip": self.ip,
-            "url": self.url.url,
-            "api": self.api.api,
             "api_key": self.api_key,
         }
 
@@ -177,8 +161,6 @@ class WeatherSetting(db.Model):
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(ForeignKey(ManufacturerSetting.id), nullable=False)
     location: db.Mapped["LocationSetting"] = db.mapped_column(ForeignKey(LocationSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
-    url: db.Mapped["UrlSetting"] = db.mapped_column(ForeignKey(UrlSetting.id), nullable=True)
-    api: db.Mapped["ApiSetting"] = db.mapped_column(ForeignKey(ApiSetting.id), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
@@ -187,8 +169,6 @@ class WeatherSetting(db.Model):
             "description": self.description,
             "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
             "ip": self.ip,
-            "url": self.url.url,
-            "api": self.api.api,
             "api_key": self.api_key,
             "location": self.location.description,
         }

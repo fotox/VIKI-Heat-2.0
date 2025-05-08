@@ -12,3 +12,4 @@ if True:
     from . import manufacturer
     from . import location
     from . import sensors
+    from . import category
