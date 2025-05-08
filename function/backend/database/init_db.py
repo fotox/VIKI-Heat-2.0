@@ -1,10 +1,12 @@
 from .users import User, Role
-from .settings import ManufacturerSetting
+from .settings import ManufacturerSetting, ManufacturerCategorySetting, LocationSetting
 from extensions import db
 import pandas as pd
 
 
-CSV_PATH = r'database/resources/manufacturer.csv'
+MANUFACTURER_PATH = r'database/resources/manufacturer.csv'
+CATEGORY_PATH = r'database/resources/category.csv'
+LOCATION_PATH = r'database/resources/location.csv'
 
 
 def seed_roles() -> None:
@@ -70,7 +72,7 @@ def seed_manufacturers() -> None:
         return
 
     try:
-        df = pd.read_csv(CSV_PATH, delimiter=';')
+        df = pd.read_csv(MANUFACTURER_PATH, delimiter=',')
         df.fillna('', inplace=True)
 
         records = df.to_dict(orient='records')
@@ -79,5 +81,53 @@ def seed_manufacturers() -> None:
         db.session.bulk_save_objects(objects)
         db.session.commit()
         print(f"✅ {len(objects)} Hersteller importiert.")
+    except Exception as e:
+        print(f"❌ Fehler beim Import: {e}")
+
+
+def seed_category() -> None:
+    """
+    Create initial categories in database
+    :return:
+    """
+    existing = ManufacturerCategorySetting.query.first()
+    if existing:
+        print("⚠️ Kategorien existieren bereits.")
+        return
+
+    try:
+        df = pd.read_csv(CATEGORY_PATH, delimiter=',')
+        df.fillna('', inplace=True)
+
+        records = df.to_dict(orient='records')
+        objects = [ManufacturerCategorySetting(**record) for record in records]
+
+        db.session.bulk_save_objects(objects)
+        db.session.commit()
+        print(f"✅ {len(objects)} Kategorien importiert.")
+    except Exception as e:
+        print(f"❌ Fehler beim Import: {e}")
+
+
+def seed_location() -> None:
+    """
+    Create initial locations in database
+    :return:
+    """
+    existing = LocationSetting.query.first()
+    if existing:
+        print("⚠️ Standort existieren bereits.")
+        return
+
+    try:
+        df = pd.read_csv(LOCATION_PATH, delimiter=',')
+        df.fillna('', inplace=True)
+
+        records = df.to_dict(orient='records')
+        objects = [LocationSetting(**record) for record in records]
+
+        db.session.bulk_save_objects(objects)
+        db.session.commit()
+        print(f"✅ {len(objects)} Standorte importiert.")
     except Exception as e:
         print(f"❌ Fehler beim Import: {e}")

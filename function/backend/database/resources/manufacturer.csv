@@ -1,50 +1,10 @@
-description;manufacturer;model_type;url;api;power_factor;power_size;notice
-Viessmann Vitocal 200-S;Viessmann;Vitocal 200-S;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.0;7000;ViCare App erforderlich
-Viessmann Vitocal 222-S;Viessmann;Vitocal 222-S;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.2;8000;ViCare App erforderlich
-Vaillant aroTHERM plus VWL 75/6 A;Vaillant;aroTHERM plus VWL 75/6 A;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.2;7500;sensoNET Modul erforderlich
-Vaillant aroTHERM plus VWL 105/6 A;Vaillant;aroTHERM plus VWL 105/6 A;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.3;10500;sensoNET Modul erforderlich
-Stiebel Eltron HPA-O 6 CS Plus;Stiebel Eltron;HPA-O 6 CS Plus;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";3.4;6000;ISG Modul erforderlich
-NIBE S2125-8;NIBE;S2125-8;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.5;8000;myUplink App erforderlich
-NIBE S2125-12;NIBE;S2125-12;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";4.6;12000;myUplink App erforderlich
-Viessmann Vitoladens 300-C;Viessmann;Vitoladens 300-C;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.98;20000;ViCare App erforderlich
-Viessmann Vitorondens 200-T;Viessmann;Vitorondens 200-T;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.95;28000;ViCare App erforderlich
-Buderus Logano plus GB125;Buderus;Logano plus GB125;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.94;18000;Buderus App erforderlich
-Bosch CerastarComfort ZSR 24/120-7;Bosch;CerastarComfort ZSR 24/120-7;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.93;24000;Bosch App erforderlich
-Vaillant VGR Sine 71/4E;Vaillant;VGR Sine 71/4E;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.92;7100;Vaillant App erforderlich
-ÖkoFEN Pellematic Condens_e;ÖkoFEN;Pellematic Condens_e;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.95;16000;myEnergy365 App erforderlich
-Fröling PT4e;Fröling;PT4e;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.93;250000;Fröling Connect erforderlich
-Hargassner Smart-PK 17–32 kW;Hargassner;Smart-PK 17–32 kW;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.92;32000;Hargassner App erforderlich
-ETA PelletsCompact PC 60;ETA;PelletsCompact PC 60;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.94;59900;ETA Touch erforderlich
-KWB Easyfire USP 10-30;KWB;Easyfire USP 10-30;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.91;30000;KWB Comfort 4 erforderlich
-Guntamatic Biostar;Guntamatic;Biostar;/api/v1/heating/circuits/0/operating/programs;"[""heating"", ""circuits"", ""0"", ""operating"", ""programs""]";0.9;20000;Guntamatic App erforderlich
-JA Solar JAM54D40 LB;JA Solar;JAM54D40 LB;/api/v1/pv/modules/JAM54D40_LB;"[""data"", ""module"", ""JAM54D40_LB""]";0.21;450;Bifacial Glas-Glas Modul
-LONGi Hi-MO 6 Explorer LR5-54HTB-435W;LONGi Solar;LR5-54HTB-435W;/api/v1/pv/modules/LR5-54HTB-435W;"[""data"", ""module"", ""LR5-54HTB-435W""]";0.22;435;Fullblack Modul
-Meyer Burger White 385;Meyer Burger;White 385;/api/v1/pv/modules/White_385_Wp;"[""data"", ""module"", ""White_385_Wp""]";0.2;385;Hochleistungsmodul
-JinkoSolar Tiger Neo 435W;JinkoSolar;Tiger Neo N-Type 435W;;;0.21;435;Keine Netzwerkfähigkeit, keine API verfügbar
-Trina Solar Vertex S 430W;Trina Solar;Vertex S 430W;;;0.21;430;Keine Netzwerkfähigkeit, keine API verfügbar
-Canadian Solar HiKu6 440W;Canadian Solar;HiKu6 440W;;;0.2;440;Keine Netzwerkfähigkeit, keine API verfügbar
-Qcells Q.PEAK DUO ML-G10 410W;Qcells;Q.PEAK DUO ML-G10 410W;;;0.2;410;Keine Netzwerkfähigkeit, keine API verfügbar
-AE Solar AE420Wp Monocrystalline;AE Solar;AE420Wp;;;0.2;420;Keine Netzwerkfähigkeit, keine API verfügbar
-Kioto Power KPV 410Wp;Kioto Solar;KPV 410Wp;;;0.2;410;Keine Netzwerkfähigkeit, keine API verfügbar
-Risen Energy RSM40-8-410M;Risen Energy;RSM40-8-410M;;;0.21;410;Keine Netzwerkfähigkeit, keine API verfügbar
-SunPower Maxeon 3 400W;SunPower;Maxeon 3 400W;;;0.22;400;Keine Netzwerkfähigkeit, keine API verfügbar
-LG NeON R 370W;LG;NeON R 370W;;;0.21;370;Keine Netzwerkfähigkeit, keine API verfügbar
-REC Alpha Pure 410W;REC;Alpha Pure 410W;;;0.21;410;Keine Netzwerkfähigkeit, keine API verfügbar
-Fronius Symo 10.0-3-M;Fronius;Symo 10.0-3-M;/solar_api/v1/GetPowerFlowRealtimeData.fcgi;"[""Body"",""Data"",""Site"",""P_PV""]";0.98;10000;WLAN oder LAN erforderlich
-Fronius Symo 10.0-3-M - Verbrauch;Fronius;Symo 10.0-3-M;/solar_api/v1/GetPowerFlowRealtimeData.fcgi;"[""Body"",""Data"",""Site"",""P_Load""]";0.98;10000;WLAN oder LAN erforderlich
-Fronius Symo 10.0-3-M - Tagesproduktion;Fronius;Symo 10.0-3-M;/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId=0&DataCollection=MeterRealtimeData;"[""Body"",""Data"",""EnergyReal_WAC_Sum_Produced""]";0.98;10000;WLAN oder LAN erforderlich
-SMA Sunny Boy 5.0;SMA;Sunny Boy 5.0;/api/v1/devices/SB5.0-1AV-41;"[""data"",""inverter"",""SB5.0-1AV-41""]";0.97;5000;WLAN oder LAN erforderlich
-SMA Sunny Tripower 10.0;SMA;Sunny Tripower 10.0;/api/v1/devices/STP10.0-3AV-40;"[""data"",""inverter"",""STP10.0-3AV-40""]";0.98;10000;WLAN oder LAN erforderlich
-SolarEdge SE10K;SolarEdge;SE10K;/api/v1/inverter/SE10K;"[""data"",""inverter"",""SE10K""]";0.97;10000;WLAN oder LAN erforderlich
-Huawei SUN2000-10KTL-M1;Huawei;SUN2000-10KTL-M1;/api/v1/inverter/SUN2000-10KTL-M1;"[""data"",""inverter"",""SUN2000-10KTL-M1""]";0.98;10000;WLAN oder LAN erforderlich
-Kostal PIKO 10;Kostal;PIKO 10;/api/v1/inverter/PIKO10;"[""data"",""inverter"",""PIKO10""]";0.96;10000;WLAN oder LAN erforderlich
-SonnenBatterie 10 Performance;sonnen;10 Performance;/api/v1/status;"[""data"",""battery"",""status""]";0.95;10;WLAN oder LAN erforderlich
-BYD Battery-Box Premium HVS 10.2;BYD;HVS 10.2;/api/v1/status;"[""data"",""battery"",""status""]";0.96;10.2;WLAN oder LAN erforderlich
-LG Chem RESU10H Prime;LG Chem;RESU10H Prime;/api/v1/status;"[""data"",""battery"",""status""]";0.95;9.6;WLAN oder LAN erforderlich
-Tesla Powerwall 2;Tesla;Powerwall 2;/api/v1/status;"[""data"",""battery"",""status""]";0.97;13.5;WLAN oder LAN erforderlich
-E3/DC S10 E PRO;E3/DC;S10 E PRO;/api/v1/status;"[""data"",""battery"",""status""]";0.94;13;WLAN oder LAN erforderlich
-SENEC.Home V3;SENEC;Home V3;/api/v1/status;"[""data"",""battery"",""status""]";0.95;10;WLAN oder LAN erforderlich
-FENECON Home 10;FENECON;Home 10;/api/v1/status;"[""data"",""battery"",""status""]";0.96;10;WLAN oder LAN erforderlich
-SMA Sunny Boy Storage 5.0;SMA;Sunny Boy Storage 5.0;/api/v1/status;"[""data"",""battery"",""status""]";0.95;5;WLAN oder LAN erforderlich
-Sungrow SBR128 PREMIUM;Sungrow;SBR128 PREMIUM;/api/v1/status;"[""data"",""battery"",""status""]";0.96;12.8;WLAN oder LAN erforderlich
-M-TEC Energy-Butler;M-TEC;Energy-Butler;/api/v1/status;"[""data"",""battery"",""status""]";0.95;10;WLAN oder LAN erforderlich
+id,description,category,manufacturer,model_type,url,api,power_factor,power_size,notice
+1,KIOTO Solar KPV ME NEC 330 Wp POWER Deflect,2,KIOTO Solar,KPV ME NEC POWER Deflect Silver,"","",1.00,330,""
+7,Vaillant Elektro-Heizstab 2-4-6 kW,8,Vaillant,Elektro-Heizstab 2-4-6,"","",1.00,2000,2000 Watt je Phase
+8,Vaillant aroTHERM Split VWL 75/5 AS,1,Vaillant,aroTHERM Split VWL 75/5 AS,"","",1.00,7000,Modbus AddOn benoetigt
+9,Vaillant aroTHERM Split VWL 75/5 IS,1,Vaillant,aroTHERM Split VWL 75/5 IS,"","",1.00,7000,Modbus AddOn benoetigt
+10,Vaillant uniSTOR exclusive VIH RW 300/3,9,Vaillant,uniSTOR exclusive VIH RW 300/3,"","",1.00,300,300 Liter Fassungsvermoegen mit Waermetauscher
+11,Sunex Pufferspeicher 500 FISH S4 U,9,Sunex,500 FISH S4 U,"","",1.00,500,500 Liter Fassungsvermoegen ohne Waermetauscher
+12,DS18B20,10,"",DS18B20,"","",0.00,0,ueber DS18B20 Lesegeraet auslesbar
+2,Fronius Symo 10.0-3-M - Livedaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetPowerFlowRealtimeData.fcgi,"[""Body"", ""Data"",""Site""]",1.00,10000,""
+5,Fronius Symo 10.0-3-M - Tagesdaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId=0&DataCollection=MeterRealtimeData,"[""Body"", ""Data""]",1.00,10000,""
