@@ -110,10 +110,10 @@ class PhotovoltaicSetting(db.Model):
         return {
             "id": self.id,
             "description": self.description,
-            "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
+            "manufacturer": self.manufacturer,
             "duration": self.duration,
             "module_count": self.module_count,
-            "location": self.manufacturer.description,
+            "location": self.location,
         }
 
 

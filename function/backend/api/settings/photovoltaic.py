@@ -15,28 +15,34 @@ def list_photovoltaic_modules():
     return jsonify(modules=[m.to_dict() for m in modules]), 200
 
 
+# TODO: Standort und neues Tabellenschema einbinden
+
 @settings_bp.route("/photovoltaic", methods=["POST"])
 @jwt_required()
 def create_photovoltaic_module():
     """
-    POST /api/settings/photovoltaik
+    POST /api/settings/photovoltaic
     Legt ein neues PV-Modul an. Erwartet JSON mit mindestens:
-      - system_id (string)
+      - description (string)
+      - manufacturer (ManufacturerSettings)
       - duration (number)
       - angle (number)
-      - max_output (number)
+      - module_count (number)
+      - location (LocationSettings)
     """
     data = request.get_json() or {}
-    required = ["system_id", "duration", "angle", "max_output"]
+    required = ["description", "manufacturer", "duration", "angle", "module_count", "location"]
     missing = [f for f in required if f not in data]
     if missing:
         return jsonify(msg=f"Missing fields: {', '.join(missing)}"), 422
 
     module = PhotovoltaicSetting(
-        system_id=data["system_id"],
+        description=data["description"],
+        manufacturer=data["manufacturer"],
         duration=data["duration"],
         angle=data["angle"],
-        max_output=data["max_output"]
+        module_count=data["module_count"],
+        location=data["location"]
     )
     db.session.add(module)
     db.session.commit()
@@ -47,15 +53,20 @@ def create_photovoltaic_module():
 @jwt_required()
 def update_photovoltaic_module(module_id: int):
     """
-    PUT /api/settings/photovoltaik/<module_id>
+    PUT /api/settings/photovoltaic/<module_id>
     Aktualisiert ein bestehendes PV-Modul.
     JSON kann eines oder mehrere dieser Felder enthalten:
-      - system_id, duration, angle, max_output
+      - description (string)
+      - manufacturer (ManufacturerSettings)
+      - duration (number)
+      - angle (number)
+      - module_count (number)
+      - location (LocationSettings)
     """
     module = PhotovoltaicSetting.query.get_or_404(module_id)
     data = request.get_json() or {}
 
-    for key in ("system_id", "duration", "angle", "max_output"):
+    for key in ("description", "manufacturer", "duration", "angle", "module_count", "location"):
         if key in data:
             setattr(module, key, data[key])
 

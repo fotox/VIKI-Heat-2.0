@@ -17,7 +17,7 @@ import {
 export type SelectedManufacturerType = {
   id: number
   label: string
-  powerFactor: number
+  power_size: number
 }
 
 type Props = {
@@ -42,9 +42,9 @@ export function getManufacturerPowerSize(
   id: number
 ): number {
   return (
-    Number(manufacturers.find(
+    manufacturers.find(
       (m) => m.id === id
-    )?.powerFactor)
+    )?.power_size ?? 0
   )
 }
 

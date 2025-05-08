@@ -34,7 +34,7 @@ def create_manufacturer_module():
     POST /api/settings/manufacturer
     Create new manufacturer-module. Wait for JSON with:
       - description (string)
-      - manufacturer (ManufacturerSetting)
+      - manufacturer (string)
       - model_type (string)
       - url (string)
       - api (string)
@@ -70,7 +70,7 @@ def update_manufacturer_module(module_id: int):
     Update one of existed manufacturer-modules.
     JSON can be contained one of the following items:
       - description (string)
-      - manufacturer (ManufacturerSetting)
+      - manufacturer (string)
       - model_type (string)
       - url (string)
       - api (string)

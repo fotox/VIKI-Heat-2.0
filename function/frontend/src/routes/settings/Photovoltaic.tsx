@@ -56,6 +56,7 @@ export default function Photovoltaic() {
           data.manufacturers.map((m: any) => ({
             id: m.id,
             label: `${m.manufacturer} - ${m.model_type}`,
+            power_size: m.power_size,
           }))
         )
       )
@@ -251,7 +252,7 @@ export default function Photovoltaic() {
                 <p><strong>Ausrichtung:</strong> {mod.duration}</p>
                 <p><strong>Anstellwinkel:</strong> {mod.angle}</p>
                 <p><strong>Module:</strong> {mod.module_count} </p>
-                <p><strong>Gesamtleitung:</strong> {mod.module_count * Number(getManufacturerPowerSize(manufacturers, Number(mod.manufacturer)))}</p>
+                <p><strong>Gesamtleitung:</strong> {mod.module_count * getManufacturerPowerSize(manufacturers, Number(mod.manufacturer))} Wp</p>
                 <p><strong>Standort:</strong> {getLocationLabel(locations, Number(mod.location))}</p>
               </div>
               {/* Edit/Delete Buttons */}
