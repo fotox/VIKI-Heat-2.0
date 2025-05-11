@@ -1,0 +1,22 @@
+{
+  viewer {
+    homes {
+      currentSubscription{
+        priceInfo{
+          current{
+            total
+            startsAt
+          }
+          today {
+            total
+            startsAt
+          }
+          tomorrow {
+            total
+            startsAt
+          }
+        }
+      }
+    }
+  }
+}
