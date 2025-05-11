@@ -23,7 +23,7 @@ def create_heating_module():
     POST /api/settings/heating
     Create new heating-module. Wait for JSON with:
       - description (string)
-      - manufacturer (number)
+      - manufacturer (ManufacturerSettings)
       - ip (string)
       - api_key (string)
     :return: Created module
@@ -53,7 +53,7 @@ def update_heating_module(module_id: int):
     Update one of existed heating-modules.
     JSON can be contained one of the following items:
       - description (string)
-      - manufacturer (number)
+      - manufacturer (ManufacturerSettings)
       - ip (string)
       - api_key (string)
     :param: Identifier of the module
