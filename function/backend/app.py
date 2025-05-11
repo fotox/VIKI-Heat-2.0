@@ -4,7 +4,9 @@ from flask_cors import CORS
 from api.auth.routes import auth_bp
 from api.dashboard.routes import dashboard_bp
 from api.settings import settings_bp
+from api.dashboard.modules import modules_bp
 from database.init_db import seed_users, seed_roles, seed_manufacturers, seed_category, seed_location
+
 
 from extensions import db, jwt, socketio
 from config import Config
@@ -24,6 +26,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(settings_bp, url_prefix="/api/settings")
+    app.register_blueprint(modules_bp, url_prefix="/api/modules")
 
     with app.app_context():
         db.create_all()

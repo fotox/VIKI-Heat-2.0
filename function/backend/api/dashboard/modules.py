@@ -1,0 +1,36 @@
+from flask import Blueprint, jsonify, request
+
+modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
+
+
+@modules_bp.route("/energy_data", methods=["GET"])
+def get_energy_data():
+    dummy_data = {
+        f"{hour:02d}": {
+            "heating": round(0.5 + hour * 0.1, 2),
+            "consumer": round(0.7 + hour * 0.05, 2),
+            "regular": round(0.2 + hour * 0.02, 2),
+            "production": round(2.0 + hour * 0.15, 2)
+        }
+        for hour in range(24)
+    }
+    return jsonify(dummy_data)
+
+
+@modules_bp.route("/energy_price", methods=["GET"])
+def get_energy_price():
+    dummy_price = {f"{hour:02d}": round(0.1 + hour * 0.01, 2) for hour in range(24)}
+    return jsonify(dummy_price)
+
+
+@modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["GET"])
+def heat_pipe(pipe_id):
+    state = pipe_id % 2 == 0
+    return jsonify({"pipe_id": pipe_id, "state": state})
+
+
+@modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["PUT"])
+def toggle_heat_pipe(pipe_id):
+    data = request.get_json()
+    state = data.get("state", False)
+    return jsonify({"pipe_id": pipe_id, "new_state": state})
