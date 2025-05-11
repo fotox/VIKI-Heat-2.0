@@ -1,24 +1,52 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { Card } from '@/components/ui'
 import io from 'socket.io-client'
+import {
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogTrigger
+} from "@/components/ui"
+import { Trash2 } from "lucide-react"
 
-interface Device { id: number; name: string; state: boolean }
+interface Device {
+  id: number;
+  name: string;
+  state: boolean
+}
+
+interface DashboardModule {
+  id: string;
+  module_type: string
+}
+
+const AVAILABLE_MODULES: DashboardModule[] = [
+  { id: "switches", module_type: "Phasen Schalt-Panel" },
+  { id: "energyChart", module_type: "Energie-Daten Chart" }
+]
+
+import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
+import { EnergyChart } from "@/components/dashboard/EnergyChart"
+import {Plus} from "lucide-react";
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
-  const [error,   setError]   = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [modules, setModules] = useState<DashboardModule[]>([])
+  const [open, setOpen] = useState(false)
   const socket = React.useMemo(() => io(), [])
+
+  useEffect(() => {
+    fetch("/api/dashboard/modules", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => setModules(data))
+    fetchDevices()
+  }, [])
 
   const fetchDevices = useCallback(async () => {
     try {
-      const csrf = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrf_access_token='))
-        ?.split('=')[1] || ''
-      const res = await fetch('/api/dashboard/', {
-        credentials: 'include',
-        headers: { 'X-CSRF-TOKEN': csrf }
-      })
+      const csrf = document.cookie.split('; ').find(row => row.startsWith('csrf_access_token='))?.split('=')[1] || ''
+      const res = await fetch('/api/dashboard/modules', { credentials: 'include', headers: { 'X-CSRF-TOKEN': csrf } })
       if (!res.ok) throw new Error(`Status ${res.status}`)
       const json = await res.json()
       setDevices(json.devices ?? [])
@@ -27,51 +55,23 @@ export default function Dashboard() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchDevices()
-
-    socket.on('switch_updated', (d: {id:number, new_state:boolean}) => {
-      setDevices(curr =>
-        curr.map(dev =>
-          dev.id === d.id ? { ...dev, state: d.new_state } : dev
-        )
-      )
+  const handleRemoveModule = (id: number) => {
+    fetch(`/api/dashboard/modules/${id}`, {
+      method: "DELETE",
+      credentials: "include"
     })
+      .then(() => setModules(prev => prev.filter(m => m.id !== id)))
+  }
 
-    const interval = setInterval(fetchDevices, 2000) // in prod switch to 500
-
-    return () => {
-      clearInterval(interval)
-      socket.disconnect()
-    }
-  }, [socket, fetchDevices])
-
-  // 3) Toggle-Handler: sofort setzen & auf Server-Antwort vertrauen
-  const handleToggle = async (id: number) => {
-    try {
-      const csrf = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrf_access_token='))
-        ?.split('=')[1] || ''
-
-      const res = await fetch(`/api/dashboard/${id}/toggle`, {
-        method:      'POST',
-        credentials: 'include',
-        headers:     { 'X-CSRF-TOKEN': csrf }
-      })
-      if (!res.ok) throw new Error(`Status ${res.status}`)
-
-      const { new_state } = await res.json()
-      setDevices(curr =>
-        curr.map(dev =>
-          dev.id === id
-            ? { ...dev, state: new_state }
-            : dev
-        )
-      )
-    } catch (err: any) {
-      setError(err.message)
-    }
+  const handleAddModule = (module: DashboardModule) => {
+    fetch("/api/dashboard/modules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ module_type: module.id }),
+      credentials: "include"
+    })
+      .then(res => res.json())
+      .then(savedModule => setModules(prev => [...prev, savedModule]))
   }
 
   if (error) {
@@ -84,28 +84,44 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-6">
       <h2 className="text-2xl font-bold">Geräte</h2>
-      <div className="grid grid-cols-2 gap-4">
-        {devices.length === 0 && (
-          <p className="col-span-2">Keine Geräte gefunden.</p>
-        )}
-        {devices.map(dev => (
-          <Card key={dev.id}>
-            <div className="flex justify-between items-center">
-              <span>{dev.name}</span>
-              <button
-                className={`px-3 py-1 rounded ${
-                  dev.state ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                }`}
-                onClick={() => handleToggle(dev.id)}
-              >
-                {dev.state ? 'Aus' : 'An'}
-              </button>
-            </div>
-          </Card>
-        ))}
-      </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <Plus className="mr-2 h-4 w-4"/> Neues Modul
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="p-4">
+          <h3 className="text-lg font-medium mb-2">Modul auswählen</h3>
+          <div className="space-y-2">
+            {AVAILABLE_MODULES.map(mod => (
+              <Button key={mod.id} variant="outline" className="w-full" onClick={() => handleAddModule(mod)}>
+                {mod.module_type}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {modules.map((mod, index) => (
+        <Card key={`${mod.id}-${index}`} className="relative p-4 pb-12">
+          <div className="absolute bottom-4 right-4">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => handleRemoveModule(mod.id)}
+              title="Modul entfernen"
+            >
+              <Trash2 className="h-4 w-4 text-red-600" />
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {mod.module_type === "switches" && <PhaseSwitchPanel />}
+            {mod.module_type === "energyChart" && <EnergyChart />}
+          </div>
+        </Card>
+      ))}
     </div>
   )
 }
