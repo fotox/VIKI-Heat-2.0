@@ -108,7 +108,7 @@ export default function Manufacturer() {
           manufacturer: manufacturer, model_type: modelType, url: url, api: api, power_factor: powerFactor,
           power_size: powerSize })
     })
-    fetchModules()
+
   }
 
   // Update Modules
@@ -168,13 +168,11 @@ export default function Manufacturer() {
         mod.api.toLowerCase().includes(term)
       )
     }
-
     if (selectedManufacturers.length > 0) {
       filtered = filtered.filter(mod =>
         selectedManufacturers.includes(mod.manufacturer)
       )
     }
-
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(mod =>
         selectedCategories.includes(mod.category?.label ?? "")
@@ -184,7 +182,6 @@ export default function Manufacturer() {
     setFilteredManufacturer(filtered)
   }
 
-
   useEffect(() => {
     fetchModules()
   }, [])
@@ -192,7 +189,6 @@ export default function Manufacturer() {
   useEffect(() => {
     applyFilters()
   }, [modules])
-
 
   if (loading) return <p>Lädt Module…</p>
   if (error)   return <p className="text-red-600">Fehler: {error}</p>
@@ -294,18 +290,13 @@ export default function Manufacturer() {
                   </DialogContent>
               </Dialog>
           </div>
-
-          {/* Search Module */}
           <div className="flex flex-col md:flex-row gap-4 items-start justify-between w-full">
-              {/* Freitextsuche */}
               <Input
                   placeholder="Suche nach Beschreibung, Modell, API..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full md:w-1/2"
               />
-
-              {/* Rechte Seite: Dropdown + Button */}
               <div className="flex flex-wrap items-center gap-4 w-full md:w-1/2 justify-end">
                   {/* Multiselect Dropdown */}
                   <Popover open={openDropdown} onOpenChange={setOpenDropdown}>
@@ -345,8 +336,6 @@ export default function Manufacturer() {
                           </Command>
                       </PopoverContent>
                   </Popover>
-
-                  {/* Kategorie-Dropdown */}
                   <Popover open={openCategoryDropdown} onOpenChange={setOpenCategoryDropdown}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="min-w-[200px] justify-between">
@@ -384,13 +373,10 @@ export default function Manufacturer() {
                           </Command>
                       </PopoverContent>
                   </Popover>
-
-                  {/* Suchen-Button */}
                   <Button onClick={applyFilters}>Suchen</Button>
               </div>
           </div>
 
-          {/* Module-Liste */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredManufacturer.map((mod) => (
                   <Card key={mod.id} className="relative p-4">
@@ -404,7 +390,6 @@ export default function Manufacturer() {
                           <p><strong>Leistungsfaktor:</strong> {mod.power_factor}</p>
                           <p><strong>Leistung (W/Wp):</strong> {mod.power_size}</p>
                       </div>
-                      {/* Edit/Delete Buttons */}
                       <div className="absolute bottom-4 right-4 flex space-x-2">
                           <Button
                               size="icon"
@@ -425,7 +410,6 @@ export default function Manufacturer() {
               ))}
           </div>
 
-          {/* Edit-Dialog */}
           {editModule && (
               <Dialog open onOpenChange={open => !open && setEditModule(null)}>
                   <DialogContent className="sm:max-w-max">
