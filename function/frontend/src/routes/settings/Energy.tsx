@@ -37,6 +37,8 @@ export default function Energy() {
   const [feed_in_api, setFeedInApi] = useState<string>('')
   const [production_api, setProductionApi] = useState<string>('')
 
+  // TODO: Hersteller als Dropdown einbinden
+
   // Load Modules
   const fetchModules = async () => {
     setLoading(true)

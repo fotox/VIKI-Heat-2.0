@@ -16,6 +16,8 @@ export default function Weather() {
       .catch(console.error)
   }, [])
 
+  // TODO: Komplettes UI einbinden
+
   return (
     <div className="space-y-4 p-6">
       <h3 className="text-xl font-semibold">Wetter-Einstellungen</h3>
