@@ -104,24 +104,31 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      {modules.map((mod, index) => (
-        <Card key={`${mod.id}-${index}`} className="relative p-4 pb-12">
-          <div className="absolute bottom-4 right-4">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => handleRemoveModule(mod.id)}
-              title="Modul entfernen"
-            >
-              <Trash2 className="h-4 w-4 text-red-600" />
-            </Button>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {modules.map((mod, index) => (
+          <div
+            key={`${mod.id}-${index}`}
+            className={`mt-4 ${mod.module_type === "energyChart" ? "col-span-4" : ""}`}
+          >
+            <Card className="relative p-4 pb-12">
+              <div className="absolute bottom-4 right-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleRemoveModule(mod.id)}
+                  title="Modul entfernen"
+                >
+                  <Trash2 className="h-4 w-4 text-red-600" />
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {mod.module_type === "switches" && <PhaseSwitchPanel />}
+                {mod.module_type === "energyChart" && <EnergyChart />}
+              </div>
+            </Card>
           </div>
-          <div className="space-y-2">
-            {mod.module_type === "switches" && <PhaseSwitchPanel />}
-            {mod.module_type === "energyChart" && <EnergyChart />}
-          </div>
-        </Card>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
