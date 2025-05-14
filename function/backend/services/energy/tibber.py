@@ -1,0 +1,44 @@
+import os
+import requests
+from flask import Response
+
+from database.crud import fetch_value
+from services.helper import extract_datapoints_from_json_with_api
+
+ACCESS_TOKEN = fetch_value("energy_settings", "Tibber Clouddienst", "api_key")
+HEADERS = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + ACCESS_TOKEN
+}
+
+
+def pull_price_info_from_tibber_api() -> list:
+    """
+    Fetches the current energy price information.
+    :return prices: JSON containing the energy price data.
+    """
+    url: str = fetch_value("manufacturer", "Tibber Strompreis Info", "url")
+    with open(os.path.join(os.path.dirname(__file__), "graphql\\tibber_price_info.graphql"), "r") as file:
+        query: str = file.read()
+
+    response: Response = requests.post(url, headers=HEADERS, json={'query': query})
+    api: str = fetch_value("manufacturer", "Tibber Strompreis Info", "api")
+    data: dict = extract_datapoints_from_json_with_api(api, response.json())
+
+    return data.get("today", []) + data.get("tomorrow", [])
+
+
+def pull_consume_information_from_tibber_api() -> float:
+    """
+    Fetches the current energy price information.
+    :return consume: Sum of consume the last 24 hours
+    """
+    url: str = fetch_value("manufacturer", "Tibber Stromverbrauch", "url")
+    with open("common/pull_requests/graphql/tibber_consume_info.graphql", "r") as file:
+        query: str = file.read()
+
+    response: Response = requests.post(url, headers=HEADERS, json={'query': query})
+    api: str = fetch_value("manufacturer", "Tibber Stromverbrauch", "api")
+    data: dict = extract_datapoints_from_json_with_api(api, response.json())
+
+    return sum([consume['consumption'] for consume in data])

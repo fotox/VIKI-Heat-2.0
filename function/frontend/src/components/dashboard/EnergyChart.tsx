@@ -61,7 +61,7 @@ export function EnergyChart() {
 
         <Line
           yAxisId="right"
-          type="monotone"
+          type="stepAfter"
           dataKey="price"
           stroke="#ff0000"
           dot={false}

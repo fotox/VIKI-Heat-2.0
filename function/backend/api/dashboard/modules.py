@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, request
 
-from services.tibber_graphi_ql import pull_price_info_from_tibber_api
+from services.energy.tibber import pull_price_info_from_tibber_api
 
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
 
-@modules_bp.route("/energy_data", methods=["GET"])
+@modules_bp.route("/energy_data", methods=["GET"])  # TODO: Refactor to live data
 def get_energy_data():
     dummy_data = {
         f"{hour:02d}": {
