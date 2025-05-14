@@ -16,7 +16,6 @@ export function EnergyChart() {
   const [prices, setPrices] = useState({})
 
   useEffect(() => {
-    // Energie-Daten laden
     fetch("/api/modules/energy_data", { credentials: "include" })
       .then(res => res.json())
       .then(rawData => {
