@@ -16,6 +16,7 @@ export function EnergyChart() {
   const [prices, setPrices] = useState({})
 
   useEffect(() => {
+    // Energie-Daten laden
     fetch("/api/modules/energy_data", { credentials: "include" })
       .then(res => res.json())
       .then(rawData => {
@@ -28,7 +29,15 @@ export function EnergyChart() {
 
     fetch("/api/modules/energy_price", { credentials: "include" })
       .then(res => res.json())
-      .then(priceData => setPrices(priceData))
+      .then(priceArray => {
+        const priceMap = priceArray.reduce((acc, entry) => {
+          const date = new Date(entry.startsAt)
+          const hour = date.getHours().toString().padStart(2, '0')
+          acc[hour] = entry.total
+          return acc
+        }, {})
+        setPrices(priceMap)
+      })
   }, [])
 
   const chartData = data.map(d => ({
@@ -45,10 +54,12 @@ export function EnergyChart() {
         <YAxis yAxisId="right" orientation="right" />
         <Tooltip />
         <Legend />
+
         <Bar yAxisId="left" dataKey="heating" stackId="a" fill="#8884d8" />
         <Bar yAxisId="left" dataKey="consumer" stackId="a" fill="#82ca9d" />
         <Bar yAxisId="left" dataKey="regular" stackId="a" fill="#ffc658" />
         <Bar yAxisId="left" dataKey="production" fill="#ff7300" />
+
         <Line
           yAxisId="right"
           type="monotone"

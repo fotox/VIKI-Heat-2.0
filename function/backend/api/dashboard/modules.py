@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 
+from services.tibber_graphi_ql import pull_price_info_from_tibber_api
+
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
 
@@ -19,8 +21,7 @@ def get_energy_data():
 
 @modules_bp.route("/energy_price", methods=["GET"])
 def get_energy_price():
-    dummy_price = {f"{hour:02d}": round(0.1 + hour * 0.01, 2) for hour in range(24)}
-    return jsonify(dummy_price)
+    return jsonify(pull_price_info_from_tibber_api())
 
 
 @modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["GET"])
