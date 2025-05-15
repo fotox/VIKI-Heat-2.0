@@ -24,12 +24,13 @@ interface DashboardModule {
 const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "switches", module_type: "Phasen Schalt-Panel" },
   { id: "energyChart", module_type: "Energie-Daten Chart" },
-  { id: "inverterChart", module_type: "Wechselrichter-Daten Chart" }
+  { id: "inverterProductionChart", module_type: "Wechselrichter-Produktion Chart" },
+  { id: "inverterConsumeChart", module_type: "Wechselrichter-Verbrauch Chart" },
 ]
 
 import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
 import { EnergyChart } from "@/components/dashboard/EnergyChart"
-import { InverterChartProduction } from "@/components/dashboard/InverterChartProduction"
+import { InverterProduction, InverterConsume } from "@/components/dashboard/InverterChart"
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
@@ -124,9 +125,10 @@ export default function Dashboard() {
                 </Button>
               </div>
               <div className="space-y-2">
+                {mod.module_type === "inverterProductionChart" && <InverterProduction />}
+                {mod.module_type === "inverterConsumeChart" && <InverterConsume />}
                 {mod.module_type === "switches" && <PhaseSwitchPanel />}
                 {mod.module_type === "energyChart" && <EnergyChart />}
-                {mod.module_type === "inverterChart" && <InverterChartProduction />}
               </div>
             </Card>
           </div>
