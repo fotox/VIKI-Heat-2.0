@@ -8,6 +8,7 @@ import {
   DialogTrigger
 } from "@/components/ui"
 import { Trash2 } from "lucide-react"
+import {Plus} from "lucide-react";
 
 interface Device {
   id: number;
@@ -22,12 +23,13 @@ interface DashboardModule {
 
 const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "switches", module_type: "Phasen Schalt-Panel" },
-  { id: "energyChart", module_type: "Energie-Daten Chart" }
+  { id: "energyChart", module_type: "Energie-Daten Chart" },
+  { id: "inverterChart", module_type: "Wechselrichter-Daten Chart" }
 ]
 
 import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
 import { EnergyChart } from "@/components/dashboard/EnergyChart"
-import {Plus} from "lucide-react";
+import { InverterChartProduction } from "@/components/dashboard/InverterChartProduction"
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
@@ -124,6 +126,7 @@ export default function Dashboard() {
               <div className="space-y-2">
                 {mod.module_type === "switches" && <PhaseSwitchPanel />}
                 {mod.module_type === "energyChart" && <EnergyChart />}
+                {mod.module_type === "inverterChart" && <InverterChartProduction />}
               </div>
             </Card>
           </div>

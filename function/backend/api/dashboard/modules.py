@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from services.energy.tibber import pull_price_info_from_tibber_api
+from services.energy.inverter import pull_live_data_from_inverter
 
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
@@ -35,3 +36,8 @@ def toggle_heat_pipe(pipe_id):
     data = request.get_json()
     state = data.get("state", False)
     return jsonify({"pipe_id": pipe_id, "new_state": state})
+
+
+@modules_bp.route("/inverter_data", methods=["GET"])
+def get_inverter_data():
+    return jsonify(pull_live_data_from_inverter(2))     # TODO: Find a way to set id automatically
