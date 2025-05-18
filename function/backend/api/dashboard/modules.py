@@ -41,3 +41,25 @@ def toggle_heat_pipe(pipe_id):
 @modules_bp.route("/inverter_data", methods=["GET"])
 def get_inverter_data():
     return jsonify(pull_live_data_from_inverter(2))     # TODO: Find a way to set id automatically
+
+
+@modules_bp.route("/heating_tank_temp", methods=["GET"])
+def get_heating_tank_temp():
+    dummy_data = {
+        'dest_temp': 42.0,
+        'sensor_1': 27.0,
+        'sensor_2': 43.3,
+        'sensor_3': 53.0
+    }
+    return jsonify(dummy_data)
+
+
+@modules_bp.route("/buffer_tank_temp", methods=["GET"])
+def get_buffer_tank_temp():
+    dummy_data = {
+        'dest_temp': 42.0,
+        'sensor_1': 27.0,
+        'sensor_2': 43.3,
+        'sensor_3': 53.0
+    }
+    return jsonify(dummy_data)

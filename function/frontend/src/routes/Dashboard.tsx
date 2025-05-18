@@ -26,10 +26,15 @@ const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "energyChart", module_type: "Energie-Daten Chart" },
   { id: "inverterProductionChart", module_type: "Wechselrichter-Produktion Chart" },
   { id: "inverterConsumeChart", module_type: "Wechselrichter-Verbrauch Chart" },
+  { id: "inverterCoverChart", module_type: "Wechselrichter-Strombillanz Chart" },
+  { id: "inverterAccuChart", module_type: "Wechselrichter-Verbrauch Chart" },
+  { id: "heatingTankRingChart", module_type: "Warmwasserspeicher Chart" },
+  { id: "bufferTankRingChart", module_type: "Pufferspeicher Chart" },
 ]
 
 import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
 import { EnergyChart } from "@/components/dashboard/EnergyChart"
+import { HeatingTankRingChart, BufferTankRingChart } from "@/components/dashboard/TankRingChart";
 import { InverterProduction, InverterConsume } from "@/components/dashboard/InverterChart"
 
 export default function Dashboard() {
@@ -129,6 +134,8 @@ export default function Dashboard() {
                 {mod.module_type === "inverterConsumeChart" && <InverterConsume />}
                 {mod.module_type === "switches" && <PhaseSwitchPanel />}
                 {mod.module_type === "energyChart" && <EnergyChart />}
+                {mod.module_type === "heatingTankRingChart" && <HeatingTankRingChart />}
+                {mod.module_type === "bufferTankRingChart" && <BufferTankRingChart  />}
               </div>
             </Card>
           </div>
