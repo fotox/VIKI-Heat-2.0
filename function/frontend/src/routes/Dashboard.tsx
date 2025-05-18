@@ -82,6 +82,23 @@ export default function Dashboard() {
       .then(savedModule => setModules(prev => [...prev, savedModule]))
   }
 
+  const moveModule = (index: number, direction: 'up' | 'down') => {
+    const newModules = [...modules];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newModules.length) return;
+
+    [newModules[index], newModules[targetIndex]] = [newModules[targetIndex], newModules[index]];
+    setModules(newModules);
+
+    fetch("/api/dashboard/modules/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(newModules.map((m, idx) => ({ id: m.id, position: idx })))
+    });
+  };
+
   if (error) {
     return (
       <div className="p-6 text-red-600">
@@ -120,6 +137,24 @@ export default function Dashboard() {
           >
             <Card className="relative p-4 pb-12">
               <div className="absolute bottom-4 right-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => moveModule(index, 'up')}
+                  title="Nach oben verschieben"
+                  disabled={index === 0}
+                >
+                  ↑
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => moveModule(index, 'down')}
+                  title="Nach unten verschieben"
+                  disabled={index === modules.length - 1}
+                >
+                  ↓
+                </Button>
                 <Button
                   size="icon"
                   variant="ghost"

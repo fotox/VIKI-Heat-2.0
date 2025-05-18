@@ -1,5 +1,4 @@
 from flask import request
-
 from flask import Blueprint, jsonify
 
 from extensions import db, socketio
@@ -30,3 +29,30 @@ def remove_module(module_id):
     db.session.delete(module)
     db.session.commit()
     return jsonify(success=True)
+
+
+@dashboard_bp.route("/modules/reorder", methods=["POST"])
+def reorder_modules():
+    data = request.json
+    if not isinstance(data, list):
+        return jsonify({"error": "Ungültiges Format, erwartetes Array von Objekten"}), 400
+
+    try:
+        for item in data:
+            module_id = item.get("id")
+            position = item.get("position")
+
+            if module_id is None or position is None:
+                return jsonify({"error": f"Ungültige Datenstruktur: {item}"}), 400
+
+            module = DashboardModuleSetting.query.get(module_id)
+            if not module:
+                return jsonify({"error": f"Modul mit ID {module_id} nicht gefunden"}), 404
+
+            module.position = position
+
+        db.session.commit()
+        return jsonify({"message": "Positionen erfolgreich aktualisiert"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
