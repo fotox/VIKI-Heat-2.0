@@ -6,7 +6,7 @@ import {
   Cell
 } from "recharts"
 
-const COLORS = ["#22c55e", "#e5e7eb"];
+const COLORS = ["#2973bd", "#e5e7eb"];
 
 export function useInverterData() {
   const [data, setData] = useState<any>(null);
@@ -33,8 +33,6 @@ export function useInverterData() {
   return data;
 }
 
-
-
 export function InverterProduction() {
   const data = useInverterData();
   if (!data) return <div>Lade Produktionsdaten...</div>;
@@ -55,6 +53,8 @@ export function InverterProduction() {
                 outerRadius={60}
                 dataKey="value"
                 stroke="none"
+                startAngle={90}
+                endAngle={-270}
             >
               {productionData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index]}/>
@@ -70,14 +70,13 @@ export function InverterProduction() {
   )
 }
 
-
 export function InverterConsume() {
   const data = useInverterData();
   if (!data) return <div>Lade Verbrauchsdaten...</div>;
 
   const consumeData = [
     { name: "consume", value: data['consume'] },
-    { name: "consume_rest", value: 20000 - data['consume'] },
+    { name: "consume_rest", value: 10000 - data['consume'] },
   ];
 
   return (
@@ -91,6 +90,8 @@ export function InverterConsume() {
                 outerRadius={60}
                 dataKey="value"
                 stroke="none"
+                startAngle={90}
+                endAngle={-270}
             >
               {consumeData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index]}/>
@@ -99,7 +100,81 @@ export function InverterConsume() {
           </PieChart>
           <div className="text-center">
             <div className="text-2xl font-bold">{consumeData[0].value} W</div>
-            <div className="text-sm text-muted-foreground">von 20000 W</div>
+            <div className="text-sm text-muted-foreground">von 10000 W</div>
+          </div>
+        </div>
+      </ResponsiveContainer>
+  )
+}
+
+export function InverterCover() {
+  const data = useInverterData();
+  if (!data) return <div>Lade Strombillanz...</div>;
+
+  const coverData = [
+    { name: "cover", value: data['cover'] },
+    { name: "cover_rest", value: 10000 - data['cover'] },
+  ];
+
+  return (
+      <ResponsiveContainer height={250}>
+        <div className="w-full flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-2">Strombilanz</h2>
+          <PieChart width={150} height={150}>
+            <Pie
+                data={coverData}
+                innerRadius={35}
+                outerRadius={60}
+                dataKey="value"
+                stroke="none"
+                startAngle={90}
+                endAngle={-270}
+            >
+              {coverData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index]}/>
+              ))}
+            </Pie>
+          </PieChart>
+          <div className="text-center">
+            <div className="text-2xl font-bold">{coverData[0].value} W</div>
+            <div className="text-sm text-muted-foreground">von 10000 W</div>
+          </div>
+        </div>
+      </ResponsiveContainer>
+  )
+}
+
+export function InverterAccuCapacity() {
+  const data = useInverterData();
+  if (!data) return <div>Lade Speicherstand Akku...</div>;
+
+  const accuData = [
+    { name: "accu", value: data['accu_capacity'] },
+    { name: "accu_rest", value: 10000 - data['accu_capacity'] },
+  ];
+
+  return (
+      <ResponsiveContainer height={250}>
+        <div className="w-full flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-2">Akku-Kapazität</h2>
+          <PieChart width={150} height={150}>
+            <Pie
+                data={accuData}
+                innerRadius={35}
+                outerRadius={60}
+                dataKey="value"
+                stroke="none"
+                startAngle={90}
+                endAngle={-270}
+            >
+              {accuData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index]}/>
+              ))}
+            </Pie>
+          </PieChart>
+          <div className="text-center">
+            <div className="text-2xl font-bold">{accuData[0].value} W</div>
+            <div className="text-sm text-muted-foreground">von 10000 W</div> //TODO: Load maximum form database
           </div>
         </div>
       </ResponsiveContainer>
