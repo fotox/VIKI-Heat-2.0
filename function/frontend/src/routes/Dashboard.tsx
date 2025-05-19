@@ -27,7 +27,7 @@ const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "inverterProductionChart", module_type: "Wechselrichter-Produktion Chart" },
   { id: "inverterConsumeChart", module_type: "Wechselrichter-Verbrauch Chart" },
   { id: "inverterCoverChart", module_type: "Wechselrichter-Strombillanz Chart" },
-  { id: "inverterAccuChart", module_type: "Wechselrichter-Verbrauch Chart" },
+  { id: "inverterAccuCapacityChart", module_type: "Wechselrichter-Verbrauch Chart" },
   { id: "heatingTankRingChart", module_type: "Warmwasserspeicher Chart" },
   { id: "bufferTankRingChart", module_type: "Pufferspeicher Chart" },
 ]
@@ -35,7 +35,7 @@ const AVAILABLE_MODULES: DashboardModule[] = [
 import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
 import { EnergyChart } from "@/components/dashboard/EnergyChart"
 import { HeatingTankRingChart, BufferTankRingChart } from "@/components/dashboard/TankRingChart";
-import { InverterProduction, InverterConsume } from "@/components/dashboard/InverterChart"
+import { InverterProduction, InverterConsume, InverterCover, InverterAccuCapacity } from "@/components/dashboard/InverterChart"
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
@@ -47,7 +47,10 @@ export default function Dashboard() {
   useEffect(() => {
     fetch("/api/dashboard/modules", { credentials: "include" })
       .then(res => res.json())
-      .then(data => setModules(data))
+      .then(data => {
+        const sorted = [...data].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+        setModules(sorted);
+      })
     fetchDevices()
   }, [])
 
@@ -167,6 +170,8 @@ export default function Dashboard() {
               <div className="space-y-2">
                 {mod.module_type === "inverterProductionChart" && <InverterProduction />}
                 {mod.module_type === "inverterConsumeChart" && <InverterConsume />}
+                {mod.module_type === "inverterCoverChart" && <InverterCover />}
+                {mod.module_type === "inverterAccuCapacityChart" && <InverterAccuCapacity />}
                 {mod.module_type === "switches" && <PhaseSwitchPanel />}
                 {mod.module_type === "energyChart" && <EnergyChart />}
                 {mod.module_type === "heatingTankRingChart" && <HeatingTankRingChart />}

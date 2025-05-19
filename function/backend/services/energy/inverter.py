@@ -44,9 +44,9 @@ def pull_live_data_from_inverter(manufacturer_id: int):
     response: Response = requests.get(url, timeout=5)
     data: dict = extract_datapoints_from_json_with_api(inverter_data['api'], response.json())
 
-    consume: float = (data.get('P_Load') * (-1)) if data.get('P_Load') is not None else 0.0
-    production: float = data.get('P_PV') if data.get('P_PV') is not None else 0.0
-    cover: float = data.get('P_Grid') if data.get('P_Grid') is not None else 0.0
-    accu_capacity: float = data.get('P_Akku') if data.get('P_Akku') is not None else 0.0
+    consume: int = round(((data.get('P_Load') * (-1)) if data.get('P_Load') is not None else 0.0), 0)
+    production: int = round((data.get('P_PV') if data.get('P_PV') is not None else 0.0), 0)
+    cover: int = round((data.get('P_Grid') if data.get('P_Grid') is not None else 0.0), 0)
+    accu_capacity: float = round((data.get('P_Akku') if data.get('P_Akku') is not None else 0.0), 1)
 
     return {'consume': consume, 'production': production, 'cover': cover, 'accu_capacity': accu_capacity}
