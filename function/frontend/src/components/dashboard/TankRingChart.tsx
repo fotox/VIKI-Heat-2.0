@@ -39,54 +39,57 @@ export function TankRingChart({ apiEndpoint, title }: TankRingChartProps) {
   const gradientId = `${title.replace(/\s+/g, '-')}-gradient`;
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
-      <h2 className="text-xl font-bold mb-2 text-center">{title}</h2>
-      <svg viewBox="0 0 300 200" className="w-full h-auto">
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#00f" />
-            <stop offset="100%" stopColor="#f00" />
-          </linearGradient>
-        </defs>
+      <div className="w-full flex flex-col items-center min-h-[210px]">
+        <h2 className="text-xl font-bold mb-2">{title}</h2>
+        <svg viewBox="0 0 300 200" className="w-full h-auto">
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#00f"/>
+              <stop offset="100%" stopColor="#f00"/>
+            </linearGradient>
+          </defs>
 
-        <path
-          d="M50,150 A100,100 0 0,1 250,150"
-          stroke={`url(#${gradientId})`}
-          strokeWidth="20"
-          fill="transparent"
-          strokeLinecap="butt"
-        />
+          <path
+              d="M50,150 A100,100 0 0,1 250,150"
+              stroke={`url(#${gradientId})`}
+              strokeWidth="20"
+              fill="transparent"
+              strokeLinecap="butt"
+          />
 
-        {sensors.map((temp: number | null, index: number) => {
-          if (temp === null) return null;
-          const pos = getPosition(temp);
-          return (
-            <g key={index}>
-              <circle cx={pos.x} cy={pos.y} r="15" fill="#fff" stroke="#000" strokeWidth="2" />
-              <text
-                x={pos.x}
-                y={pos.y + 4}
-                textAnchor="middle"
-                fontSize="10"
-                fill="#000"
-              >
-                {temp.toFixed(1)}°C
-              </text>
-            </g>
-          );
-        })}
+          {sensors.map((temp: number | null, index: number) => {
+            if (temp === null) return null;
+            const pos = getPosition(temp);
 
-        <text x="50" y="175" textAnchor="middle" fontSize="12" fill="#000">
-          5°C
-        </text>
-        <text x="250" y="175" textAnchor="middle" fontSize="12" fill="#000">
-          80°C
-        </text>
+            return (
+                <circle
+                    key={index}
+                    cx={pos.x}
+                    cy={pos.y}
+                    r="9"
+                    fill="#FFFFFF55"
+                    stroke="#FFF"
+                    strokeWidth="3"
+                />
+            );
+          })}
 
-        <text x="150" y="120" textAnchor="middle" fontSize="32" fill="#000">
-          {centerTemp}°C
-        </text>
-      </svg>
-    </div>
+          <text x="50" y="175" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#000">
+            5°C
+          </text>
+          <text x="250" y="175" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#000">
+            80°C
+          </text>
+
+          <text x="150" y="120" textAnchor="middle" fontSize="35" fontWeight="bold" fill="#000">
+            {centerTemp}°C
+          </text>
+        </svg>
+        <div className="text-center mb-2 text-sm font-semibold">
+          {sensors[0]?.toFixed(1) ?? "-"}°C &nbsp;|&nbsp;
+          {sensors[1]?.toFixed(1) ?? "-"}°C &nbsp;|&nbsp;
+          {sensors[2]?.toFixed(1) ?? "-"}°C
+        </div>
+      </div>
   );
 }

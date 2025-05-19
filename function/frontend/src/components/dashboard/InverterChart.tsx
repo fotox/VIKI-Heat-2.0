@@ -43,14 +43,14 @@ export function InverterProduction() {
   ];
 
   return (
-      <ResponsiveContainer height={250}>
-        <div className="w-full flex flex-col items-center">
+      <ResponsiveContainer>
+        <div className="w-full flex flex-col items-center min-h-[210px]">
           <h2 className="text-xl font-bold mb-2">Produktion</h2>
-          <PieChart width={150} height={150}>
+          <PieChart width={120} height={120}>
             <Pie
                 data={productionData}
-                innerRadius={35}
-                outerRadius={60}
+                innerRadius={30}
+                outerRadius={50}
                 dataKey="value"
                 stroke="none"
                 startAngle={90}
@@ -80,14 +80,14 @@ export function InverterConsume() {
   ];
 
   return (
-      <ResponsiveContainer height={250}>
-        <div className="w-full flex flex-col items-center">
+      <ResponsiveContainer>
+        <div className="w-full flex flex-col items-center min-h-[210px]">
           <h2 className="text-xl font-bold mb-2">Verbrauch</h2>
-          <PieChart width={150} height={150}>
+          <PieChart width={120} height={120}>
             <Pie
                 data={consumeData}
-                innerRadius={35}
-                outerRadius={60}
+                innerRadius={30}
+                outerRadius={50}
                 dataKey="value"
                 stroke="none"
                 startAngle={90}
@@ -117,14 +117,14 @@ export function InverterCover() {
   ];
 
   return (
-      <ResponsiveContainer height={250}>
+      <ResponsiveContainer>
         <div className="w-full flex flex-col items-center">
           <h2 className="text-xl font-bold mb-2">Strombilanz</h2>
-          <PieChart width={150} height={150}>
+          <PieChart width={120} height={120}>
             <Pie
                 data={coverData}
-                innerRadius={35}
-                outerRadius={60}
+                innerRadius={30}
+                outerRadius={50}
                 dataKey="value"
                 stroke="none"
                 startAngle={90}
@@ -155,7 +155,7 @@ export function InverterAccuCapacity() {
 
   return (
       <ResponsiveContainer height={250}>
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center min-h-[210px]">
           <h2 className="text-xl font-bold mb-2">Akku-Kapazität</h2>
           <PieChart width={150} height={150}>
             <Pie

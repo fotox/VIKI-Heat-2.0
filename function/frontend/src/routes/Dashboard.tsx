@@ -113,26 +113,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Geräte</h2>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4"/> Neues Modul
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-4">
-          <h3 className="text-lg font-medium mb-2">Modul auswählen</h3>
-          <div className="space-y-2">
-            {AVAILABLE_MODULES.map(mod => (
-              <Button key={mod.id} variant="outline" className="w-full" onClick={() => handleAddModule(mod)}>
-                {mod.module_type}
-              </Button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {modules.map((mod, index) => (
           <div
             key={`${mod.id}-${index}`}
@@ -181,6 +162,23 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <Plus className="mr-2 h-4 w-4"/> Neues Modul
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="p-4">
+          <h3 className="text-lg font-medium mb-2">Modul auswählen</h3>
+          <div className="space-y-2">
+            {AVAILABLE_MODULES.map(mod => (
+              <Button key={mod.id} variant="outline" className="w-full" onClick={() => handleAddModule(mod)}>
+                {mod.module_type}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
