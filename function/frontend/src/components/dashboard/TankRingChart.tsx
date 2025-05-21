@@ -39,7 +39,7 @@ export function TankRingChart({ apiEndpoint, title }: TankRingChartProps) {
   const gradientId = `${title.replace(/\s+/g, '-')}-gradient`;
 
   return (
-      <div className="w-full flex flex-col items-center min-h-[210px]">
+      <div className="w-full flex flex-col items-center min-h-[230px] max-h-[230px]">
         <h2 className="text-xl font-bold mb-2">{title}</h2>
         <svg viewBox="0 0 300 200" className="w-full h-auto">
           <defs>
