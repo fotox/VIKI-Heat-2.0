@@ -46,23 +46,23 @@ def get_inverter_data():
 
 @modules_bp.route("/heating_tank_temp", methods=["GET"])
 def get_heating_tank_temp():
-    read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(0, 3))))
-    dummy_data = {
+    heating_tank_sensor_data: dict = read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(0, 3))))
+    sensor_data = {
         'dest_temp': 60.0,
-        'sensor_1': 41.81,
-        'sensor_2': 42.25,
-        'sensor_3': None
+        'sensor_1': heating_tank_sensor_data[0],
+        'sensor_2': heating_tank_sensor_data[1],
+        'sensor_3': heating_tank_sensor_data[2]
     }
-    return jsonify(dummy_data)
+    return jsonify(sensor_data)
 
 
 @modules_bp.route("/buffer_tank_temp", methods=["GET"])
 def get_buffer_tank_temp():
-    read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(4, 7))))
-    dummy_data = {
+    buffer_tank_sensor_data: dict = read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(3, 6))))
+    sensor_data = {
         'dest_temp': 35.0,
-        'sensor_1': 19.0,
-        'sensor_2': 23.06,
-        'sensor_3': 28.06
+        'sensor_1': buffer_tank_sensor_data[3],
+        'sensor_2': buffer_tank_sensor_data[4],
+        'sensor_3': buffer_tank_sensor_data[5]
     }
-    return jsonify(dummy_data)
+    return jsonify(sensor_data)

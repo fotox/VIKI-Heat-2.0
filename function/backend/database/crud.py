@@ -50,7 +50,7 @@ def fetch_r4dcb08_sensor_setting() -> dict | None:
 
         if result:
             connection_data: dict = ast.literal_eval(result[0][3])
-            connection_data['port'] = result[2]
+            connection_data['port'] = result[0][2]
             return connection_data
         else:
             return None

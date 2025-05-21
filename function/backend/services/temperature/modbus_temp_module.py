@@ -6,15 +6,13 @@ from pymodbus.pdu import ModbusPDU
 from database.crud import fetch_r4dcb08_sensor_setting
 
 
-def read_temp_sensors_from_r4dcb08(sensor_ids: dict) -> dict:
+def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
     """
     Read temperature measure values from R4DCB08 module.
     :param: sensor_id: List of ports of R4DCB08 who is locked the temperature sensor
     :return: Dict of temperature values.
     """
-    temp_sensor_data: dict = dict.fromkeys(list(range(0, 7)))
     client_con_data: dict = fetch_r4dcb08_sensor_setting()
-
     client = ModbusClient(
         port=client_con_data['port'],
         baudrate=client_con_data['baudrate'],
@@ -33,7 +31,8 @@ def read_temp_sensors_from_r4dcb08(sensor_ids: dict) -> dict:
             temperatures: list[int] = response.registers
             for i, temp in enumerate(temperatures[:6]):
                 if temp < 30000:
-                    temp_sensor_data[i] = temp / 10.0
+                    if i in temp_sensor_data.keys():
+                        temp_sensor_data[i] = temp / 10.0
             client.close()
             return temp_sensor_data
 
@@ -42,3 +41,4 @@ def read_temp_sensors_from_r4dcb08(sensor_ids: dict) -> dict:
 
     finally:
         client.close()
+        return temp_sensor_data
