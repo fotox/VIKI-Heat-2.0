@@ -15,15 +15,24 @@ HEADERS = {
 def pull_price_info_from_tibber_api() -> list:
     """
     Fetches the current energy price information.
-    :return prices: JSON containing the energy price data.
+    :return prices: Energy price data for today and at 13 o'clock for tomorrow.
     """
     url: str = fetch_values("manufacturer", "Tibber Strompreis Info", "url")
-    with open(os.path.join(os.path.dirname(__file__), "graphql\\tibber_price_info.graphql"), "r") as file:
-        query: str = file.read()
 
-    response: Response = requests.post(url, headers=HEADERS, json={'query': query})
-    api: str = fetch_values("manufacturer", "Tibber Strompreis Info", "api")
-    data: dict = extract_datapoints_from_json_with_api(api, response.json())
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "graphql\\tibber_price_info.graphql"), "r") as file:
+            query: str = file.read()
+
+        response: Response = requests.post(url, headers=HEADERS, json={'query': query})
+        api: str = fetch_values("manufacturer", "Tibber Strompreis Info", "api")
+        data: dict = extract_datapoints_from_json_with_api(api, response.json())
+
+    except FileNotFoundError as fnfe:
+        print(f"Error by open file: {fnfe}")
+        return []
+    except requests.exceptions.HTTPError as errh:
+        print(f"Error by http request: {errh}")
+        return []
 
     return data.get("today", []) + data.get("tomorrow", [])
 

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from flasgger import Swagger
 
 from api.auth.routes import auth_bp
 from api.dashboard.routes import dashboard_bp
@@ -14,6 +15,7 @@ from config import Config
 
 def create_app():
     app = Flask(__name__, instance_relative_config=False)
+    Swagger(app, template_file='swagger_config.yml')
     app.config.from_object(Config)
 
     # Extensions

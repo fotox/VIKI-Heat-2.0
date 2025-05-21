@@ -1,0 +1,14 @@
+swagger: "2.0"
+info:
+  title: V.I.K.I - Heat
+  description: Backend API endpoint documentation for V.I.K.I - Heat
+  version: "2.0.0"
+  contact:
+    name: Carsten Stephan
+    email: carsten_stephan@mail.de
+  license:
+    name: Private Licence
+host: localhost:5000
+basePath: /
+schemes:
+  - http

@@ -6,6 +6,9 @@ from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb
 
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
+CURRENT_HEATING_MODE = {"mode": "Automatik"}
+VALID_MODES = ["Automatik", "Manuell", "Schnell heizen", "Urlaub"]
+
 
 @modules_bp.route("/energy_data", methods=["GET"])  # TODO: Refactor to live data
 def get_energy_data():
@@ -23,25 +26,70 @@ def get_energy_data():
 
 @modules_bp.route("/energy_price", methods=["GET"])
 def get_energy_price():
-    return jsonify(pull_price_info_from_tibber_api())
+    """
+    Get the energy price from Tibber GraphQL
+    ---
+    responses:
+      200:
+        description: Tibber Price Information
+        examples:
+          application/json:
+            {
+              "today": [
+                {"total": 0.3374, "startsAt": "2025-05-21T00:00:00.000+02:00"},
+                {"total": 0.3307, "startsAt": "2025-05-21T01:00:00.000+02:00"}
+              ]
+            }
+      204:
+        description: Tibber Price Information not found
+        examples:
+          application/json:
+            {
+              "today": [],
+              "tomorrow": []
+            }
+    """
+    price_information: list = pull_price_info_from_tibber_api()
+
+    if price_information is not []:
+        return jsonify(price_information), 200
+    else:
+        return jsonify([]), 204
 
 
 @modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["GET"])
 def heat_pipe(pipe_id):
     state = pipe_id % 2 == 0
-    return jsonify({"pipe_id": pipe_id, "state": state})
+    return jsonify({"pipe_id": pipe_id, "state": state}), 200
 
 
 @modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["PUT"])
 def toggle_heat_pipe(pipe_id):
     data = request.get_json()
     state = data.get("state", False)
-    return jsonify({"pipe_id": pipe_id, "new_state": state})
+    return jsonify({"pipe_id": pipe_id, "new_state": state}), 200
+
+
+@modules_bp.route("/heating_mode", methods=["GET"])
+def get_heating_mode():
+    return jsonify({"mode": CURRENT_HEATING_MODE["mode"]}), 200
+
+
+@modules_bp.route("/heating_mode", methods=["PUT"])
+def set_heating_mode():
+    data = request.get_json()
+    mode = data.get("mode")
+
+    if mode not in VALID_MODES:
+        return jsonify({"error": "Ungültiger Modus"}), 400
+
+    CURRENT_HEATING_MODE["mode"] = mode
+    return jsonify({"message": "Modus aktualisiert", "mode": mode}), 200
 
 
 @modules_bp.route("/inverter_data", methods=["GET"])
 def get_inverter_data():
-    return jsonify(pull_live_data_from_inverter(2))     # TODO: Find a way to set id automatically
+    return jsonify(pull_live_data_from_inverter(2)), 200     # TODO: Find a way to set id automatically
 
 
 @modules_bp.route("/heating_tank_temp", methods=["GET"])
@@ -53,7 +101,7 @@ def get_heating_tank_temp():
         'sensor_2': heating_tank_sensor_data[1],
         'sensor_3': heating_tank_sensor_data[2]
     }
-    return jsonify(sensor_data)
+    return jsonify(sensor_data), 200
 
 
 @modules_bp.route("/buffer_tank_temp", methods=["GET"])
@@ -65,4 +113,4 @@ def get_buffer_tank_temp():
         'sensor_2': buffer_tank_sensor_data[4],
         'sensor_3': buffer_tank_sensor_data[5]
     }
-    return jsonify(sensor_data)
+    return jsonify(sensor_data), 200
