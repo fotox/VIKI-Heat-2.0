@@ -117,7 +117,7 @@ export default function Dashboard() {
         {modules.map((mod, index) => (
           <div
             key={`${mod.id}-${index}`}
-            className={`mt-4 ${mod.module_type === "energyChart" ? "col-span-4" : ""}`}
+            className={`mt-4 ${mod.module_type === "energyChart" ? "col-span-4 row-span-2" : ""}`}
           >
             <Card className="relative p-4 pb-12">
               <div className="absolute bottom-4 right-4">
