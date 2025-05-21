@@ -97,8 +97,8 @@ class SensorSetting(db.Model):
         ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
-    messure_device: db.Mapped["TankSetting"] = db.mapped_column(ForeignKey(TankSetting.id), nullable=True)
-    measuring_position: db.Column(db.VARCHAR(128), nullable=True)
+    measuring_device: db.Mapped["TankSetting"] = db.mapped_column(ForeignKey(TankSetting.id), nullable=True)
+    measuring_position: db.Mapped[str] = db.Column(db.VARCHAR(128), nullable=True)
 
     def to_dict(self):
         return {
@@ -107,7 +107,7 @@ class SensorSetting(db.Model):
             "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
             "ip": self.ip,
             "api_key": self.api_key,
-            "measuring_device": self.messure_device,
+            "measuring_device": self.measuring_device,
             "measuring_position": self.measuring_position
         }
 

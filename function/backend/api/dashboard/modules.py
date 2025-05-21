@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from services.energy.tibber import pull_price_info_from_tibber_api
 from services.energy.inverter import pull_live_data_from_inverter
+from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
@@ -45,6 +46,7 @@ def get_inverter_data():
 
 @modules_bp.route("/heating_tank_temp", methods=["GET"])
 def get_heating_tank_temp():
+    read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(0, 3))))
     dummy_data = {
         'dest_temp': 60.0,
         'sensor_1': 41.81,
@@ -56,6 +58,7 @@ def get_heating_tank_temp():
 
 @modules_bp.route("/buffer_tank_temp", methods=["GET"])
 def get_buffer_tank_temp():
+    read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(4, 7))))
     dummy_data = {
         'dest_temp': 35.0,
         'sensor_1': 19.0,
