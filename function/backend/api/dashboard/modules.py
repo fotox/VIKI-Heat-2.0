@@ -58,15 +58,27 @@ def get_energy_price():
 
 
 @modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["GET"])
-def heat_pipe(pipe_id):
-    state = pipe_id % 2 == 0
-    return jsonify({"pipe_id": pipe_id, "state": state}), 200
+def get_heat_pipe_state(pipe_id):
+    """
+    Get the current state from one of the three heat pipes
+    ---
+    responses:
+      200:
+        description: State of heat pipe [ON / OFF]
+        examples:
+
+
+    """
+    heat_pipe_state: str = 'HIGH'   # TODO: Refactor
+
+    return jsonify({"pipe_id": pipe_id, "state": heat_pipe_state}), 200
 
 
 @modules_bp.route("/heat_pipe/<int:pipe_id>", methods=["PUT"])
 def toggle_heat_pipe(pipe_id):
     data = request.get_json()
     state = data.get("state", False)
+    # heat_pipe_state: dict = switch_relay_state(pin_id=pipe_id, new_state=state)
     return jsonify({"pipe_id": pipe_id, "new_state": state}), 200
 
 
@@ -89,7 +101,7 @@ def set_heating_mode():
 
 @modules_bp.route("/inverter_data", methods=["GET"])
 def get_inverter_data():
-    return jsonify(pull_live_data_from_inverter(2)), 200     # TODO: Find a way to set id automatically
+    return jsonify(pull_live_data_from_inverter(2)), 200  # TODO: Find a way to set id automatically
 
 
 @modules_bp.route("/heating_tank_temp", methods=["GET"])
@@ -99,7 +111,8 @@ def get_heating_tank_temp():
         'dest_temp': 60.0,
         'sensor_1': heating_tank_sensor_data[0],
         'sensor_2': heating_tank_sensor_data[1],
-        'sensor_3': heating_tank_sensor_data[2]
+        'sensor_3': heating_tank_sensor_data[2],
+        'heat_pipe': True
     }
     return jsonify(sensor_data), 200
 
@@ -111,6 +124,7 @@ def get_buffer_tank_temp():
         'dest_temp': 35.0,
         'sensor_1': buffer_tank_sensor_data[3],
         'sensor_2': buffer_tank_sensor_data[4],
-        'sensor_3': buffer_tank_sensor_data[5]
+        'sensor_3': buffer_tank_sensor_data[5],
+        'heat_pipe': False
     }
     return jsonify(sensor_data), 200

@@ -42,3 +42,25 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
     finally:
         client.close()
         return temp_sensor_data
+
+
+def get_temp_of_tank_with_heat_pipe(temp_sensors: dict, tanks: dict) -> [float, float]:
+    """
+    Load data from tank with heat pipe and return the tank name and the actual destination temperature.
+    :param temp_sensors: config of viki-heat for temperature sensors.
+    :param tanks: config of viki-heat for tanks.
+    :return: tank name and actual destination temperature.
+    """
+    used_tank: str = ""
+    destination_temp: float = 0.0
+
+    for tank_type in tanks:
+        if tanks[tank_type]["heating_element"]:
+            used_tank: str = tank_type
+            destination_temp: float = tanks[tank_type]["destination_temp"]
+
+    for sensors in temp_sensors:
+        if temp_sensors[sensors]["binding"].startswith(used_tank):
+            return temp_sensors[sensors]["value"], destination_temp
+        else:
+            return 0, 0

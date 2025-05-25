@@ -1,12 +1,7 @@
 import ast
 import os
-from typing import Any
-
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-
-from database.settings import ManufacturerSetting, TankSetting, SensorSetting
 
 DATABASE_URI = os.getenv("DATABASE_URL")
 
@@ -52,6 +47,36 @@ def fetch_r4dcb08_sensor_setting() -> dict | None:
             connection_data: dict = ast.literal_eval(result[0][3])
             connection_data['port'] = result[0][2]
             return connection_data
+        else:
+            return None
+
+    except Exception as e:
+        return None
+
+
+def fetch_heat_pipe_setting() -> dict | None:
+    try:
+        engine = create_engine(DATABASE_URI)
+        with engine.connect() as connection:
+            query = text("""
+                SELECT
+                    m.description,
+                    h.ip,
+                    h.api_key,
+                    m.power_factor,
+                    m.power_size,
+                    h.buffer
+                FROM
+                    heating_settings h
+                JOIN
+                    manufacturer m ON h.manufacturer = m.id
+            """)
+            result = connection.execute(query).fetchall()
+
+        if result:
+            heat_pipe_values = [(value[-2], value[-1]) for value in result if "Heizstab" in value[0]]
+            return {'pipe_1': heat_pipe_values[0][0], 'pipe_2': heat_pipe_values[1][0], 'pipe_3': heat_pipe_values[2][0],
+                    'buffer_1': heat_pipe_values[0][1], 'buffer_2': heat_pipe_values[1][1], 'buffer_3': heat_pipe_values[2][1]}
         else:
             return None
 
