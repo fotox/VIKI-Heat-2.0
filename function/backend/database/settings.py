@@ -94,7 +94,7 @@ class SensorSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
-    ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    ip: db.Mapped[str] = db.Column(db.VARCHAR(16), nullable=False)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
     measuring_device: db.Mapped["TankSetting"] = db.mapped_column(ForeignKey(TankSetting.id), nullable=True)
     measuring_position: db.Mapped[str] = db.Column(db.VARCHAR(128), nullable=True)
@@ -141,7 +141,7 @@ class EnergySetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
-    ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    ip: db.Mapped[str] = db.Column(db.VARCHAR(16), nullable=False)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
     price: db.Mapped[float] = db.Column(db.NUMERIC(10, 2), nullable=True)
 
@@ -163,7 +163,7 @@ class HeatingSetting(db.Model):
     description: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=False)
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
-    ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
+    ip: db.Mapped[str] = db.Column(db.VARCHAR(16), nullable=False)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
     buffer: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
 
@@ -186,17 +186,15 @@ class WeatherSetting(db.Model):
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
     location: db.Mapped["LocationSetting"] = db.mapped_column(ForeignKey(LocationSetting.id), nullable=False)
-    ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
-    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
-    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
+    ip: db.Mapped[str] = db.Column(db.VARCHAR(16), nullable=False)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id,
             "description": self.description,
-            "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
+            "manufacturer": self.manufacturer,
             "ip": self.ip,
             "api_key": self.api_key,
-            "location": self.location.description,
+            "location": self.location,
         }
