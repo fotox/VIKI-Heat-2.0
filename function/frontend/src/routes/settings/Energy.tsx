@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Trash2, Edit3, Plus } from 'lucide-react'
 import {
   Card,
   Input,
@@ -11,17 +12,21 @@ import {
   DialogFooter,
   DialogClose
 } from '@/components/ui'
-import { Trash2, Edit3, Plus } from 'lucide-react'
+import {
+  ManufacturerSelect,
+  SelectedManufacturerType,
+  getManufacturerLabel,
+  getManufacturerPowerSize
+} from "@/components/selectors/ManufacturerSelect";
+import { maskText } from "@/components/Helper";
 
 interface EnergyModule {
   id: number
-  system_id: string
-  manufacturer: number
+  description: string
+  manufacturer: SelectedManufacturerType
   ip: string
-  url: string
-  battery_api: string
-  feed_in_api: string
-  production_api: string
+  api_key: string
+  price: number
 }
 
 export default function Energy() {
@@ -29,15 +34,26 @@ export default function Energy() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editModule, setEditModule] = useState<EnergyModule | null>(null)
-  const [systemId, setSystemId] = useState<string>('')
-  const [manufacturer, setManufacturer] = useState<number>(0)
-  const [ip, setIp] = useState<string>('')
-  const [url, setUrl] = useState<string>('')
-  const [battery_api, setBatteryApi] = useState<string>('')
-  const [feed_in_api, setFeedInApi] = useState<string>('')
-  const [production_api, setProductionApi] = useState<string>('')
+  const [description, setDescription] = useState('')
+  const [selectedManufacturer, setSelectedManufacturer] = useState<SelectedManufacturerType | null>(null)
+  const [manufacturers, setManufacturers] = useState<SelectedManufacturerType[]>([])
+  const [ip, setIp] = useState<string | null>(null)
+  const [api_key, setApiKey] = useState<string | null>(null)
+  const [price, setPrice] = useState<number>(0)
 
-  // TODO: Hersteller als Dropdown einbinden
+  useEffect(() => {
+    fetch("/api/settings/manufacturer", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) =>
+        setManufacturers(
+          data.manufacturers.map((m: any) => ({
+            id: m.id,
+            label: `${m.manufacturer} - ${m.model_type}`,
+            power_size: m.power_size,
+          }))
+        )
+      )
+  }, [])
 
   // Load Modules
   const fetchModules = async () => {
@@ -62,7 +78,7 @@ export default function Energy() {
 
   // Delete Modules
   const handleDelete = async (id: number) => {
-    if (!confirm('Energiequelle wirklich löschen?')) return
+    if (!confirm('Modul wirklich löschen?')) return
     await fetch(`/api/settings/energy/${id}`, {
       method: 'DELETE',
       credentials: 'include'
@@ -77,25 +93,25 @@ export default function Energy() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, manufacturer: manufacturer, ip: ip, url: url,
-        battery_api: battery_api, feed_in_api: feed_in_api, production_api: production_api })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
+        api_key: api_key, price: price })
     })
-    setSystemId(''); setManufacturer(0); setIp(''); setUrl(''); setBatteryApi('');
-    setFeedInApi(''); setProductionApi('')
     fetchModules()
   }
 
   // Update Modules
   const openEdit = (mod: EnergyModule) => {
     setEditModule(mod)
-    setSystemId(mod.system_id)
-    setManufacturer(mod.manufacturer)
+    setDescription(mod.description)
+    const found_manufacturer = manufacturers.find((m) =>
+        m.id === mod.manufacturer?.id || m.id === Number(mod.manufacturer))
+    setSelectedManufacturer(found_manufacturer ?? null)
     setIp(mod.ip)
-    setUrl(mod.url)
-    setBatteryApi(mod.battery_api)
-    setFeedInApi(mod.feed_in_api)
-    setProductionApi(mod.production_api)
+    setApiKey(mod.api_key)
+    setPrice(mod.price)
   }
+
+  // Edit Module
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editModule) return
@@ -103,14 +119,22 @@ export default function Energy() {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system_id: systemId, manufacturer: manufacturer, ip: ip, url: url,
-        battery_api: battery_api, feed_in_api: feed_in_api, production_api: production_api })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
+        api_key: api_key, price: price })
     })
     setEditModule(null)
     fetchModules()
   }
 
-  // TODO: Load manufacturer name by id and add select bar with manufacturer infos
+  // Reset Prefill
+  const resetForm = () => {
+    setEditModule(null)
+    setDescription("")
+    setSelectedManufacturer(null)
+    setIp(null)
+    setApiKey(null)
+    setPrice(0.0)
+  }
 
   if (loading) return <p>Lädt Module…</p>
   if (error)   return <p className="text-red-600">Fehler: {error}</p>
@@ -118,64 +142,63 @@ export default function Energy() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Wechselrichter-Module</h3>
+        <h3 className="text-xl font-semibold">Energie-Module</h3>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => resetForm()}>
               <Plus className="mr-2 h-4 w-4" /> Neues Modul
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-max">
             <DialogHeader>
-              <DialogTitle>Neues Energy-Modul hinzufügen</DialogTitle>
+              <DialogTitle>Neues Energie-Modul hinzufügen</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleAdd} className="space-y-4">
-              Bezeichnung: <Input
-                label="System-ID"
-                value={systemId}
-                onChange={e => setSystemId(e.target.value)}
-                required
-              />
-              Hersteller: <Input
-                label="Hersteller"
-                value={manufacturer}
-                type="number"
-                onChange={e => setManufacturer(e.target.value)}
-                required
-              />
-              IP-Adresse: <Input
-                label="IP-Adresse"
-                type="string"
-                value={ip}
-                onChange={e => setIp(e.target.value)}
-                required
-              />
-              URL: <Input
-                label="URL"
-                type="string"
-                value={url}
-                onChange={e => setUrl(e.target.value)}
-                required
-              />
-              Batterie-API: <Input
-                label="Batterie-API"
-                type="string"
-                value={battery_api}
-                onChange={e => setBatteryApi(e.target.value)}
-              />
-              Energiebezug-API: <Input
-                label="Energiebezug-API"
-                type="string"
-                value={feed_in_api}
-                onChange={e => setFeedInApi(e.target.value)}
-              />
-              Produktions-API: <Input
-                label="Produktion-API"
-                type="string"
-                value={production_api}
-                onChange={e => setProductionApi(e.target.value)}
-              />
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="description">Bezeichnung:</label>
+                <Input
+                    id="description"
+                    type="string"
+                    value={description} onChange={e => setDescription(e.target.value)}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="manufacturer">Hersteller:</label>
+                <ManufacturerSelect
+                    value={selectedManufacturer}
+                    onChange={setSelectedManufacturer}
+                    manufacturers={manufacturers}
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="ip">IP-Adresse:</label>
+                <Input
+                    id="ip"
+                    type="string"
+                    value={ip} onChange={e => setIp(e.target.value)}
+                    required
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="api_key">API-Key:</label>
+                <Input
+                    id="api_key"
+                    type="password"
+                    value={api_key}
+                    onChange={e => setApiKey(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="price">Preis:</label>
+                <Input
+                    id="price"
+                    type="string"
+                    value={price}
+                    onChange={e => setPrice(Number(e.target.value))}
+                />
+              </div>
               <DialogFooter>
                 <Button type="submit">Hinzufügen</Button>
                 <DialogClose asChild>
@@ -190,99 +213,96 @@ export default function Energy() {
       {/* Module-Liste */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {modules.map((mod) => (
-          <Card key={mod.id} className="relative p-4">
-            <div className="space-y-2">
-              <p><strong>System:</strong> {mod.system_id}</p>
-              <p><strong>Hersteller:</strong> {mod.manufacturer}</p>
-              <p><strong>IP-Adresse:</strong> {mod.ip}</p>
-              <p><strong>URL:</strong> {mod.url}</p>
-              <p><strong>Batterie-API:</strong> {mod.battery_api}</p>
-              <p><strong>Energiebezug-API:</strong> {mod.feed_in_api}</p>
-              <p><strong>Produktion-API:</strong> {mod.production_api}</p>
-            </div>
-            {/* Edit/Delete Buttons */}
-            <div className="absolute bottom-4 right-4 flex space-x-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => openEdit(mod)}
-              >
-                <Edit3 className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleDelete(mod.id)}
-              >
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </Button>
-            </div>
-          </Card>
+            <Card key={mod.id} className="relative p-4">
+              <div className="space-y-2">
+                <p><strong>System:</strong> {mod.description}</p>
+                <p><strong>Hersteller:</strong> {getManufacturerLabel(manufacturers, Number(mod.manufacturer))}</p>
+                <p><strong>IP-Adresse:</strong> {mod.ip}</p>
+                <p><strong>API-Key:</strong> {maskText(mod.api_key)}</p>
+                <p><strong>Preis:</strong> {mod.price} </p>
+              </div>
+              {/* Edit/Delete Buttons */}
+              <div className="absolute bottom-4 right-4 flex space-x-2">
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => openEdit(mod)}
+                >
+                  <Edit3 className="h-4 w-4"/>
+                </Button>
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(mod.id)}
+                >
+                  <Trash2 className="h-4 w-4 text-red-600"/>
+                </Button>
+              </div>
+            </Card>
         ))}
       </div>
 
       {/* Edit-Dialog */}
       {editModule && (
-        <Dialog open onOpenChange={open => !open && setEditModule(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Modul bearbeiten</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleEdit} className="space-y-4">
-              Bezeichnung: <Input
-                label="System-ID"
-                value={systemId}
-                onChange={e => setSystemId(e.target.value)}
-                required
-              />
-              Hersteller: <Input
-                label="Hersteller"
-                value={manufacturer}
-                type="number"
-                onChange={e => setManufacturer(e.target.value)}
-                required
-              />
-              IP-Adresse: <Input
-                label="IP-Adresse"
-                type="string"
-                value={ip}
-                onChange={e => setIp(e.target.value)}
-                required
-              />
-              URL: <Input
-                label="URL"
-                type="string"
-                value={url}
-                onChange={e => setUrl(e.target.value)}
-                required
-              />
-              Batterie-API: <Input
-                label="Batterie-API"
-                type="string"
-                value={battery_api}
-                onChange={e => setBatteryApi(e.target.value)}
-              />
-              Energiebezug-API: <Input
-                label="Energiebezug-API"
-                type="string"
-                value={feed_in_api}
-                onChange={e => setFeedInApi(e.target.value)}
-              />
-              Produktions-API: <Input
-                label="Produktion-API"
-                type="string"
-                value={production_api}
-                onChange={e => setProductionApi(e.target.value)}
-              />
-              <DialogFooter>
-                <Button type="submit">Speichern</Button>
-                <DialogClose asChild>
-                  <Button variant="ghost">Abbrechen</Button>
-                </DialogClose>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <Dialog open onOpenChange={open => !open && setEditModule(null)}>
+            <DialogContent className="sm:max-w-max">
+              <DialogHeader>
+                <DialogTitle>Modul bearbeiten</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleEdit} className="space-y-4">
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="description">Bezeichnung:</label>
+                  <Input
+                      id="description"
+                      type="string"
+                      value={description} onChange={e => setDescription(e.target.value)}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="manufacturer">Hersteller:</label>
+                  <ManufacturerSelect
+                      value={selectedManufacturer}
+                      onChange={setSelectedManufacturer}
+                      manufacturers={manufacturers}
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="ip">IP-Adresse:</label>
+                  <Input
+                      id="ip"
+                      type="string"
+                      value={ip} onChange={e => setIp(e.target.value)}
+                      required
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="api_key">API-Key:</label>
+                  <Input
+                      id="api_key"
+                      type="string"
+                      value={maskText(api_key)}
+                      onChange={e => setApiKey(e.target.value)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <label htmlFor="price">Preis:</label>
+                  <Input
+                      id="price"
+                      type="string"
+                      value={price}
+                      onChange={e => setPrice(Number(e.target.value))}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Hinzufügen</Button>
+                  <DialogClose asChild>
+                    <Button variant="ghost">Abbrechen</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
       )}
     </div>
   )
