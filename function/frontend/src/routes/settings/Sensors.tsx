@@ -199,7 +199,7 @@ export default function Sensors() {
               <div className="grid grid-cols-2 items-center gap-2">
                 <label htmlFor="ip">IP-Adresse:</label>
                 <Input
-                    id="duration"
+                    id="ip"
                     type="string"
                     value={ip} onChange={e => setIp(e.target.value)}
                     required
@@ -208,7 +208,7 @@ export default function Sensors() {
               <div className="grid grid-cols-2 items-center gap-2">
                 <label htmlFor="api_key">API-Key:</label>
                 <Input
-                    id="angle"
+                    id="api_key"
                     type="string"
                     value={api_key}
                     onChange={e => setApiKey(e.target.value)}
@@ -304,7 +304,7 @@ export default function Sensors() {
                 <div className="grid grid-cols-2 items-center gap-2">
                   <label htmlFor="ip">IP-Adresse:</label>
                   <Input
-                      id="duration"
+                      id="ip"
                       type="string"
                       value={ip} onChange={e => setIp(e.target.value)}
                       required
@@ -313,7 +313,7 @@ export default function Sensors() {
                 <div className="grid grid-cols-2 items-center gap-2">
                   <label htmlFor="api_key">API-Key:</label>
                   <Input
-                      id="angle"
+                      id="api_key"
                       type="string"
                       value={api_key}
                       onChange={e => setApiKey(e.target.value)}
