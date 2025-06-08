@@ -8,7 +8,7 @@ from . import settings_bp
 @settings_bp.route("/photovoltaic", methods=["GET"])
 def list_photovoltaic_modules():
     """
-    GET /api/settings/photovoltaik
+    GET /api/settings/photovoltaic
     Liefert alle PV-Module als Liste.
     """
     modules = PhotovoltaicSetting.query.order_by(PhotovoltaicSetting.id).all()
