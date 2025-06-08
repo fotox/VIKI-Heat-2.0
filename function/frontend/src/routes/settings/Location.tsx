@@ -24,7 +24,7 @@ interface LocationModule {
   street_number: number
 }
 
-export default function Heating() {
+export default function Location() {
   const [modules, setModules] = useState<LocationModule[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
