@@ -142,15 +142,13 @@ class EnergySetting(db.Model):
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
-    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
-    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
     price: db.Mapped[float] = db.Column(db.NUMERIC(10, 2), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id,
-            "system_id": self.system_id,
+            "description": self.description,
             "manufacturer": self.manufacturer,
             "ip": self.ip,
             "api_key": self.api_key,
