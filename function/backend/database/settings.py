@@ -83,8 +83,7 @@ class TankSetting(db.Model):
         return {
             "id": self.id,
             "description": self.description,
-            "volume": self.volume,
-            "sensors": [s.description for s in self.sensors]
+            "volume": self.volume
         }
 
 
@@ -104,7 +103,7 @@ class SensorSetting(db.Model):
         return {
             "id": self.id,
             "description": self.description,
-            "manufacturer": f"{self.manufacturer.manufacturer} {self.manufacturer.model_type}",
+            "manufacturer": self.manufacturer,
             "ip": self.ip,
             "api_key": self.api_key,
             "measuring_device": self.measuring_device,
