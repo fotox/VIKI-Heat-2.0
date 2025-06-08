@@ -280,7 +280,7 @@ export default function Energy() {
                   <label htmlFor="api_key">API-Key:</label>
                   <Input
                       id="api_key"
-                      type="string"
+                      type="password"
                       value={maskText(api_key)}
                       onChange={e => setApiKey(e.target.value)}
                   />
