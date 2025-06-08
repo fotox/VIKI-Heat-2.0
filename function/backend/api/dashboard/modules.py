@@ -66,8 +66,6 @@ def get_heat_pipe_state(pipe_id):
       200:
         description: State of heat pipe [ON / OFF]
         examples:
-
-
     """
     heat_pipe_state: str = 'HIGH'   # TODO: Refactor
 
