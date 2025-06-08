@@ -12,7 +12,12 @@ import {
   DialogFooter,
   DialogClose
 } from '@/components/ui'
-import {ManufacturerSelect, SelectedManufacturerType, getManufacturerLabel } from "@/components/selectors/ManufacturerSelect";
+import {
+  ManufacturerSelect,
+  SelectedManufacturerType,
+  getManufacturerLabel
+} from "@/components/selectors/ManufacturerSelect";
+import { maskText } from "@/components/Helper";
 
 interface HeatingModule {
   id: number
@@ -20,6 +25,7 @@ interface HeatingModule {
   manufacturer: SelectedManufacturerType
   ip: string
   api_key: string
+  buffer: number
 }
 
 export default function Heating() {
@@ -32,6 +38,7 @@ export default function Heating() {
   const [manufacturers, setManufacturers] = useState<SelectedManufacturerType[]>([])
   const [ip, setIp] = useState<string>('')
   const [api_key, setApiKey] = useState<string>('')
+  const [buffer, setBuffer] = useState<number | null>(0)
 
   useEffect(() => {
     fetch("/api/settings/manufacturer", { credentials: "include" })
@@ -81,7 +88,7 @@ export default function Heating() {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
-        api_key: api_key })
+        api_key: api_key, buffer: buffer })
     })
     fetchModules()
   }
@@ -94,6 +101,7 @@ export default function Heating() {
     setSelectedManufacturer(found ?? null)
     setIp(mod.ip)
     setApiKey(mod.api_key)
+    setBuffer(mod.buffer)
   }
 
   // Edit Module
@@ -105,7 +113,7 @@ export default function Heating() {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
-        api_key: api_key })
+        api_key: api_key, buffer: buffer })
     })
     setEditModule(null)
     fetchModules()
@@ -118,6 +126,7 @@ export default function Heating() {
     setSelectedManufacturer(null)
     setIp("")
     setApiKey("")
+    setBuffer(0)
   }
 
   useEffect(() => {
@@ -173,8 +182,16 @@ export default function Heating() {
                 <label htmlFor="api_key">API-Key:</label>
                 <Input
                     id="api_key"
-                    type="string"
+                    type="password"
                     value={api_key} onChange={e => setApiKey(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="buffer">API-Key:</label>
+                <Input
+                    id="buffer"
+                    type="number"
+                    value={buffer} onChange={e => setBuffer(Number(e.target.value))}
                 />
               </div>
               <DialogFooter>
@@ -196,7 +213,8 @@ export default function Heating() {
                 <p><strong>System:</strong> {mod.description}</p>
                 <p><strong>Hersteller:</strong> {getManufacturerLabel(manufacturers, mod.manufacturer)}</p>
                 <p><strong>IP-Adresse:</strong> {mod.ip}</p>
-                <p><strong>API-Key:</strong> {mod.api_key}</p>
+                <p><strong>API-Key:</strong> {maskText(mod.api_key)}</p>
+                <p><strong>Puffer:</strong> {mod.buffer}</p>
               </div>
               <div className="absolute bottom-4 right-4 flex space-x-2">
               <Button
@@ -255,8 +273,16 @@ export default function Heating() {
                 <label htmlFor="api_key">API-Key:</label>
                 <Input
                     id="api_key"
-                    type="string"
-                    value={api_key} onChange={e => setApiKey(e.target.value)}
+                    type="password"
+                    value={maskText(api_key)} onChange={e => setApiKey(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 items-center gap-2">
+                <label htmlFor="buffer">API-Key:</label>
+                <Input
+                    id="buffer"
+                    type="number"
+                    value={buffer} onChange={e => setBuffer(Number(e.target.value))}
                 />
               </div>
               <DialogFooter>

@@ -164,9 +164,8 @@ class HeatingSetting(db.Model):
     manufacturer: db.Mapped["ManufacturerSetting"] = db.mapped_column(
         ForeignKey(ManufacturerSetting.id), nullable=False)
     ip: db.Mapped[str] = db.Column(sql.INET, nullable=False)
-    url: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
-    api: db.Mapped[str] = db.Column(db.VARCHAR(256), nullable=True)
     api_key: db.Mapped[str] = db.Column(db.VARCHAR(512), nullable=True)
+    buffer: db.Mapped[int] = db.Column(db.INTEGER, nullable=True)
 
     def to_dict(self):
         return {
@@ -175,6 +174,7 @@ class HeatingSetting(db.Model):
             "manufacturer": self.manufacturer,
             "ip": self.ip,
             "api_key": self.api_key,
+            "buffer": self.buffer
         }
 
 
