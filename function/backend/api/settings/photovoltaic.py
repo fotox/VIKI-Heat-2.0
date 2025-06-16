@@ -15,8 +15,6 @@ def list_photovoltaic_modules():
     return jsonify(modules=[m.to_dict() for m in modules]), 200
 
 
-# TODO: Standort und neues Tabellenschema einbinden
-
 @settings_bp.route("/photovoltaic", methods=["POST"])
 @jwt_required()
 def create_photovoltaic_module():

@@ -7,18 +7,19 @@ from database.settings import ManufacturerSetting, EnergySetting
 from services.helper import extract_datapoints_from_json_with_api
 
 
-def get_manufacturer_with_energy_settings(manufacturer_id: int):
+def get_manufacturer_with_energy_settings():
     stmt = (
         select(
             ManufacturerSetting.url,
             ManufacturerSetting.api,
+            ManufacturerSetting.notice,
             EnergySetting.ip,
             EnergySetting.price
         )
         .select_from(
             join(ManufacturerSetting, EnergySetting, ManufacturerSetting.id == EnergySetting.manufacturer, isouter=True)
         )
-        .where(ManufacturerSetting.id == manufacturer_id)
+        .where(ManufacturerSetting.notice == 'Livedaten')
         .limit(1)
     )
 
@@ -34,8 +35,8 @@ def get_manufacturer_with_energy_settings(manufacturer_id: int):
         return None
 
 
-def pull_live_data_from_inverter(manufacturer_id: int):
-    inverter_data: dict = get_manufacturer_with_energy_settings(manufacturer_id)
+def pull_live_data_from_inverter():
+    inverter_data: dict = get_manufacturer_with_energy_settings()
 
     if inverter_data is None:
         return {}

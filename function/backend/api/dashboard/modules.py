@@ -99,7 +99,7 @@ def set_heating_mode():
 
 @modules_bp.route("/inverter_data", methods=["GET"])
 def get_inverter_data():
-    return jsonify(pull_live_data_from_inverter(2)), 200  # TODO: Find a way to set id automatically
+    return jsonify(pull_live_data_from_inverter()), 200
 
 
 @modules_bp.route("/heating_tank_temp", methods=["GET"])
