@@ -13,15 +13,30 @@ from extensions import db
 from database.users import User
 import io
 
+from utils.logging_service import LoggingService
+
 auth_bp = Blueprint("auth", __name__)
+
+logging = LoggingService()
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    """
+    Authenticates a user and returns a JWT token and user data.
+
+    Expects:
+        JSON body with 'username' and 'password'.
+
+    Returns:
+        200 OK with JWT token and user info if credentials are valid.
+        401 Unauthorized if login fails.
+    """
     data = request.get_json()
     user = User.query.filter_by(username=data.get("username")).first()
     if not user or not user.check_password(data.get("password")):
-        return jsonify(msg="Ungültige Anmeldedaten"), 401
+        logging.info("Invalid username or password")
+        return jsonify(msg="Invalid username or password"), 401
 
     additional = {"role": user.role}
     token = create_access_token(
@@ -31,12 +46,20 @@ def login():
 
     resp = jsonify(user=user.to_dict())
     set_access_cookies(resp, token)
+    logging.info("Login successful")
     return resp, 200
 
 
 @auth_bp.route("/profile/photo", methods=["GET"])
 @jwt_required()
 def profile_photo():
+    """
+    Returns the authenticated user's profile photo.
+
+    Returns:
+        image/jpeg if photo is present.
+        fallback image (image/png) if photo is missing.
+    """
     user = User.query.get(get_jwt_identity())
     if not user or not user.photo:
         return send_file(
@@ -52,41 +75,75 @@ def profile_photo():
 @auth_bp.route("/register", methods=["POST"])
 @jwt_required()
 def register() -> tuple:
+    """
+    Registers a new user (admin-only access).
+
+    Expects:
+        JSON body with at least 'username' and 'password'.
+        Optional 'role' (defaults to "user").
+
+    Returns:
+        201 Created on success.
+        403 Forbidden if requester is not admin.
+        409 Conflict if username already exists.
+    """
     """Nur Admins dürfen neue Benutzer anlegen"""
     identity = get_jwt_identity()
     if identity["role"] != "admin":
-        return jsonify(msg="Nur Admins dürfen neue Benutzer erstellen"), 403
+        logging.info("Only admins can register new users.")
+        return jsonify(msg="Only admins can register new users."), 403
 
     data = request.get_json()
     if User.query.filter_by(username=data.get("username")).first():
-        return jsonify(msg="Benutzername existiert bereits"), 409
+        logging.info("Username already exists.")
+        return jsonify(msg="Username already exists."), 409
 
     user = User(username=data["username"], role=data.get("role", "user"))
     user.set_password(data["password"])
     db.session.add(user)
     db.session.commit()
-    return jsonify(msg="Benutzer erfolgreich angelegt"), 201
+    logging.info("New user registered.")
+    return jsonify(msg="New user registered."), 201
 
 
 @auth_bp.route("/reset-password", methods=["POST"])
 def reset_password() -> tuple:
-    """Passwort zurücksetzen per Master-Key"""
+    """
+    Resets a user's password using a master key.
+
+    Expects:
+        JSON body with 'username', 'new_password', and 'master_key'.
+
+    Returns:
+        200 OK if password was successfully reset.
+        403 Forbidden if master key is invalid.
+        404 Not Found if the user does not exist.
+    """
     data = request.get_json()
     if data.get("master_key") != Config.MASTER_RESET_KEY:
-        return jsonify(msg="Ungültiger Master-Key"), 403
+        logging.info("Invalid master key.")
+        return jsonify(msg="Invalid master key."), 403
 
     user = User.query.filter_by(username=data["username"]).first()
     if not user:
-        return jsonify(msg="Benutzer nicht gefunden"), 404
+        logging.info("User not found.")
+        return jsonify(msg="User not found."), 404
 
     user.set_password(data["new_password"])
     db.session.commit()
-    return jsonify(msg="Passwort erfolgreich zurückgesetzt"), 200
+    logging.info("Password reset successful.")
+    return jsonify(msg="Password reset successful."), 200
 
 
 @auth_bp.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
+    """
+    Returns profile data of the authenticated user.
+
+    Returns:
+        200 OK with user's public profile information.
+    """
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
     return jsonify(
@@ -102,15 +159,21 @@ def profile():
 @jwt_required()
 def update_profile():
     """
-    Aktualisiert Username, evtl. Passwort (optional) und Photo.
-    Erwartet multipart/form-data mit Feldern:
-    - firstname (optional, string)
-    - lastname (optional, string)
-    - username (string)
-    - role (string)
-    - email (optional, string)
-    - photo (optional, file)
-    - password (optional, string)
+    Updates the authenticated user's profile data.
+
+    Accepts multipart/form-data with optional fields:
+        - firstname (str)
+        - lastname (str)
+        - username (str)
+        - email (str)
+        - phone (str)
+        - password (str)
+        - photo (file, image/jpeg or image/png, max 5MB)
+
+    Returns:
+        200 OK if update succeeds.
+        413 Payload Too Large if image exceeds size limit.
+        415 Unsupported Media Type if image format is invalid.
     """
     user = User.query.get(get_jwt_identity())
     form = request.form
@@ -133,9 +196,12 @@ def update_profile():
             if len(data) <= 5 * 1024 * 1024:
                 user.photo = data
             else:
-                return jsonify(msg="Datei zu groß"), 413
+                logging.info("Image too large.")
+                return jsonify(msg="Image too large."), 413
         else:
-            return jsonify(msg="Ungültiges Dateiformat"), 415
+            logging.info("Invalid file type.")
+            return jsonify(msg="Invalid file type."), 415
 
     db.session.commit()
-    return jsonify(msg="Profil aktualisiert"), 200
+    logging.info(f"Profile '{user.username}' update successful.")
+    return jsonify(msg=f"Profile '{user.username}' update successful."), 200
