@@ -2,11 +2,11 @@ from flask import Blueprint, jsonify, request
 
 from services.energy.tibber import pull_price_info_from_tibber_api
 from services.energy.inverter import pull_live_data_from_inverter
+from services.heating.helper import save_mode, load_mode
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 
 modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 
-CURRENT_HEATING_MODE = {"mode": "Automatik"}
 VALID_MODES = ["Automatik", "Manuell", "Schnell heizen", "Urlaub"]
 
 
@@ -67,7 +67,7 @@ def get_heat_pipe_state(pipe_id):
         description: State of heat pipe [ON / OFF]
         examples:
     """
-    heat_pipe_state: str = 'HIGH'   # TODO: Refactor
+    heat_pipe_state: str = 'LOW'   # TODO: Refactor
 
     return jsonify({"pipe_id": pipe_id, "state": heat_pipe_state}), 200
 
@@ -82,7 +82,8 @@ def toggle_heat_pipe(pipe_id):
 
 @modules_bp.route("/heating_mode", methods=["GET"])
 def get_heating_mode():
-    return jsonify({"mode": CURRENT_HEATING_MODE["mode"]}), 200
+    heating_mode = load_mode()
+    return jsonify({"mode": heating_mode}), 200
 
 
 @modules_bp.route("/heating_mode", methods=["PUT"])
@@ -93,7 +94,7 @@ def set_heating_mode():
     if mode not in VALID_MODES:
         return jsonify({"error": "Ungültiger Modus"}), 400
 
-    CURRENT_HEATING_MODE["mode"] = mode
+    save_mode(mode)
     return jsonify({"message": "Modus aktualisiert", "mode": mode}), 200
 
 

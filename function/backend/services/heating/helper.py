@@ -1,6 +1,5 @@
 import json
 import sys
-import requests
 
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 from database.crud import fetch_heat_pipe_setting
@@ -15,25 +14,17 @@ else:
     import RPi.GPIO as GPIO
 
 
-def load_mode() -> dict:
+def load_mode() -> str:
     try:
         with open(MODE_FILE, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        return {"mode": "automatic", "deactivated_until": None}
+        return "automatic"
 
 
-def save_mode(state: dict) -> None:
+def save_mode(state: str) -> None:
     with open(MODE_FILE, 'w') as f:
         json.dump(state, f)
-
-
-def get_json(url: str) -> dict:
-    try:
-        r = requests.get(url, timeout=3)
-        return r.json()
-    except BaseException:
-        return {}
 
 
 def all_relays(relay_pins: dict, state: bool) -> None:
@@ -59,4 +50,4 @@ def read_sensors_by_tank_with_heat_pipe() -> tuple[dict, float]:
 
 
 def read_heat_pipe_config() -> dict:
-    fetch_heat_pipe_setting()
+    return fetch_heat_pipe_setting()

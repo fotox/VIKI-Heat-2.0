@@ -4,6 +4,7 @@ from flask import Response
 
 from extensions import db
 from database.settings import ManufacturerSetting, EnergySetting
+from services.heating.heat_pipe import automatic_control
 from services.helper import extract_datapoints_from_json_with_api
 
 
@@ -49,5 +50,7 @@ def pull_live_data_from_inverter():
     production: int = round((data.get('P_PV') if data.get('P_PV') is not None else 0.0), 0)
     cover: int = round(((data.get('P_Grid') * (-1)) if data.get('P_Grid') is not None else 0.0), 0)
     accu_capacity: float = round((data.get('P_Akku') if data.get('P_Akku') is not None else 0.0), 1)
+
+    automatic_control(cover)
 
     return {'consume': consume, 'production': production, 'cover': cover, 'accu_capacity': accu_capacity}
