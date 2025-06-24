@@ -5,9 +5,18 @@ from extensions import db
 
 
 class Role(db.Model):
+    """
+    Represents a user role within the system.
+
+    Used to assign permissions or access levels to users.
+
+    Attributes:
+        id (int): Unique identifier of the role.
+        role_name (str): Name of the role (must be unique, e.g., "admin", "user").
+    """
     __tablename__ = "roles"
-    id: int = db.Column(db.INTEGER, primary_key=True)
-    role_name: str = db.Column(db.VARCHAR(256), unique=True, nullable=False)
+    id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
+    role_name: db.Mapped[str] = db.Column(db.VARCHAR(256), unique=True, nullable=False)
 
     def to_dict(self) -> dict:
         return {
@@ -17,6 +26,20 @@ class Role(db.Model):
 
 
 class User(db.Model):
+    """
+    Represents a system user with credentials and associated role.
+
+    Attributes:
+        id (int): Unique identifier of the user.
+        username (str): Unique login name of the user.
+        firstname (str): Optional first name of the user.
+        lastname (str): Optional last name of the user.
+        email (str): Optional email address.
+        phone (str): Optional phone number.
+        password_hash (str): Hashed password for authentication.
+        role (Role): Foreign key reference to the user's role.
+        photo (bytes): Optional user photo (max 5MB).
+    """
     __tablename__ = "users"
 
     id: db.Mapped[int] = db.Column(db.INTEGER, primary_key=True)
