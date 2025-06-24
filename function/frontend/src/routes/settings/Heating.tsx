@@ -17,14 +17,14 @@ import {
   SelectedManufacturerType,
   getManufacturerLabel
 } from "@/components/selectors/ManufacturerSelect";
-import { maskText } from "@/components/Helper";
+import { maskText } from "@/hooks/useMaskText";
 
 interface HeatingModule {
   id: number
   description: string
   manufacturer: SelectedManufacturerType
-  ip: string
-  api_key: string
+  ip: string | null
+  api_key: string | null
   buffer: number
 }
 
@@ -97,10 +97,11 @@ export default function Heating() {
   const openEdit = (mod: HeatingModule) => {
     setEditModule(mod)
     setDescription(mod.description)
-    const found = manufacturers.find((m) => m.id === mod.manufacturer?.id || m.id === mod.manufacturer)
+    const found = manufacturers.find((m) =>
+        m.id === mod.manufacturer?.id || m.id === Number(mod.manufacturer))
     setSelectedManufacturer(found ?? null)
-    setIp(mod.ip)
-    setApiKey(mod.api_key)
+    setIp(String(mod.ip))
+    setApiKey(String(mod.api_key))
     setBuffer(mod.buffer)
   }
 
@@ -191,7 +192,7 @@ export default function Heating() {
                 <Input
                     id="buffer"
                     type="number"
-                    value={buffer} onChange={e => setBuffer(Number(e.target.value))}
+                    value={buffer ?? 0} onChange={e => setBuffer(Number(e.target.value))}
                 />
               </div>
               <DialogFooter>
@@ -211,7 +212,7 @@ export default function Heating() {
             <Card key={mod.id} className="relative p-4">
               <div className="space-y-2">
                 <p><strong>System:</strong> {mod.description}</p>
-                <p><strong>Hersteller:</strong> {getManufacturerLabel(manufacturers, mod.manufacturer)}</p>
+                <p><strong>Hersteller:</strong> {getManufacturerLabel(manufacturers, Number(mod.manufacturer))}</p>
                 <p><strong>IP-Adresse:</strong> {mod.ip}</p>
                 <p><strong>API-Key:</strong> {maskText(mod.api_key)}</p>
                 <p><strong>Puffer:</strong> {mod.buffer}</p>
@@ -274,7 +275,7 @@ export default function Heating() {
                 <Input
                     id="api_key"
                     type="password"
-                    value={maskText(api_key)} onChange={e => setApiKey(e.target.value)}
+                    value={maskText(api_key) ?? ''} onChange={e => setApiKey(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
@@ -282,7 +283,7 @@ export default function Heating() {
                 <Input
                     id="buffer"
                     type="number"
-                    value={buffer} onChange={e => setBuffer(Number(e.target.value))}
+                    value={buffer ?? 0} onChange={e => setBuffer(Number(e.target.value))}
                 />
               </div>
               <DialogFooter>

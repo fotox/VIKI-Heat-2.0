@@ -1,5 +1,10 @@
+import { Trash2 } from "lucide-react"
+import {Plus} from "lucide-react";
 import React, { useEffect, useState, useCallback } from 'react'
-import io from 'socket.io-client'
+import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
+import { EnergyChart } from "@/components/dashboard/EnergyChart"
+import { HeatingTankRingChart, BufferTankRingChart } from "@/components/dashboard/TankRingChart";
+import { InverterProduction, InverterConsume, InverterCover, InverterAccuCapacity } from "@/components/dashboard/InverterChart"
 import {
   Button,
   Card,
@@ -7,8 +12,6 @@ import {
   DialogContent,
   DialogTrigger
 } from "@/components/ui"
-import { Trash2 } from "lucide-react"
-import {Plus} from "lucide-react";
 
 interface Device {
   id: number;
@@ -31,18 +34,11 @@ const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "heatingTankRingChart", module_type: "Warmwasserspeicher Chart" },
   { id: "bufferTankRingChart", module_type: "Pufferspeicher Chart" },
 ]
-
-import { PhaseSwitchPanel } from "@/components/dashboard/PhaseSwitchPanel"
-import { EnergyChart } from "@/components/dashboard/EnergyChart"
-import { HeatingTankRingChart, BufferTankRingChart } from "@/components/dashboard/TankRingChart";
-import { InverterProduction, InverterConsume, InverterCover, InverterAccuCapacity } from "@/components/dashboard/InverterChart"
-
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
   const [error, setError] = useState<string | null>(null)
   const [modules, setModules] = useState<DashboardModule[]>([])
   const [open, setOpen] = useState(false)
-  const socket = React.useMemo(() => io(), [])
 
   useEffect(() => {
     fetch("/api/dashboard/modules", { credentials: "include" })
@@ -71,7 +67,7 @@ export default function Dashboard() {
       method: "DELETE",
       credentials: "include"
     })
-      .then(() => setModules(prev => prev.filter(m => m.id !== id)))
+      .then(() => setModules(prev => prev.filter(m => id !== Number(m.id))))
   }
 
   const handleAddModule = (module: DashboardModule) => {
@@ -142,7 +138,7 @@ export default function Dashboard() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => handleRemoveModule(mod.id)}
+                  onClick={() => handleRemoveModule(Number(mod.id))}
                   title="Modul entfernen"
                 >
                   <Trash2 className="h-4 w-4 text-red-600" />

@@ -15,23 +15,22 @@ import {
 import {
   ManufacturerSelect,
   SelectedManufacturerType,
-  getManufacturerLabel,
-  getManufacturerPowerSize
+  getManufacturerLabel
 } from "@/components/selectors/ManufacturerSelect";
 import {
   LocationSelect,
   SelectedLocationType,
   getLocationLabel
 } from "@/components/selectors/LocationSelect";
-import { maskText } from "@/components/Helper";
+import { maskText } from "@/hooks/useMaskText";
 
 interface WeatherModule {
   id: number
   description: string
   manufacturer: SelectedManufacturerType
   location: SelectedLocationType
-  ip: string
-  api_key: string
+  ip: string | null
+  api_key: string | null
 }
 
 export default function Weather() {
@@ -206,7 +205,7 @@ export default function Weather() {
                 <Input
                     id="ip"
                     type="string"
-                    value={ip} onChange={e => setIp(e.target.value)}
+                    value={ip ?? ''} onChange={e => setIp(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
@@ -214,7 +213,7 @@ export default function Weather() {
                 <Input
                     id="api_key"
                     type="password"
-                    value={api_key} onChange={e => setApiKey(e.target.value)}
+                    value={api_key ?? ''} onChange={e => setApiKey(e.target.value)}
                     required
                 />
               </div>
@@ -299,7 +298,7 @@ export default function Weather() {
                 <Input
                     id="ip"
                     type="string"
-                    value={ip} onChange={e => setIp(e.target.value)}
+                    value={ip ?? ''} onChange={e => setIp(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
@@ -307,7 +306,7 @@ export default function Weather() {
                 <Input
                     id="api_key"
                     type="password"
-                    value={maskText(api_key)} onChange={e => setApiKey(e.target.value)}
+                    value={maskText(api_key) ?? ''} onChange={e => setApiKey(e.target.value)}
                     required
                 />
               </div>

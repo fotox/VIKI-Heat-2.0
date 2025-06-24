@@ -1,5 +1,5 @@
 import React from "react";
-import {useTankData} from "@/components/hooks/useTankData";
+import {useTankData} from "@/hooks/useTankData";
 
 interface TankRingChartProps {
   apiEndpoint: string;

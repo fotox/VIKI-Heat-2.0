@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react"
 import {
+  EnergyDataPoint,
+  EnergyResponse,
+  EnergyPriceEntry
+} from "@/hooks/dataTypes";
+import {
   ResponsiveContainer,
   ComposedChart,
   Bar,
@@ -11,38 +16,39 @@ import {
   CartesianGrid
 } from "recharts"
 
+
 export function EnergyChart() {
-  const [data, setData] = useState([])
-  const [prices, setPrices] = useState({})
+  const [data, setData] = useState<(EnergyDataPoint & { time: string })[]>([]);
+  const [prices, setPrices] = useState<Record<string, number>>({});
 
   useEffect(() => {
     fetch("/api/modules/energy_data", { credentials: "include" })
       .then(res => res.json())
-      .then(rawData => {
-        const formatted = Object.entries(rawData).map(([time, values]: [string, any]) => ({
+      .then((rawData: EnergyResponse) => {
+        const formatted = Object.entries(rawData).map(([time, values]) => ({
           time,
           ...values
-        }))
-        setData(formatted)
-      })
+        }));
+        setData(formatted);
+      });
 
     fetch("/api/modules/energy_price", { credentials: "include" })
       .then(res => res.json())
-      .then(priceArray => {
-        const priceMap = priceArray.reduce((acc, entry) => {
-          const date = new Date(entry.startsAt)
-          const hour = date.getHours().toString().padStart(2, '0')
-          acc[hour] = entry.total
-          return acc
-        }, {})
-        setPrices(priceMap)
-      })
+      .then((priceArray: EnergyPriceEntry[]) => {
+        const priceMap = priceArray.reduce((acc: Record<string, number>, entry) => {
+          const date = new Date(entry.startsAt);
+          const hour = date.getHours().toString().padStart(2, '0');
+          acc[hour] = entry.total;
+          return acc;
+        }, {});
+        setPrices(priceMap);
+      });
   }, [])
 
-  const chartData = data.map(d => ({
+  const chartData = data.map((d) => ({
     ...d,
-    price: prices[d.time] ?? 0
-  }))
+    price: prices[d.time] ?? 0,
+  }));
 
   return (
     <ResponsiveContainer width="100%" height={400}>

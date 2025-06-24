@@ -86,7 +86,7 @@ export function PhaseSwitchPanel() {
                   key={option}
                   variant="ghost"
                   className="justify-start"
-                  onClick={() => handleModeChange(option)}
+                  onClick={() => handleModeChange(option)}  // TODO: Load active mode and displayed
                 >
                   {option}
                 </Button>

@@ -15,17 +15,16 @@ import {
 import {
   ManufacturerSelect,
   SelectedManufacturerType,
-  getManufacturerLabel,
-  getManufacturerPowerSize
+  getManufacturerLabel
 } from "@/components/selectors/ManufacturerSelect";
-import { maskText } from "@/components/Helper";
+import { maskText } from "@/hooks/useMaskText";
 
 interface EnergyModule {
   id: number
   description: string
   manufacturer: SelectedManufacturerType
-  ip: string
-  api_key: string
+  ip: string | null
+  api_key: string | null
   price: number
 }
 
@@ -108,7 +107,7 @@ export default function Energy() {
     setSelectedManufacturer(found_manufacturer ?? null)
     setIp(mod.ip)
     setApiKey(mod.api_key)
-    setPrice(mod.price)
+    setPrice(Number(mod.price))
   }
 
   // Edit Module
@@ -177,7 +176,7 @@ export default function Energy() {
                 <Input
                     id="ip"
                     type="string"
-                    value={ip} onChange={e => setIp(e.target.value)}
+                    value={ip ?? ''} onChange={e => setIp(e.target.value)}
                     required
                 />
               </div>
@@ -186,7 +185,7 @@ export default function Energy() {
                 <Input
                     id="api_key"
                     type="password"
-                    value={api_key}
+                    value={api_key ?? ''}
                     onChange={e => setApiKey(e.target.value)}
                 />
               </div>
@@ -272,7 +271,7 @@ export default function Energy() {
                   <Input
                       id="ip"
                       type="string"
-                      value={ip} onChange={e => setIp(e.target.value)}
+                      value={ip ?? ''} onChange={e => setIp(e.target.value)}
                       required
                   />
                 </div>
@@ -281,7 +280,7 @@ export default function Energy() {
                   <Input
                       id="api_key"
                       type="password"
-                      value={maskText(api_key)}
+                      value={maskText(api_key) ?? ''}
                       onChange={e => setApiKey(e.target.value)}
                   />
                 </div>

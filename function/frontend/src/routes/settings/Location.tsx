@@ -197,7 +197,7 @@ export default function Location() {
                 <Input
                     id="streetNumber"
                     type="number"
-                    value={streetNumber} onChange={e => streetNumber(Number(e.target.value))}
+                    value={streetNumber} onChange={e => Number(e.target.value)}
                     required
                 />
               </div>
@@ -310,7 +310,7 @@ export default function Location() {
                 <Input
                     id="streetNumber"
                     type="number"
-                    value={streetNumber} onChange={e => streetNumber(Number(e.target.value))}
+                    value={streetNumber} onChange={e => Number(e.target.value)}
                     required
                 />
               </div>

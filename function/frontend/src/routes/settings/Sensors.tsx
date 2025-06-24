@@ -15,8 +15,7 @@ import {
 import {
   ManufacturerSelect,
   SelectedManufacturerType,
-  getManufacturerLabel,
-  getManufacturerPowerSize
+  getManufacturerLabel
 } from "@/components/selectors/ManufacturerSelect";
 import {
   TankSelect,
@@ -28,10 +27,10 @@ interface SensorModule {
   id: number
   description: string
   manufacturer: SelectedManufacturerType
-  ip: string
-  api_key: string
+  ip: string | null
+  api_key: string | null
   measuring_device: SelectedTankType
-  measuring_position: string
+  measuring_position: string | null
 }
 
 export default function Sensors() {
@@ -201,7 +200,7 @@ export default function Sensors() {
                 <Input
                     id="ip"
                     type="string"
-                    value={ip} onChange={e => setIp(e.target.value)}
+                    value={ip ?? ''} onChange={e => setIp(e.target.value)}
                     required
                 />
               </div>
@@ -210,7 +209,7 @@ export default function Sensors() {
                 <Input
                     id="api_key"
                     type="string"
-                    value={api_key}
+                    value={api_key ?? ''}
                     onChange={e => setApiKey(e.target.value)}
                 />
               </div>
@@ -227,7 +226,7 @@ export default function Sensors() {
                 <Input
                     id="measuring_position"
                     type="string"
-                    value={measuring_position}
+                    value={measuring_position ?? ''}
                     onChange={e => setMeasuringPosition(e.target.value)}
                     required
                 />
@@ -306,7 +305,7 @@ export default function Sensors() {
                   <Input
                       id="ip"
                       type="string"
-                      value={ip} onChange={e => setIp(e.target.value)}
+                      value={ip ?? ''} onChange={e => setIp(e.target.value)}
                       required
                   />
                 </div>
@@ -315,7 +314,7 @@ export default function Sensors() {
                   <Input
                       id="api_key"
                       type="string"
-                      value={api_key}
+                      value={api_key ?? ''}
                       onChange={e => setApiKey(e.target.value)}
                   />
                 </div>
@@ -332,7 +331,7 @@ export default function Sensors() {
                   <Input
                       id="measuring_position"
                       type="string"
-                      value={measuring_position}
+                      value={measuring_position ?? ''}
                       onChange={e => setMeasuringPosition(e.target.value)}
                       required
                   />

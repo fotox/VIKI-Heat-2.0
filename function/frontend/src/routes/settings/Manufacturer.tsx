@@ -116,7 +116,7 @@ export default function Manufacturer() {
     setEditModule(mod)
     setDescription(mod.description)
     const found = categories.find((c) =>
-        c.id === mod.category?.id || c.id === mod.category)
+        c.id === mod.category?.id || c.id === Number(mod.category))
     setSelectedCategory(found ?? null)
     setManufacturer(mod.manufacturer)
     setModelType(mod.model_type)
@@ -382,7 +382,7 @@ export default function Manufacturer() {
                   <Card key={mod.id} className="relative p-4">
                       <div className="space-y-2">
                           <p><strong>Bezeichnung:</strong> {mod.description}</p>
-                          <p><strong>Kategorie:</strong> {getCategoryLabel(categories, mod.category)}</p>
+                          <p><strong>Kategorie:</strong> {getCategoryLabel(categories, Number(mod.category))}</p>
                           <p><strong>Hersteller:</strong> {mod.manufacturer}</p>
                           <p><strong>Modellbezeichnung:</strong> {mod.model_type}</p>
                           <p><strong>URL:</strong> {mod.url}</p>

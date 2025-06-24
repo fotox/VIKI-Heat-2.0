@@ -20,9 +20,9 @@ import Sensors from './routes/settings/Sensors'
 import Location from './routes/settings/Location'
 import Profile from './routes/Profile'
 
-import Sidebar from './components/Sidebar'
-import Header from './components/Header'
-import Breadcrumb from './components/Breadcrumb'
+import Sidebar from './components/layout/Sidebar'
+import Header from './components/layout/Header'
+import Breadcrumb from './components/navigation/Breadcrumb'
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
 
 export default function App() {

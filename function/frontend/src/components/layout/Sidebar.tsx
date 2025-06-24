@@ -1,21 +1,25 @@
 import React, {useEffect, useState} from 'react'
 import { NavLink } from 'react-router-dom'
+import { cn } from '@/utils/getTailwindMerge'
 import {
   HomeIcon,
   ChartPieIcon,
   SettingsIcon,
   UserIcon,
   ChevronLeft,
-  ChevronRight, Image
+  ChevronRight
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import {Avatar, AvatarFallback, AvatarImage, Label} from "@/components/ui";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage
+} from "@/components/ui";
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: HomeIcon },
   { to: '/analytics', label: 'Analytics', icon: ChartPieIcon },
   { to: '/settings', label: 'Settings', icon: SettingsIcon },
-  { to: '/profile', label: 'Profile', icon: UserIcon },
+  { to: '/profile', label: 'Profile', icon: UserIcon }
 ]
 
 export default function Sidebar({
