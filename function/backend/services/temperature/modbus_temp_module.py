@@ -3,7 +3,7 @@ import time
 from pymodbus.client import ModbusSerialClient as ModbusClient
 from pymodbus.pdu import ModbusPDU
 
-from database.crud import fetch_r4dcb08_sensor_setting
+from database.fetch_data import fetch_r4dcb08_sensor_setting
 
 
 def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:

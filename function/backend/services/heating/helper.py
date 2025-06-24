@@ -2,7 +2,7 @@ import json
 import sys
 
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
-from database.crud import fetch_heat_pipe_setting
+from database.fetch_data import fetch_heat_pipe_setting
 
 IS_WINDOWS = sys.platform == "win32"
 MODE_FILE = "mode_state.json"

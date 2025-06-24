@@ -2,7 +2,7 @@ import os
 import requests
 from flask import Response
 
-from database.crud import fetch_values
+from database.fetch_data import fetch_values
 from services.helper import extract_datapoints_from_json_with_api
 
 ACCESS_TOKEN = fetch_values("energy_settings", "Tibber Clouddienst", "api_key")
