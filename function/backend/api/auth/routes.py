@@ -1,17 +1,16 @@
 import os
+import io
 
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, Response
 from flask_jwt_extended import (
     create_access_token,
     set_access_cookies,
     jwt_required,
     get_jwt_identity,
 )
-
 from config import Config
 from extensions import db
 from database.users import User
-import io
 
 from utils.logging_service import LoggingService
 
@@ -38,13 +37,13 @@ def login():
         logging.info("Invalid username or password")
         return jsonify(msg="Invalid username or password"), 401
 
-    additional = {"role": user.role}
-    token = create_access_token(
+    additional: dict = {"role": user.role}
+    token: str = create_access_token(
         identity=str(user.id),
         additional_claims=additional
     )
 
-    resp = jsonify(user=user.to_dict())
+    resp: Response = jsonify(user=user.to_dict())
     set_access_cookies(resp, token)
     logging.info("Login successful")
     return resp, 200
@@ -98,7 +97,7 @@ def register() -> tuple:
         logging.info("Username already exists.")
         return jsonify(msg="Username already exists."), 409
 
-    user = User(username=data["username"], role=data.get("role", "user"))
+    user: User = User(username=data["username"], role=data.get("role", "user"))
     user.set_password(data["password"])
     db.session.add(user)
     db.session.commit()
