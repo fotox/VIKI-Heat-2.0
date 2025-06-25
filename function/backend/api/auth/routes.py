@@ -16,6 +16,8 @@ from utils.logging_service import LoggingService
 
 auth_bp = Blueprint("auth", __name__)
 
+FALLBACK_PATH = os.path.join(os.path.dirname(__file__), "static", "blank_user.png")
+
 logging = LoggingService()
 
 
@@ -50,24 +52,36 @@ def login():
 
 
 @auth_bp.route("/profile/photo", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def profile_photo():
     """
-    Returns the authenticated user's profile photo.
+    Returns the profile photo of the currently authenticated user. If there is no login **or** no photo is saved,
+    a placeholder image (`blank_user.png`) is returned.
 
     Returns:
-        image/jpeg if photo is present.
-        fallback image (image/png) if photo is missing.
+      200 OK
+        • image/jpeg – if a user photo is available
+        • image/png  – if not registered or photo is missing
     """
-    user = User.query.get(get_jwt_identity())
-    if not user or not user.photo:
+    def _fallback():
         return send_file(
-            io.BytesIO(open(f"{os.path.dirname(os.getcwd())}\\backend\\static\\blank_user.png", "rb").read()),
-            mimetype="image/png"
+            FALLBACK_PATH,
+            mimetype="image/png",
+            download_name="avatar.png",
         )
+
+    identity = get_jwt_identity()
+    if not identity:
+        return _fallback()
+
+    user = User.query.get(identity)
+    if not user or not user.photo:
+        return _fallback()
+
     return send_file(
         io.BytesIO(user.photo),
-        mimetype="image/jpeg"
+        mimetype="image/jpeg",
+        download_name="avatar.jpg",
     )
 
 
@@ -135,23 +149,32 @@ def reset_password() -> tuple:
 
 
 @auth_bp.route("/profile", methods=["GET"])
-@jwt_required()
+@jwt_required
 def profile():
     """
-    Returns profile data of the authenticated user.
+    Returns the profile data of the authenticated user.
 
     Returns:
         200 OK with user's public profile information.
+        401 Unauthorized if token is invalid or user does not exist.
     """
     user_id = get_jwt_identity()
+
+    if not user_id:
+        return jsonify({"msg": "Authentication required."}), 401
+
     user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found."}), 401
+
     return jsonify(
         firstname=user.firstname,
         lastname=user.lastname,
         username=user.username,
         role=user.role,
         email=user.email,
-        phone=user.phone), 200
+        phone=user.phone
+    ), 200
 
 
 @auth_bp.route("/profile", methods=["PUT"])
