@@ -4,14 +4,26 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 from pymodbus.pdu import ModbusPDU
 
 from database.fetch_data import fetch_r4dcb08_sensor_setting
+from utils.logging_service import LoggingService
+
+logging = LoggingService()
 
 
 def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
     """
-    Read temperature measure values from R4DCB08 module.
-    :param: sensor_id: List of ports of R4DCB08 who is locked the temperature sensor
-    :return: Dict of temperature values.
+    Reads up-to-date temperature values from an *R4DCB08* Modbus-RTU module and updates the provided sensor cache.
+
+    Args:
+        temp_sensor_data : dict[int, float]
+            A mapping *{sensor_index: last_value}* that will be **updated in place**.
+            Indices must be 0–5.
+
+    Returns:
+        dict[int, float]
+            The same dictionary instance with any successfully read channels overwritten. If the serial connection cannot
+            be established or a read error occurs, the original values are returned unchanged.
     """
+
     client_con_data: dict = fetch_r4dcb08_sensor_setting()
     client = ModbusClient(
         port=client_con_data['port'],
@@ -37,7 +49,7 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
             return temp_sensor_data
 
     except Exception as e:
-        print(f"Error by reading sensor: {e}")
+        logging.error(f"Error by reading sensor: {e}")
 
     finally:
         client.close()
@@ -47,21 +59,41 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
 
 def get_temp_of_tank_with_heat_pipe(temp_sensors: dict, tanks: dict) -> tuple[float, float]:
     """
-    Load data from tank with heat pipe and return the tank name and the actual destination temperature.
-    :param temp_sensors: config of viki-heat for temperature sensors.
-    :param tanks: config of viki-heat for tanks.
-    :return: tank name and actual destination temperature.
+    Determines the current temperature of the tank that has an active heating element and returns it together with that
+    tank’s destination temperature.
+
+    Args:
+        temp_sensors : dict[str, dict]
+            Viki-Heat sensor configuration, e.g.
+            ``{"sensor1": {"binding": "tank_a_top", "value": 55.3}, ...}``
+        tanks : dict[str, dict]
+            Viki-Heat tank configuration, e.g.
+            ``{"tank_a": {"heating_element": True, "destination_temp": 60.0}, ...}``
+
+    Returns:
+        tuple[float, float]
+            ``(current_temp, destination_temp)`` in **°C**.
+            If no matching tank/sensor is found, ``(0.0, 0.0)`` is returned.
+
+    Raises:
+        None – the function is designed to fall back to ``0.0`` values rather than raise.
     """
-    used_tank: str = ""
-    destination_temp: float = 0.0
+    try:
+        used_tank = next(
+            name for name, cfg in tanks.items() if cfg.get("heating_element")
+        )
+        destination_temp = float(tanks[used_tank]["destination_temp"])
 
-    for tank_type in tanks:
-        if tanks[tank_type]["heating_element"]:
-            used_tank: str = tank_type
-            destination_temp: float = tanks[tank_type]["destination_temp"]
+    except (StopIteration, KeyError, TypeError, ValueError) as tank_err:
+        logging.error(f"[HeatPipe] tank searching invalid: {tank_err}")
+        return 0.0, 0.0
 
-    for sensors in temp_sensors:
-        if temp_sensors[sensors]["binding"].startswith(used_tank):
-            return float(temp_sensors[sensors]["value"]), destination_temp
+    try:
+        for s_cfg in temp_sensors.values():
+            if s_cfg.get("binding", "").startswith(used_tank):
+                return float(s_cfg["value"]), destination_temp
+    except (KeyError, TypeError, ValueError) as sensor_err:
+        logging.error(f"[HeatPipe] Sensor reading invalid: {sensor_err}")
+        return 0.0, 0.0
 
-    return 0.0, 0.0
+    return 0.0, destination_temp
