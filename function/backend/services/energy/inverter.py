@@ -6,7 +6,7 @@ from sqlalchemy.sql.selectable import GenerativeSelect
 from extensions import db
 from database.settings import ManufacturerSetting, EnergySetting
 from services.heating.heat_pipe import automatic_control
-from services.helper import extract_datapoints_from_json_with_api
+from utils.data_formatter import extract_datapoints_from_json_with_api
 
 
 def get_manufacturer_with_energy_settings():
