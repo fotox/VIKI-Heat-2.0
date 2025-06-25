@@ -1,6 +1,7 @@
 from sqlalchemy import select, join
 import requests
 from flask import Response
+from sqlalchemy.sql.selectable import GenerativeSelect
 
 from extensions import db
 from database.settings import ManufacturerSetting, EnergySetting
@@ -9,7 +10,21 @@ from services.helper import extract_datapoints_from_json_with_api
 
 
 def get_manufacturer_with_energy_settings():
-    stmt = (
+    """
+    Retrieves the first manufacturer marked with the notice **"Livedaten"** together with its (optional)
+    energy-specific settings.
+
+    Returns:
+        dict: A mapping with the keys
+            - url (str):   REST endpoint path on the inverter (e.g. "/api/v1/live")
+            - api (str):   Name of the parser profile to use for the inverter JSON
+            - ip (str):    IPv4/hostname of the inverter (can be ``None`` if not set)
+            - price (Any): Latest electricity price stored for this manufacturer/inverter
+              (type depends on your DB schema, often ``Decimal`` or ``float``)
+
+        None: If **no** manufacturer with the notice *"Livedaten"* is found.
+    """
+    stmt: GenerativeSelect = (
         select(
             ManufacturerSetting.url,
             ManufacturerSetting.api,
@@ -37,6 +52,26 @@ def get_manufacturer_with_energy_settings():
 
 
 def pull_live_data_from_inverter():
+    """
+    Pulls one snapshot of live production / consumption data from the configured inverter and triggers automatic
+    heat-pipe control.
+
+    Returns:
+        dict: On success, a JSON-serialisable mapping
+
+            {
+                "consume": int,
+                "production": int,
+                "cover": int,
+                "accu_capacity": float
+            }
+
+        {}: An empty dict if no inverter configuration could be found.
+
+    Raises:
+        RequestException: If the HTTP request to the inverter fails.
+        ValueError:       If the response body is not valid JSON.
+    """
     inverter_data: dict = get_manufacturer_with_energy_settings()
 
     if inverter_data is None:
