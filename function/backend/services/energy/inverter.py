@@ -1,12 +1,16 @@
 from sqlalchemy import select, join
 import requests
 from flask import Response
+from requests.exceptions import RequestException, Timeout, ConnectionError
 from sqlalchemy.sql.selectable import GenerativeSelect
 
 from extensions import db
 from database.settings import ManufacturerSetting, EnergySetting
 from services.heating.heat_pipe import automatic_control
 from utils.data_formatter import extract_datapoints_from_json_with_api
+from utils.logging_service import LoggingService
+
+logging = LoggingService()
 
 
 def get_manufacturer_with_energy_settings():
@@ -72,20 +76,47 @@ def pull_live_data_from_inverter():
         RequestException: If the HTTP request to the inverter fails.
         ValueError:       If the response body is not valid JSON.
     """
-    inverter_data: dict = get_manufacturer_with_energy_settings()
-
+    inverter_data: dict | None = get_manufacturer_with_energy_settings()
     if inverter_data is None:
+        logging.warning("[Inverter] No configuration found – returning empty dict")
         return {}
 
     url: str = f"http://{inverter_data['ip']}{inverter_data['url']}"
-    response: Response = requests.get(url, timeout=5)
-    data: dict = extract_datapoints_from_json_with_api(inverter_data['api'], response.json())
 
-    consume: int = round(((data.get('P_Load') * (-1)) if data.get('P_Load') is not None else 0.0), 0)
-    production: int = round((data.get('P_PV') if data.get('P_PV') is not None else 0.0), 0)
-    cover: int = round(((data.get('P_Grid') * (-1)) if data.get('P_Grid') is not None else 0.0), 0)
-    accu_capacity: float = round((data.get('P_Akku') if data.get('P_Akku') is not None else 0.0), 1)
+    try:
+        response: Response = requests.get(url, timeout=5)
+        response.raise_for_status()
+    except (Timeout, ConnectionError, RequestException) as http_err:
+        logging.error(f"[Inverter] HTTP error for {url}: {http_err}")
+        return {}
 
-    automatic_control(cover)
+    try:
+        raw_json: dict = response.json()
+    except ValueError as json_err:
+        logging.error(f"[Inverter] Invalid JSON from {url}: {json_err}")
+        return {}
 
-    return {'consume': consume, 'production': production, 'cover': cover, 'accu_capacity': accu_capacity}
+    try:
+        data: dict = extract_datapoints_from_json_with_api(
+            inverter_data["api"], raw_json
+        )
+    except ValueError as parse_err:
+        logging.error(f"[Inverter] API path parsing failed: {parse_err}")
+        return {}
+
+    consume: int = round(-data.get("P_Load", 0.0) or 0.0, 0)
+    production: int = round(data.get("P_PV", 0.0) or 0.0, 0)
+    cover: int = round(-data.get("P_Grid", 0.0) or 0.0, 0)
+    accu_capacity: float = round(data.get("P_Akku", 0.0) or 0.0, 1)
+
+    try:
+        automatic_control(cover)
+    except Exception as ctrl_err:
+        logging.warning(f"[HeatPipe] automatic_control failed: {ctrl_err}")
+
+    return {
+        "consume": int(consume),
+        "production": int(production),
+        "cover": int(cover),
+        "accu_capacity": float(accu_capacity),
+    }

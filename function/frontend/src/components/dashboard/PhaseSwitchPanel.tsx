@@ -9,37 +9,52 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function PhaseSwitchPanel() {
-  const [states, setStates] = useState([false, false, false]);
+  const [states, setStates] = useState<boolean[]>([false, false, false]);
   const [mode, setMode] = useState("Automatik");
 
-  const fetchState = async (phase: number) => {
-    const res = await fetch(`/api/modules/heat_pipe/${phase + 1}`, {
-      credentials: "include",
-    });
-    if (res.ok) {
-      const { state } = await res.json();
-      setStates((prev) => {
-        const copy = [...prev];
-        copy[phase] = state;
-        return copy;
-      });
-    }
+  const fetchStates = async () => {
+    const res = await fetch("/api/modules/heat_pipes", { credentials: "include" });
+    if (!res.ok) return;
+
+    const obj = await res.json();
+    const arr = [obj["1"], obj["2"], obj["3"]];
+    setStates(arr);
   };
 
   const toggleState = async (phase: number) => {
+    setStates(prev => {
+      const next = [...prev];
+      next[phase] = !next[phase];
+      return next;
+    });
+
     const newState = !states[phase];
     await fetch(`/api/modules/heat_pipe/${phase + 1}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state: newState }),
+      credentials: "include",
+      body: JSON.stringify({ state: newState })
+    });
+
+    fetchStates();
+  };
+
+  const fetchHeatingMode = async () => {
+    const res = await fetch("/api/modules/heating_mode", {
+      method: "GET",
       credentials: "include",
     });
-    fetchState(phase);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    const data: { mode: string; choices: string[] } = await res.json();
+    setMode(data.mode);
   };
+  fetchHeatingMode();
 
   const handleModeChange = async (newMode: string) => {
     setMode(newMode);
-    await fetch("/api/modules/heating_mode", {
+    const res = await fetch("/api/modules/heating_mode", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mode: newMode }),
@@ -49,7 +64,7 @@ export function PhaseSwitchPanel() {
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      [0, 1, 2].forEach(fetchState);
+      [0, 1, 2].forEach(fetchStates);
     }, 2000);
     return () => clearInterval(interval);
   }, []);
@@ -58,7 +73,7 @@ export function PhaseSwitchPanel() {
     <div className="flex flex-col gap-4 px-6 py-4">
       <h2 className="text-lg font-semibold text-center">Heizstab</h2>
 
-      {[0, 1, 2].map((phase) => (
+      {[0, 1, 2].map(phase => (
         <div
           key={phase}
           className="flex items-center justify-between border-b pb-2"
@@ -66,9 +81,10 @@ export function PhaseSwitchPanel() {
           <Label htmlFor={`phase-${phase + 1}`} className="text-base">
             Phase {phase + 1}
           </Label>
+
           <Switch
             id={`phase-${phase + 1}`}
-            checked={states[phase]}
+            checked={states[phase] ?? false}
             onCheckedChange={() => toggleState(phase)}
           />
         </div>
@@ -86,7 +102,7 @@ export function PhaseSwitchPanel() {
                   key={option}
                   variant="ghost"
                   className="justify-start"
-                  onClick={() => handleModeChange(option)}  // TODO: Load active mode and displayed
+                  onClick={() => handleModeChange(option)}
                 >
                   {option}
                 </Button>
