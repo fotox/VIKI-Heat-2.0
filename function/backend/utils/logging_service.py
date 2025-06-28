@@ -6,7 +6,7 @@ class LoggingService:
     """
     Simple logging service for structured console and file output.
 
-    Supports logging at different severity levels (INFO, WARN, ERROR) and writes
+    Supports logging at different severity levels (INFO, DEBUG, WARN, ERROR) and writes
     to a default or user-defined log file.
     """
 
@@ -28,7 +28,7 @@ class LoggingService:
 
         Args:
             message (str): The log message to record.
-            level (str): The log level (e.g., "INFO", "WARN", "ERROR").
+            level (str): The log level (e.g., "INFO", "DEBUG", "WARN", "ERROR").
         """
         timestamp = datetime.datetime.now().isoformat(timespec="seconds")
         formatted = f"[{self.prefix}] [{timestamp}] [{level}] {message}"
@@ -38,6 +38,9 @@ class LoggingService:
 
     def info(self, message: str) -> None:
         self.log(message, "INFO")
+
+    def debug(self, message: str) -> None:
+        self.log(message, "DEBUG")
 
     def warning(self, message: str) -> None:
         self.log(message, "WARN")

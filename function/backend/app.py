@@ -11,8 +11,11 @@ from database.init_db import seed_users, seed_roles, seed_manufacturers, seed_ca
 
 from extensions import db, jwt, socketio
 from config import Config
+from utils.logging_service import LoggingService
 
 DEV_MODE: bool = True
+
+logging = LoggingService()
 
 
 def create_app():

@@ -1,6 +1,10 @@
 import time
 import threading
 
+from utils.logging_service import LoggingService
+
+logging = LoggingService()
+
 
 class RPiGPIOSimulator:
     BCM = 'BCM'
@@ -26,19 +30,23 @@ class RPiGPIOSimulator:
 
     def setmode(self, mode):
         if mode not in [self.BCM, self.BOARD]:
+            logging.error("Invalid mode. Use RPiGPIOSimulator.BCM or RPiGPIOSimulator.BOARD")
             raise ValueError("Invalid mode. Use RPiGPIOSimulator.BCM or RPiGPIOSimulator.BOARD")
         self.mode = mode
 
     def setwarnings(self, state):
         if not isinstance(state, bool):
+            logging.error("Invalid state. State must be a boolean.")
             raise ValueError("State must be a boolean")
         self.warnings = state
 
     def setup(self, pin, mode, pull=None):
         if pin not in self.pins:
+            logging.error(f"Invalid GPIO pin: {pin}")
             raise ValueError("Invalid GPIO pin")
         self.pins[pin]['mode'] = mode
         self.pins[pin]['pull'] = pull
+
         if mode == self.OUT:
             self.pins[pin]['state'] = self.LOW
         elif mode == self.IN and pull == self.PUD_UP:
@@ -48,16 +56,19 @@ class RPiGPIOSimulator:
 
     def output(self, pin, state):
         if pin not in self.pins:
+            logging.error(f"Pin {pin} not set as OUTPUT.")
             raise ValueError("Pin not set as OUTPUT")
         self.pins[pin]['state'] = state
 
     def input(self, pin):
         if pin not in self.pins:
+            logging.error(f"Pin {pin} not set as INPUT.")
             raise ValueError("Pin not set as INPUT")
         return self.pins[pin]['state']
 
     def add_event_detect(self, pin, edge, callback):
         if pin not in self.pins or self.pins[pin]['mode'] != self.IN:
+            logging.error(f"Pin {pin} not set as INPUT.")
             raise ValueError("Pin not set as INPUT")
         self.pins[pin]['callbacks'].append((edge, callback))
 
@@ -76,3 +87,4 @@ class RPiGPIOSimulator:
         self.running = False
         self.event_thread.join()
         self.pins = {pin: {'mode': None, 'state': None, 'pull': None, 'callbacks': []} for pin in range(1, 41)}
+        logging.info("Cleanup complete")
