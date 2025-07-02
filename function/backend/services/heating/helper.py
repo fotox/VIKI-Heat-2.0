@@ -2,7 +2,6 @@ import json
 import sys
 
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
-from database.fetch_data import fetch_heat_pipe_setting
 from utils.logging_service import LoggingService
 
 IS_WINDOWS = sys.platform == "win32"
@@ -15,6 +14,14 @@ if IS_WINDOWS:
     GPIO = RPiGPIOSimulator()
 else:
     import RPi.GPIO as GPIO
+
+
+RELAY_PINS = {1: 20, 2: 21, 3: 26}
+
+GPIO.setmode(GPIO.BCM)
+for pin in RELAY_PINS.values():
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)
 
 
 def load_memory() -> dict:
@@ -34,14 +41,37 @@ def save_memory(memory: dict) -> None:
         logging.error(f"[MEMORY] Mode file not found: {MEMORY_FILE}")
 
 
-def all_relays(relay_pins: dict, state: bool) -> None:
-    memory: dict = load_memory()
-    for phase, pin in relay_pins.items():
-        GPIO.output(pin, GPIO.HIGH if state else GPIO.LOW)
-        memory.get("heat_pipe")[pin] = state
-    if IS_WINDOWS:
-        states = {phase: GPIO.pins[pin]['state'] for phase, pin in relay_pins.items()}
-        logging.info(f"[Simulator] Current relay states: {states}")
+def toggle_all_relais(state: bool) -> None:
+    try:
+        memory: dict = load_memory()
+
+        for pin in RELAY_PINS:
+            GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
+            memory["heat_pipes"][str(pin)] = state
+
+        logging.debug(f"[HeatPipes] Turn all phase from {not state} to {state}")
+        save_memory(memory)
+
+    except Exception as err:
+        logging.error(f"[ToggleAllRelais] Failed to toogle relay: {err}")
+
+
+def toogle_relay(pin: int, state: bool) -> bool:
+    try:
+        memory: dict = load_memory()
+        if memory["heat_pipes"][str(pin)] != state:
+            GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
+            memory["heat_pipes"][str(pin)] = state
+
+            logging.debug(f"[HeatPipes] Turn phase {pin} from {not state} to {state}")
+            save_memory(memory)
+            return state
+        else:
+            return not state
+
+    except Exception as err:
+        logging.error(f"[ToggleRelay] Failed to toogle relay: {err}")
+        return not state
 
 
 # TODO: Build tank temp function
@@ -61,7 +91,3 @@ def read_sensors_by_tank_with_heat_pipe() -> dict:
     tank: dict = {0: 25.7, 1: 38.4, 2: 49.1}
 
     return {"tank": tank, "dest_temp": dest_temp}
-
-
-def read_heat_pipe_config() -> dict:
-    return fetch_heat_pipe_setting()

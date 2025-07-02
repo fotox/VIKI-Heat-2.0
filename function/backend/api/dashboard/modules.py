@@ -2,8 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from services.energy.tibber import pull_price_info_from_tibber_api
 from services.energy.inverter import pull_live_data_from_inverter
-from services.heating.heat_pipe import switch_relay_state
-from services.heating.helper import save_memory, load_memory
+from services.heating.helper import save_memory, load_memory, toogle_relay
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 from utils.logging_service import LoggingService
 
@@ -119,7 +118,7 @@ def toggle_heat_pipe(pipe_id: int):
     if state is None:
         return jsonify({"error": "Missing 'state' in request body", "pipe_id": pipe_id}), 400
 
-    new_state = switch_relay_state(pipe_id, state)
+    new_state = toogle_relay(pipe_id, state)
     return jsonify({"pipe_id": pipe_id, "new_state": new_state}), 200
 
 

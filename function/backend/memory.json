@@ -1,8 +1,8 @@
 {
-  "heat_pipe": {
-    "1": true,
-    "2": true,
+  "heat_pipes": {
+    "1": false,
+    "2": false,
     "3": false
   },
-  "mode": "Urlaub"
+  "mode": "Automatik"
 }

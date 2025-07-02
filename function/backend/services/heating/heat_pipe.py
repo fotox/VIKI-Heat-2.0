@@ -1,78 +1,60 @@
-import sys
-
-from services.heating.helper import (load_memory, all_relays, read_sensors_by_tank_with_heat_pipe,
-                                     read_heat_pipe_config, save_memory)
+from database.fetch_data import fetch_heat_pipe_setting
+from services.heating.helper import load_memory, toggle_all_relais, read_sensors_by_tank_with_heat_pipe, toogle_relay
 from utils.logging_service import LoggingService
-
-IS_WINDOWS = sys.platform == "win32"
-
-if IS_WINDOWS:
-    from services.heating.GpioMock import RPiGPIOSimulator
-    GPIO = RPiGPIOSimulator()
-else:
-    import RPi.GPIO as GPIO
 
 logging = LoggingService()
 
-RELAY_PINS = {1: 20, 2: 21, 3: 26}
-RELAY_PINS_CONFIG = read_heat_pipe_config()
-
-GPIO.setmode(GPIO.BCM)
-for pin in RELAY_PINS.values():
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.LOW)
-
-
-# TODO: Manuell Mode funktioniert. Rest nicht.
 
 def automatic_control(cover: int):
     memory: dict = load_memory()
     mode: str = memory.get("mode")
+    heat_pipes_range: list = range(1, len(memory.get("heat_pipes")) + 1)
+
+    if mode == "Manuell":
+        pass
+
+    if mode == "Urlaub":
+        logging.debug("[URLAUB] Modus aktiv")
+        toggle_all_relais(False)
+        pass
+
     sensors: dict = read_sensors_by_tank_with_heat_pipe()
     temp: float = sensors.get("tank")[2]
-    dest_temp = sensors.get("dest_temp", 0)
+    dest_temp: float = sensors.get("dest_temp", 0.0)
+
+    if mode == "Schnell heizen":
+        logging.debug("[SCHNELLHEIZEN] Modus aktiv")
+        if temp >= dest_temp:
+            logging.debug("[SCHNELLHEIZEN] Zieltemperatur erreicht")
+            toggle_all_relais(False)
+        else:
+            logging.debug("[SCHNELLHEIZEN] Zieltemperatur nicht erreicht")
+            toggle_all_relais(True)
+        pass
+
+    heat_pipe_config: dict = fetch_heat_pipe_setting()
 
     if mode == "Automatik":
-        if temp >= dest_temp:
-            logging.debug("Automatic mode: Temp higher than dest temp. All relays turned off.")
-            all_relays(RELAY_PINS, False)
-        else:
-            total_on = 0
-            for i in range(1, 4):
-                phase = RELAY_PINS_CONFIG.get(f"phase_{i}", 0)
-                buffer = RELAY_PINS_CONFIG.get(f"buffer_{i}", 0)
-                pin = RELAY_PINS[i]
-                logging.debug(f"[Automatic mode] Cover: {cover} | Phase {i}: {phase + buffer}")
+        logging.debug("[AUTOMATIK] Modus aktiv")
+        if temp < dest_temp:
+
+            for pipe_number in heat_pipes_range:
+                phase = heat_pipe_config.get(f"pipe_{pipe_number}")
+                buffer = heat_pipe_config.get(f"buffer_{pipe_number}")
+                logging.debug(f"[Automatic mode] Cover: {cover} | Phase {pipe_number}: {phase} + {buffer}")
+
                 if cover > phase + buffer:
-                    logging.debug(f"[Automatic mode] Turn phase {i} on")
-                    GPIO.output(pin, GPIO.HIGH)
+                    new_state = toogle_relay(pipe_number, True)
+                    if not new_state:
+                        pass
                     cover -= (phase + buffer)
-                    total_on += 1
+
                 elif cover < 0:
-                    logging.debug(f"[Automatic mode] Turn phase {i} off")
-                    GPIO.output(pin, GPIO.LOW)
+                    new_state = toogle_relay(pipe_number, False)
+                    if not new_state:
+                        pass
 
-    elif mode == "Urlaub":
-        all_relays(RELAY_PINS, True)
-
-    elif mode == "Schnell heizen":
-        if temp >= dest_temp:
-            all_relays(RELAY_PINS, False)
         else:
-            all_relays(RELAY_PINS, True)
-
-
-def switch_relay_state(pin: int, new_state: bool) -> bool:
-    memory: dict = load_memory()
-    mode: str = memory.get("mode")
-    state: bool = memory.get("heat_pipe")[str(pin)]
-    if mode == "Manuell":
-        if new_state:
-            GPIO.output(pin, GPIO.HIGH)
-            memory["heat_pipe"][str(pin)] = new_state
-        else:
-            GPIO.output(pin, GPIO.LOW)
-            memory["heat_pipe"][str(pin)] = new_state
-
-        save_memory(memory)
-    return new_state
+            logging.debug("[AUTOMATIK] Temperatur erreicht")
+            toggle_all_relais(False)
+            pass
