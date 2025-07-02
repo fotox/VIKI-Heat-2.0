@@ -71,7 +71,7 @@ def get_heat_pipe_states():
         description: State of all heat pipes not found
     """
     memory: dict = load_memory()
-    heat_pipes: dict = memory.get("heat_pipe")
+    heat_pipes: dict = memory.get("heat_pipes")
     try:
         return jsonify(heat_pipes), 200
     except KeyError:
@@ -91,9 +91,9 @@ def get_heat_pipe_state(pipe_id):
         description: State of heat pipe not found
     """
     memory: dict = load_memory()
-    heat_pipe = memory.get("heat_pipe")
+    heat_pipes = memory.get("heat_pipes")
     try:
-        heat_pipe_state: bool = heat_pipe[str(pipe_id)]
+        heat_pipe_state: bool = heat_pipes[str(pipe_id)]
         return jsonify({"pipe_id": pipe_id, "state": heat_pipe_state}), 200
     except KeyError:
         logging.error(f"[HEAT PIPE] Heat pipe {pipe_id} not found in memory.")
