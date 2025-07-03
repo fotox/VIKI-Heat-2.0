@@ -49,7 +49,6 @@ def toggle_all_relais(state: bool) -> None:
             GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
             memory["heat_pipes"][str(pin)] = state
 
-        logging.debug(f"[HeatPipes] Turn all phase from {not state} to {state}")
         save_memory(memory)
 
     except Exception as err:
@@ -63,7 +62,6 @@ def toogle_relay(pin: int, state: bool) -> bool:
             GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
             memory["heat_pipes"][str(pin)] = state
 
-            logging.debug(f"[HeatPipes] Turn phase {pin} from {not state} to {state}")
             save_memory(memory)
             return state
         else:

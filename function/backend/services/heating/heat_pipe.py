@@ -14,7 +14,6 @@ def automatic_control(cover: int):
         pass
 
     if mode == "Urlaub":
-        logging.debug("[URLAUB] Modus aktiv")
         toggle_all_relais(False)
         pass
 
@@ -23,25 +22,20 @@ def automatic_control(cover: int):
     dest_temp: float = sensors.get("dest_temp", 0.0)
 
     if mode == "Schnell heizen":
-        logging.debug("[SCHNELLHEIZEN] Modus aktiv")
         if temp >= dest_temp:
-            logging.debug("[SCHNELLHEIZEN] Zieltemperatur erreicht")
             toggle_all_relais(False)
         else:
-            logging.debug("[SCHNELLHEIZEN] Zieltemperatur nicht erreicht")
             toggle_all_relais(True)
         pass
 
     heat_pipe_config: dict = fetch_heat_pipe_setting()
 
     if mode == "Automatik":
-        logging.debug("[AUTOMATIK] Modus aktiv")
         if temp < dest_temp:
 
             for pipe_number in heat_pipes_range:
                 phase = heat_pipe_config.get(f"pipe_{pipe_number}")
                 buffer = heat_pipe_config.get(f"buffer_{pipe_number}")
-                logging.debug(f"[Automatic mode] Cover: {cover} | Phase {pipe_number}: {phase} + {buffer}")
 
                 if cover > phase + buffer:
                     new_state = toogle_relay(pipe_number, True)
@@ -55,6 +49,5 @@ def automatic_control(cover: int):
                         pass
 
         else:
-            logging.debug("[AUTOMATIK] Temperatur erreicht")
             toggle_all_relais(False)
             pass
