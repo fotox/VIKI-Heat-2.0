@@ -12,10 +12,11 @@ modules_bp = Blueprint("modules", __name__, url_prefix="/api/dashboard")
 logging = LoggingService()
 
 
+# TODO: Refactor
 @modules_bp.route("/energy_data", methods=["GET"])  # TODO: Refactor to live data
 def get_energy_data():
     dummy_data = {
-        f"{hour:02d}": {
+        f"'startsAt': '2025-07-03T{hour:02d}:00:00.000+02:00'": {
             "heating": round(0.5 + hour * 0.1, 2),
             "consumer": round(0.7 + hour * 0.05, 2),
             "regular": round(0.2 + hour * 0.02, 2),
