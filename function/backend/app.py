@@ -8,14 +8,24 @@ from api.settings import settings_bp
 from api.dashboard.modules import modules_bp
 from database.init_db import seed_users, seed_roles, seed_manufacturers, seed_category, seed_location
 
-
 from extensions import db, jwt, socketio
 from config import Config
+from services.energy.inverter import pull_live_data_from_inverter
 from utils.logging_service import LoggingService
+from apscheduler.schedulers.background import BackgroundScheduler
 
 DEV_MODE: bool = True
 
 logging = LoggingService()
+sched = BackgroundScheduler(daemon=True)
+
+
+def safe_job():
+    with app.app_context():
+        try:
+            pull_live_data_from_inverter()
+        except Exception as e:
+            logging.error(f"[SCHEDULER] pull_live_data_from_inverter failed: {e}")
 
 
 def create_app():
@@ -47,9 +57,18 @@ def create_app():
     def index():
         return {"message": "VIKI Backend API läuft"}
 
+    if not sched.running:
+        sched.add_job(safe_job, trigger='interval', seconds=1, max_instances=1)
+        sched.start()
+
+    @app.teardown_appcontext
+    def shutdown_scheduler(exception=None):
+        if sched.running:
+            sched.shutdown(wait=False)
+
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, use_reloader=False)

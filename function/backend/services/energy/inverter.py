@@ -13,10 +13,41 @@ from utils.logging_service import LoggingService
 logging = LoggingService()
 
 
-def get_manufacturer_with_energy_settings():
+def pull_and_fromatted_inverter_data(data_type: str) -> dict:
+    inverter_data: dict | None = get_manufacturer_with_energy_settings(data_type)
+    if inverter_data is None:
+        logging.warning("[Inverter] No configuration found – returning empty dict")
+        return {}
+
+    url: str = f"http://{inverter_data['ip']}{inverter_data['url']}"
+
+    try:
+        response: Response = requests.get(url, timeout=5)
+        response.raise_for_status()
+    except (Timeout, ConnectionError, RequestException) as http_err:
+        logging.error(f"[Inverter] HTTP error for {url}: {http_err}")
+        return {}
+
+    try:
+        raw_json: dict = response.json()
+    except ValueError as json_err:
+        logging.error(f"[Inverter] Invalid JSON from {url}: {json_err}")
+        return {}
+
+    try:
+        data: dict = extract_datapoints_from_json_with_api(
+            inverter_data["api"], raw_json
+        )
+    except ValueError as parse_err:
+        logging.error(f"[Inverter] API path parsing failed: {parse_err}")
+        return {}
+
+    return data
+
+
+def get_manufacturer_with_energy_settings(data_type: str) -> dict:
     """
-    Retrieves the first manufacturer marked with the notice **"Livedaten"** together with its (optional)
-    energy-specific settings.
+    Retrieves the first manufacturer together with its (optional) energy-specific settings.
 
     Returns:
         dict: A mapping with the keys
@@ -39,7 +70,7 @@ def get_manufacturer_with_energy_settings():
         .select_from(
             join(ManufacturerSetting, EnergySetting, ManufacturerSetting.id == EnergySetting.manufacturer, isouter=True)
         )
-        .where(ManufacturerSetting.notice == 'Livedaten')
+        .where(ManufacturerSetting.notice == data_type)
         .limit(1)
     )
 
@@ -76,33 +107,7 @@ def pull_live_data_from_inverter():
         RequestException: If the HTTP request to the inverter fails.
         ValueError:       If the response body is not valid JSON.
     """
-    inverter_data: dict | None = get_manufacturer_with_energy_settings()
-    if inverter_data is None:
-        logging.warning("[Inverter] No configuration found – returning empty dict")
-        return {}
-
-    url: str = f"http://{inverter_data['ip']}{inverter_data['url']}"
-
-    try:
-        response: Response = requests.get(url, timeout=5)
-        response.raise_for_status()
-    except (Timeout, ConnectionError, RequestException) as http_err:
-        logging.error(f"[Inverter] HTTP error for {url}: {http_err}")
-        return {}
-
-    try:
-        raw_json: dict = response.json()
-    except ValueError as json_err:
-        logging.error(f"[Inverter] Invalid JSON from {url}: {json_err}")
-        return {}
-
-    try:
-        data: dict = extract_datapoints_from_json_with_api(
-            inverter_data["api"], raw_json
-        )
-    except ValueError as parse_err:
-        logging.error(f"[Inverter] API path parsing failed: {parse_err}")
-        return {}
+    data = pull_and_fromatted_inverter_data('Livedaten')
 
     consume: int = round(-data.get("P_Load", 0.0) or 0.0, 0)
     production: int = round(data.get("P_PV", 0.0) or 0.0, 0)
