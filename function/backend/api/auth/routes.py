@@ -149,7 +149,7 @@ def reset_password() -> tuple:
 
 
 @auth_bp.route("/profile", methods=["GET"])
-@jwt_required
+@jwt_required()
 def profile():
     """
     Returns the profile data of the authenticated user.
