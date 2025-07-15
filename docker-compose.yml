@@ -8,11 +8,22 @@ services:
       POSTGRES_USER: viki
       POSTGRES_PASSWORD: viki-secret
       POSTGRES_DB: viki
+      TZ: Europe/Berlin
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
+
+  collector:
+    build: .
+    container_name: data-collector
+    restart: unless-stopped
+    environment:
+      HOST: 192.168.1.42
+      DB_URI: postgresql+psycopg2://ha:secret@db:5432/energy
+    depends_on:
+      - db
 
   backend:
     build:
@@ -57,3 +68,8 @@ services:
 
 volumes:
   db-data:
+    external: true
+    name: db-data
+  db-statistic-data:
+    external: true
+    name: db-statistic
