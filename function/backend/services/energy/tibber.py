@@ -6,12 +6,6 @@ from database.fetch_data import fetch_values
 from utils.data_formatter import extract_datapoints_from_json_with_api
 from utils.logging_service import LoggingService
 
-ACCESS_TOKEN = fetch_values("energy_settings", "Tibber Clouddienst", "api_key")
-HEADERS = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + ACCESS_TOKEN
-}
-
 logging = LoggingService()
 
 
@@ -38,7 +32,7 @@ def pull_price_info_from_tibber_api() -> list:
         with open(os.path.join(os.path.dirname(__file__), "graphql\\tibber_price_info.graphql"), "r") as file:
             query: str = file.read()
 
-        response: Response = requests.post(url, headers=HEADERS, json={'query': query})
+        response: Response = requests.post(url, headers=load_tibber_auth(), json={'query': query})
         api: str = fetch_values("manufacturer", "Tibber Strompreis Info", "api")
         data: dict = extract_datapoints_from_json_with_api(api, response.json())
 
@@ -91,7 +85,7 @@ def pull_consume_information_from_tibber_api() -> float:
         return 0.0
 
     try:
-        response: Response = requests.post(url, headers=HEADERS, json={"query": query}, timeout=10)
+        response: Response = requests.post(url, headers=load_tibber_auth(), json={"query": query}, timeout=10)
         response.raise_for_status()
 
     except requests.exceptions.RequestException as rex:
@@ -111,3 +105,12 @@ def pull_consume_information_from_tibber_api() -> float:
     except (KeyError, TypeError) as calc_err:
         logging.error(f"[Tibber] Invalid data format: {calc_err}")
         return 0.0
+
+
+def load_tibber_auth() -> dict:
+    access_token = fetch_values("energy_settings", "Tibber Clouddienst", "api_key")
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + access_token
+    }
+    return headers
