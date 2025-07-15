@@ -1,9 +1,7 @@
-version: "3.9"
-
 services:
-  db:
+  db-data:
     image: postgres:14-alpine
-    container_name: viki-db
+    container_name: viki-data
     environment:
       POSTGRES_USER: viki
       POSTGRES_PASSWORD: viki-secret
@@ -11,29 +9,48 @@ services:
       TZ: Europe/Berlin
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.2
     ports:
       - "5432:5432"
     restart: unless-stopped
 
-  collector:
-    build: .
-    container_name: data-collector
+  db-collector:
+    image: viki-heat_db-collector:latest
+    build:
+      context: ./function/statistics
+      dockerfile: Dockerfile
+    container_name: data-statistic
     restart: unless-stopped
     environment:
-      HOST: 192.168.1.42
-      DB_URI: postgresql+psycopg2://ha:secret@db:5432/energy
+      POSTGRES_USER: viki
+      POSTGRES_PASSWORD: viki-secret
+      POSTGRES_DB: viki_statistics
+      TZ: Europe/Berlin
+    volumes:
+      - db-statistic-data:/var/lib/postgresql/data
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.3
+    ports:
+      - "15433:5432"
     depends_on:
-      - db
+      - db-data
 
   backend:
+    image: viki-heat_backend:latest
     build:
       context: ./function/backend
       dockerfile: Dockerfile
     container_name: viki-backend
     depends_on:
-      - db
+      - db-data
     volumes:
-      - ./function/backend:/app
+      - viki-log:/app/logs
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.4
     ports:
       - "5000:5000"
     environment:
@@ -44,10 +61,14 @@ services:
     restart: unless-stopped
 
   nginx:
+    image: viki-heat_frontend:latest
     build:
-      context: .
-      dockerfile: function/nginx/Dockerfile
+      context: ./function/nginx
+      dockerfile: Dockerfile
     container_name: viki-nginx
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.5
     ports:
       - "80:80"
       - "443:443"
@@ -55,21 +76,17 @@ services:
       - backend
     restart: unless-stopped
 
-  certbot:
-    image: certbot/certbot
-    container_name: viki-certbot
-    volumes:
-      - ./function/nginx/certbot/www:/var/www/certbot
-      - ./function/nginx/certbot/conf:/etc/letsencrypt
-    entrypoint: >
-      sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
-      --email you@example.com --agree-tos --no-eff-email
-      -d controller.local"
-
 volumes:
   db-data:
-    external: true
     name: db-data
   db-statistic-data:
-    external: true
     name: db-statistic
+  viki-log:
+    name: viki-log
+
+networks:
+  custom_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/29
