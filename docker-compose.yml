@@ -2,6 +2,7 @@ services:
   db-data:
     image: postgres:14-alpine
     container_name: viki-data
+    hostname: db
     environment:
       POSTGRES_USER: viki
       POSTGRES_PASSWORD: viki-secret
@@ -14,15 +15,12 @@ services:
         ipv4_address: 172.20.0.2
     ports:
       - "5432:5432"
-    restart: unless-stopped
+    restart: always
 
   db-collector:
-    image: viki-heat_db-collector:latest
-    build:
-      context: ./function/statistics
-      dockerfile: Dockerfile
+    image: postgres:14-alpine
     container_name: data-statistic
-    restart: unless-stopped
+    hostname: data-statistic
     environment:
       POSTGRES_USER: viki
       POSTGRES_PASSWORD: viki-secret
@@ -34,16 +32,13 @@ services:
       custom_net:
         ipv4_address: 172.20.0.3
     ports:
-      - "15433:5432"
-    depends_on:
-      - db-data
+      - "5432:5432"
+    restart: always
 
   backend:
-    image: viki-heat_backend:latest
-    build:
-      context: ./function/backend
-      dockerfile: Dockerfile
+    image: viki-heat_backend:latest   # viki-heat_arm_backend:latest for prod
     container_name: viki-backend
+    hostname: viki-backend
     depends_on:
       - db-data
     volumes:
@@ -58,23 +53,23 @@ services:
       - JWT_SECRET_KEY=super-secret
       - MASTER_RESET_KEY=viki-masterkey
       - DATABASE_URL=postgresql://viki:viki-secret@db:5432/viki
-    restart: unless-stopped
+    #devices:                         # Uncomment for prod
+    #  - "/dev/gpiomem:/dev/gpiomem"
+    #  - "/dev/ttyAMA0:/dev/ttyAMA0"
+    restart: always
 
-  nginx:
+  frontend:
     image: viki-heat_frontend:latest
-    build:
-      context: ./function/nginx
-      dockerfile: Dockerfile
-    container_name: viki-nginx
+    container_name: viki-frontend
+    hostname: viki-frontend
     networks:
       custom_net:
         ipv4_address: 172.20.0.5
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - backend
-    restart: unless-stopped
+    restart: always
 
 volumes:
   db-data:

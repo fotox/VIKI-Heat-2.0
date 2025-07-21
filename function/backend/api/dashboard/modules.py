@@ -17,10 +17,10 @@ logging = LoggingService()
 def get_energy_data():
     dummy_data = {
         f"'startsAt': '2025-07-03T{hour:02d}:00:00.000+02:00'": {
-            "heating": round(0.5 + hour * 0.1, 2),
-            "consumer": round(0.7 + hour * 0.05, 2),
-            "regular": round(0.2 + hour * 0.02, 2),
-            "production": round(2.0 + hour * 0.15, 2)
+            "heating": 0.00,                            # TODO: Fill with heating manufacturer data
+            "consumer": 0.00,                           # TODO: Fill with consumer manufacturer data
+            "regular": 0.00,                            # TODO: Fill with regular manufacturer data (regular = consume - comsumer - heating)
+            "production": round(2.0 + hour * 0.15, 2)   # TODO: Fill with Forecast or Sum-Production
         }
         for hour in range(24)
     }

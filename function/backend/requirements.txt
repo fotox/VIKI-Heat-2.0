@@ -11,3 +11,4 @@ psycopg2-binary~=2.9.10
 pymodbus~=3.9.2
 apscheduler~=3.11.0
 pyserial~=3.5
+eventlet~=0.40.1

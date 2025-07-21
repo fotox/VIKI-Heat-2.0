@@ -1,27 +1,22 @@
 import json
-import sys
 
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 from utils.logging_service import LoggingService
-
-IS_WINDOWS = sys.platform == "win32"
 MEMORY_FILE = "memory.json"
 
 logging = LoggingService()
-
-if IS_WINDOWS:
-    from services.heating.GpioMock import RPiGPIOSimulator
-    GPIO = RPiGPIOSimulator()
-else:
-    import RPi.GPIO as GPIO
+RELAY_PINS: dict = {1: 20, 2: 21, 3: 26}
 
 
-RELAY_PINS = {1: 20, 2: 21, 3: 26}
+def is_raspberry_pi():
+    try:
+        with open('/proc/cpuinfo') as f:
+            return 'raspberrypi' in f.read().lower()
+    except BaseException:
+        return False
 
-GPIO.setmode(GPIO.BCM)
-for pin in RELAY_PINS.values():
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.LOW)
+
+IS_RPi: bool = is_raspberry_pi()
 
 
 def load_memory() -> dict:
@@ -42,11 +37,12 @@ def save_memory(memory: dict) -> None:
 
 
 def toggle_all_relais(state: bool) -> None:
+    gpio = get_gpio()
     try:
         memory: dict = load_memory()
 
         for pin in RELAY_PINS:
-            GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
+            gpio.output(RELAY_PINS[pin], gpio.HIGH if state else gpio.LOW)
             memory["heat_pipes"][str(pin)] = state
 
         save_memory(memory)
@@ -56,10 +52,11 @@ def toggle_all_relais(state: bool) -> None:
 
 
 def toogle_relay(pin: int, state: bool) -> bool:
+    gpio = get_gpio()
     try:
         memory: dict = load_memory()
         if memory["heat_pipes"][str(pin)] != state:
-            GPIO.output(RELAY_PINS[pin], GPIO.HIGH if state else GPIO.LOW)
+            gpio.output(RELAY_PINS[pin], gpio.HIGH if state else gpio.LOW)
             memory["heat_pipes"][str(pin)] = state
 
             save_memory(memory)
@@ -89,3 +86,22 @@ def read_sensors_by_tank_with_heat_pipe() -> dict:
     tank: dict = {0: 25.7, 1: 38.4, 2: 49.1}
 
     return {"tank": tank, "dest_temp": dest_temp}
+
+
+def get_gpio():
+    if IS_RPi:
+        import RPi.GPIO as GPIO
+    else:
+        from services.heating.GpioMock import RPiGPIOSimulator
+        GPIO = RPiGPIOSimulator()
+
+    return GPIO
+
+
+def init_gpio():
+    GPIO = get_gpio()
+
+    GPIO.setmode(GPIO.BCM)
+    for pin in RELAY_PINS.values():
+        GPIO.setup(pin, GPIO.OUT)
+        GPIO.output(pin, GPIO.LOW)

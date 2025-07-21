@@ -11,6 +11,7 @@ from database.init_db import seed_users, seed_roles, seed_manufacturers, seed_ca
 from extensions import db, jwt, socketio
 from config import Config
 from services.energy.inverter import pull_live_data_from_inverter
+from services.heating.helper import init_gpio
 from utils.logging_service import LoggingService
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -52,6 +53,8 @@ def create_app():
         seed_category()
         seed_manufacturers()
         seed_location()
+
+    init_gpio()
 
     @app.route("/")
     def index():

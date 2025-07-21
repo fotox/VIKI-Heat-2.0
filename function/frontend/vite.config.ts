@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'                  // ← neu
+import path from 'path'
 
 export default defineConfig({
+  base: '/',
   plugins: [react()],
-  resolve: {                            // ← neu hinzufügen
+  resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
@@ -12,11 +13,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://viki-backend:5000',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:5000',
+        target: 'http://viki-backend:5000',
         ws: true,
         changeOrigin: true,
       },
