@@ -9,3 +9,4 @@ id,description,category
 8,Heizstab,heat_pipe
 9,Wasserspeicher,water_tank
 10,Sensoren,sensors
+11,Clouddienst,cloud_service

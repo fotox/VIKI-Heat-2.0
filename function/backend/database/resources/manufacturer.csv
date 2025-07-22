@@ -8,3 +8,5 @@ id,description,category,manufacturer,model_type,url,api,power_factor,power_size,
 12,DS18B20,10,"",DS18B20,"","",0.00,0,ueber DS18B20 Lesegeraet auslesbar
 2,Fronius Symo 10.0-3-M - Livedaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetPowerFlowRealtimeData.fcgi,"[""Body"", ""Data"",""Site""]",1.00,10000,""
 5,Fronius Symo 10.0-3-M - Tagesdaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId=0&DataCollection=MeterRealtimeData,"[""Body"", ""Data""]",1.00,10000,""
+13,Tibber Strompreis Info,11,Tibber,GraphiQL,https://api.tibber.com/v1-beta/gql,['data']['viewer']['homes'][0]['currentSubscription']['priceInfo'],0.00,0,Tibber Strompreis Info über GraphiQL Skript
+14,Tibber Stromverbrauch,11,Tibber,GraphiQL,https://api.tibber.com/v1-beta/gql,['data']['viewer']['homes'][0]['consumption']['nodes'],0.00,0,Tibber Stromverbrauch über GraphiQL Skript
