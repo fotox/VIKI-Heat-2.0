@@ -188,7 +188,7 @@ export default function Heating() {
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
-                <label htmlFor="buffer">API-Key:</label>
+                <label htmlFor="buffer">Puffer:</label>
                 <Input
                     id="buffer"
                     type="number"
@@ -279,7 +279,7 @@ export default function Heating() {
                 />
               </div>
               <div className="grid grid-cols-2 items-center gap-2">
-                <label htmlFor="buffer">API-Key:</label>
+                <label htmlFor="buffer">Puffer:</label>
                 <Input
                     id="buffer"
                     type="number"

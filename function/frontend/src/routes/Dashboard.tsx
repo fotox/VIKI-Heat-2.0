@@ -30,7 +30,7 @@ const AVAILABLE_MODULES: DashboardModule[] = [
   { id: "inverterProductionChart", module_type: "Wechselrichter-Produktion Chart" },
   { id: "inverterConsumeChart", module_type: "Wechselrichter-Verbrauch Chart" },
   { id: "inverterCoverChart", module_type: "Wechselrichter-Strombillanz Chart" },
-  { id: "inverterAccuCapacityChart", module_type: "Wechselrichter-Verbrauch Chart" },
+  { id: "inverterAccuCapacityChart", module_type: "Batteriespeicher-Ladung Chart" },
   { id: "heatingTankRingChart", module_type: "Warmwasserspeicher Chart" },
   { id: "bufferTankRingChart", module_type: "Pufferspeicher Chart" },
 ]
