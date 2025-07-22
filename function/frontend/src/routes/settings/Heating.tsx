@@ -47,7 +47,7 @@ export default function Heating() {
         setManufacturers(
           data.manufacturers.map((m: any) => ({
             id: m.id,
-            label: `${m.manufacturer} - ${m.model_type}`,
+            label: `${m.description}`
           }))
         )
       )

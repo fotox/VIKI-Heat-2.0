@@ -47,7 +47,7 @@ export default function Energy() {
         setManufacturers(
           data.manufacturers.map((m: any) => ({
             id: m.id,
-            label: `${m.manufacturer} - ${m.model_type}`,
+            label: `${m.description}`,
             power_size: m.power_size,
           }))
         )
