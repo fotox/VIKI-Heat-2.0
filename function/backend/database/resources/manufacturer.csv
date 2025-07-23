@@ -5,7 +5,7 @@ id,description,category,manufacturer,model_type,url,api,power_factor,power_size,
 9,Vaillant aroTHERM Split VWL 75/5 IS,1,Vaillant,aroTHERM Split VWL 75/5 IS,"","",1.00,7000,Modbus AddOn benoetigt
 10,Vaillant uniSTOR exclusive VIH RW 300/3,9,Vaillant,uniSTOR exclusive VIH RW 300/3,"","",1.00,300,300 Liter Fassungsvermoegen mit Waermetauscher
 11,Sunex Pufferspeicher 500 FISH S4 U,9,Sunex,500 FISH S4 U,"","",1.00,500,500 Liter Fassungsvermoegen ohne Waermetauscher
-12,DS18B20,10,"",DS18B20,"","",0.00,0,ueber DS18B20 Lesegeraet auslesbar
+12,DS18B20,10,"",DS18B20,/dev/ttyAMA0,"{'baudrate':9600, 'timeout':1, 'parity':'N', 'stopbits':1, 'bytesize':8}",0.00,0,ueber DS18B20 Lesegeraet auslesbar
 2,Fronius Symo 10.0-3-M - Livedaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetPowerFlowRealtimeData.fcgi,"[""Body"", ""Data"",""Site""]",1.00,10000,""
 5,Fronius Symo 10.0-3-M - Tagesdaten,3,Fronius,Symo 10.0-3-M,/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId=0&DataCollection=MeterRealtimeData,"[""Body"", ""Data""]",1.00,10000,""
 13,Tibber Strompreis Info,11,Tibber,GraphiQL,https://api.tibber.com/v1-beta/gql,['data']['viewer']['homes'][0]['currentSubscription']['priceInfo'],0.00,0,Tibber Strompreis Info über GraphiQL Skript
