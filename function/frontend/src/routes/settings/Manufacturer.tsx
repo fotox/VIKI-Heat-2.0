@@ -108,7 +108,6 @@ export default function Manufacturer() {
           manufacturer: manufacturer, model_type: modelType, url: url, api: api, power_factor: powerFactor,
           power_size: powerSize })
     })
-
   }
 
   // Update Modules
@@ -178,7 +177,6 @@ export default function Manufacturer() {
         selectedCategories.includes(mod.category?.label ?? "")
       )
     }
-
     setFilteredManufacturer(filtered)
   }
 
