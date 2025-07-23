@@ -55,7 +55,7 @@ export function TankSelect({ value, onChange, tanks }: Props) {
                 Kein Tank gefunden.{" "}
                 <Button
                   variant="link"
-                  onClick={() => window.location.href = "/settings/tank"}
+                  onClick={() => window.location.href = "/settings/tanks"}
                 >
                   Jetzt hinzufügen
                 </Button>
