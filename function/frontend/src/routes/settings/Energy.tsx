@@ -193,7 +193,7 @@ export default function Energy() {
                 <label htmlFor="price">Preis:</label>
                 <Input
                     id="price"
-                    type="string"
+                    type="number"
                     value={price}
                     onChange={e => setPrice(Number(e.target.value))}
                 />
@@ -288,7 +288,7 @@ export default function Energy() {
                   <label htmlFor="price">Preis:</label>
                   <Input
                       id="price"
-                      type="string"
+                      type="number"
                       value={price}
                       onChange={e => setPrice(Number(e.target.value))}
                   />
