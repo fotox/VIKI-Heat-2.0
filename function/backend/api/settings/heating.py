@@ -26,10 +26,11 @@ def create_heating_module():
       - manufacturer (ManufacturerSettings)
       - ip (string)
       - api_key (string)
+      - buffer (integer)
     :return: Created module
     """
     data = request.get_json() or {}
-    required = ["description", "manufacturer", "ip", "api_key"]
+    required = ["description", "manufacturer", "ip", "api_key", "buffer"]
     missing = [f for f in required if f not in data]
     if missing:
         return jsonify(msg=f"Missing fields: {', '.join(missing)}"), 422
@@ -38,7 +39,8 @@ def create_heating_module():
         description=data["description"],
         manufacturer=data["manufacturer"],
         ip=data["ip"],
-        api_key=data["api_key"]
+        api_key=data["api_key"],
+        buffer=data["buffer"]
     )
     db.session.add(module)
     db.session.commit()
@@ -56,13 +58,14 @@ def update_heating_module(module_id: int):
       - manufacturer (ManufacturerSettings)
       - ip (string)
       - api_key (string)
+      - buffer (integer)
     :param: Identifier of the module
     :return: Updated module
     """
     module = HeatingSetting.query.get_or_404(module_id)
     data = request.get_json() or {}
 
-    for key in ("description", "manufacturer", "ip", "api_key"):
+    for key in ("description", "manufacturer", "ip", "api_key", "buffer"):
         if key in data:
             setattr(module, key, data[key])
 
