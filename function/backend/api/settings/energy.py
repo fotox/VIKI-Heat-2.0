@@ -26,17 +26,17 @@ def create_energy_module():
       - manufacturer (ManufacturerSetting)
       - ip (string)
       - api_key (string)
-      - price (string)
+      - price (number)
     :return: Created module
     """
     data = request.get_json() or {}
-    required = ["system_id", "manufacturer", "ip", "api_key", "price"]
+    required = ["description", "manufacturer", "ip", "api_key", "price"]
     missing = [f for f in required if f not in data]
     if missing:
         return jsonify(msg=f"Missing fields: {', '.join(missing)}"), 422
 
     module = EnergySetting(
-        system_id=data["system_id"],
+        description=data["description"],
         manufacturer=data["manufacturer"],
         ip=data["ip"],
         api_key=data["api_key"],
@@ -58,14 +58,14 @@ def update_energy_module(module_id: int):
       - manufacturer (ManufacturerSetting)
       - ip (string)
       - api_key (string)
-      - price (string)
+      - price (number)
     :param: Identifier of the module
     :return: Updated module
     """
     module = EnergySetting.query.get_or_404(module_id)
     data = request.get_json() or {}
 
-    for key in ("system_id", "manufacturer", "ip", "api_key", "price"):
+    for key in ("description", "manufacturer", "ip", "api_key", "price"):
         if key in data:
             setattr(module, key, data[key])
 

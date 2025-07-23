@@ -92,8 +92,8 @@ export default function Energy() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
-        api_key: api_key, price: price })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip, api_key: api_key,
+        price: price })
     })
     fetchModules()
   }
@@ -118,8 +118,8 @@ export default function Energy() {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip,
-        api_key: api_key, price: price })
+      body: JSON.stringify({ description: description, manufacturer: selectedManufacturer?.id, ip: ip, api_key: api_key,
+        price: price })
     })
     setEditModule(null)
     fetchModules()
@@ -159,7 +159,8 @@ export default function Energy() {
                 <Input
                     id="description"
                     type="string"
-                    value={description} onChange={e => setDescription(e.target.value)}
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
                     required
                 />
               </div>
@@ -176,7 +177,8 @@ export default function Energy() {
                 <Input
                     id="ip"
                     type="string"
-                    value={ip ?? ''} onChange={e => setIp(e.target.value)}
+                    value={ip ?? ''}
+                    onChange={e => setIp(e.target.value)}
                     required
                 />
               </div>
@@ -254,7 +256,8 @@ export default function Energy() {
                   <Input
                       id="description"
                       type="string"
-                      value={description} onChange={e => setDescription(e.target.value)}
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
                       required
                   />
                 </div>
@@ -271,7 +274,8 @@ export default function Energy() {
                   <Input
                       id="ip"
                       type="string"
-                      value={ip ?? ''} onChange={e => setIp(e.target.value)}
+                      value={ip ?? ''}
+                      onChange={e => setIp(e.target.value)}
                       required
                   />
                 </div>
