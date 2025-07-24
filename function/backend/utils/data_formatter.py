@@ -1,3 +1,4 @@
+import ast
 import re
 
 from utils.logging_service import LoggingService
@@ -29,14 +30,13 @@ def extract_datapoints_from_json_with_api(api: str, data: dict) -> dict:
     Raises:
         ValueError: If the path cannot be fully resolved (invalid key/index/type).
     """
-    keys: list = re.findall(r"\['(.*?)'\]|\[(\d+)\]", api)
+    keys: list = ast.literal_eval(api)
 
-    for key_pair in keys:
-        key = key_pair[0] if key_pair[0] else int(key_pair[1])
+    for key in keys:
         try:
             data: dict = data[key]
         except (KeyError, IndexError, TypeError):
-            logging.error(f"Could not extract data from {key_pair[0]}")
+            logging.error(f"Could not extract data from {key}")
             raise ValueError(f"Path invalid at path: {key}")
 
     return data
