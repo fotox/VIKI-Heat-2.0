@@ -17,26 +17,8 @@ services:
       - "5432:5432"
     restart: always
 
-  db-collector:
-    image: postgres:14-alpine
-    container_name: data-statistic
-    hostname: data-statistic
-    environment:
-      POSTGRES_USER: viki
-      POSTGRES_PASSWORD: viki-secret
-      POSTGRES_DB: viki_statistics
-      TZ: Europe/Berlin
-    volumes:
-      - db-statistic-data:/var/lib/postgresql/data
-    networks:
-      custom_net:
-        ipv4_address: 172.20.0.3
-    ports:
-      - "5432:5432"
-    restart: always
-
   backend:
-    image: viki-heat_backend:latest   # viki-heat_arm_backend:latest for prod
+    image: viki-heat_arm_backend:latest
     container_name: viki-backend
     hostname: viki-backend
     depends_on:
@@ -53,13 +35,13 @@ services:
       - JWT_SECRET_KEY=super-secret
       - MASTER_RESET_KEY=viki-masterkey
       - DATABASE_URL=postgresql://viki:viki-secret@db:5432/viki
-    #devices:                         # Uncomment for prod
-    #  - "/dev/gpiomem:/dev/gpiomem"
-    #  - "/dev/ttyAMA0:/dev/ttyAMA0"
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+      - "/dev/ttyAMA0:/dev/ttyAMA0"
     restart: always
 
   frontend:
-    image: viki-heat_frontend:latest
+    image: viki-heat_arm_frontend:latest
     container_name: viki-frontend
     hostname: viki-frontend
     networks:
@@ -74,8 +56,6 @@ services:
 volumes:
   db-data:
     name: db-data
-  db-statistic-data:
-    name: db-statistic
   viki-log:
     name: viki-log
 
