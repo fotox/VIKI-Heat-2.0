@@ -1,5 +1,6 @@
 # --- Stage 1: Build ---
 FROM node:18-slim AS builder
+RUN apt-get update && apt-get install -y
 WORKDIR /app
 
 COPY package.json package-lock.json ./
