@@ -1,5 +1,3 @@
-import time
-
 from pymodbus.client import ModbusSerialClient as ModbusClient
 from pymodbus.pdu import ModbusPDU
 
@@ -38,7 +36,7 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
         return temp_sensor_data
 
     try:
-        response: ModbusPDU = client.read_holding_registers(0x0000, 8, slave=1)
+        response: ModbusPDU = client.read_holding_registers(0x0000, slave=1)
         if not response.isError():
             temperatures: list[int] = response.registers
             for i, temp in enumerate(temperatures[:6]):
