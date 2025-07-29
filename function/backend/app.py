@@ -15,8 +15,6 @@ from services.heating.helper import init_gpio
 from utils.logging_service import LoggingService
 from apscheduler.schedulers.background import BackgroundScheduler
 
-DEV_MODE: bool = True
-
 logging = LoggingService()
 sched = BackgroundScheduler(daemon=True)
 
