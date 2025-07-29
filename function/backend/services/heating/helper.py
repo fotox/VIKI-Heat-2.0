@@ -40,32 +40,39 @@ def toggle_all_relais(state: bool) -> None:
     gpio = get_gpio()
     try:
         memory: dict = load_memory()
+        logging.debug(f"[MEMORY] Before: {memory}")
 
         for pin in RELAY_PINS:
-            gpio.output(RELAY_PINS[pin], gpio.HIGH if state else gpio.LOW)
+            gpio.output(RELAY_PINS[pin], not state)
+            logging.debug(f"[TOGGLEALLRELAIS] Pins are now {'OFF (gpio.HIGH)' if state else 'ON (gpio.LOW)'}")
             memory["heat_pipes"][str(pin)] = state
 
+        logging.debug(f"[MEMORY] After: {memory}")
         save_memory(memory)
 
     except Exception as err:
-        logging.error(f"[ToggleAllRelais] Failed to toogle relay: {err}")
+        logging.error(f"[TOGGLEALLRELAIS] Failed to toogle relay: {err}")
 
 
 def toogle_relay(pin: int, state: bool) -> bool:
     gpio = get_gpio()
     try:
         memory: dict = load_memory()
+        logging.debug(f"[MEMORY] Before: {memory}")
+
         if memory["heat_pipes"][str(pin)] != state:
-            gpio.output(RELAY_PINS[pin], gpio.HIGH if state else gpio.LOW)
+            gpio.output(RELAY_PINS[pin], not state)
+            logging.debug(f"[TOGGLERELAIS] Pin {pin} is now {'OFF (gpio.HIGH)' if state else 'ON (gpio.LOW)'}")
             memory["heat_pipes"][str(pin)] = state
 
+            logging.debug(f"[MEMORY] After: {memory}")
             save_memory(memory)
             return state
         else:
             return not state
 
     except Exception as err:
-        logging.error(f"[ToggleRelay] Failed to toogle relay: {err}")
+        logging.error(f"[TOGGLERELAY] Failed to toogle relay: {err}")
         return not state
 
 
@@ -104,4 +111,4 @@ def init_gpio():
     GPIO.setmode(GPIO.BCM)
     for pin in RELAY_PINS.values():
         GPIO.setup(pin, GPIO.OUT)
-        GPIO.output(pin, GPIO.LOW)
+        GPIO.output(pin, GPIO.HIGH)
