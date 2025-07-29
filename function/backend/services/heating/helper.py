@@ -92,11 +92,9 @@ def read_sensors_by_tank_with_heat_pipe() -> dict:
 def get_gpio():
     if IS_RPi:
         import RPi.GPIO as GPIO
-        logging.debug(f"[IMPORT GPIO] Raspberry initialized")
     else:
         from services.heating.GpioMock import RPiGPIOSimulator
         GPIO = RPiGPIOSimulator()
-        logging.debug(f"[IMPORT GPIO] Simulator initialized")
 
     return GPIO
 

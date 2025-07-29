@@ -4,6 +4,8 @@ from utils.logging_service import LoggingService
 
 logging = LoggingService()
 
+DEV_MODE: bool = True
+
 
 def automatic_control(cover: int):
     memory: dict = load_memory()
@@ -37,11 +39,12 @@ def automatic_control(cover: int):
                 phase = heat_pipe_config.get(f"pipe_{pipe_number}")
                 buffer = heat_pipe_config.get(f"buffer_{pipe_number}")
 
-                if cover > phase + buffer:
+                if cover > (phase + buffer):
                     new_state = toogle_relay(pipe_number, True)
                     if not new_state:
                         pass
-                    cover -= (phase + buffer)
+                    if DEV_MODE:
+                        cover -= (phase + buffer)
 
                 elif cover < 0:
                     new_state = toogle_relay(pipe_number, False)
