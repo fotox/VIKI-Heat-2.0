@@ -1,6 +1,6 @@
-import os
 import requests
 from flask import Response
+from pathlib import Path
 
 from database.fetch_data import fetch_values
 from utils.data_formatter import extract_datapoints_from_json_with_api
@@ -29,7 +29,8 @@ def pull_price_info_from_tibber_api() -> list:
     url: str = fetch_values("manufacturer", "Tibber Strompreis Info", "url")
 
     try:
-        with open(os.path.join(os.path.dirname(__file__), "graphql\\tibber_price_info.graphql"), "r") as file:
+        graphql_path = Path(__file__).parent / "graphql" / "tibber_price_info.graphql"
+        with open(graphql_path, "r") as file:
             query: str = file.read()
 
         response: Response = requests.post(url, headers=load_tibber_auth(), json={'query': query})
@@ -70,9 +71,7 @@ def pull_consume_information_from_tibber_api() -> float:
         return 0.0
 
     try:
-        graphql_path = os.path.join(
-            os.path.dirname(__file__), "graphql", "tibber_consume_info.graphql"
-        )
+        graphql_path = Path(__file__).parent / "graphql" / "tibber_consume_info.graphql"
         with open(graphql_path, "r", encoding="utf-8") as file:
             query: str = file.read()
 
@@ -105,6 +104,8 @@ def pull_consume_information_from_tibber_api() -> float:
     except (KeyError, TypeError) as calc_err:
         logging.error(f"[Tibber] Invalid data format: {calc_err}")
         return 0.0
+
+# TODO: Load by manufacturer id not by description
 
 
 def load_tibber_auth() -> dict:
