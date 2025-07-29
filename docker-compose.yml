@@ -1,7 +1,7 @@
 services:
-  db-data:
+  db:
     image: postgres:14-alpine
-    container_name: viki-data
+    container_name: viki-db
     hostname: db
     environment:
       POSTGRES_USER: viki
@@ -22,7 +22,7 @@ services:
     container_name: viki-backend
     hostname: viki-backend
     depends_on:
-      - db-data
+      - db
     volumes:
       - viki-log:/app/logs
     networks:
@@ -38,6 +38,7 @@ services:
     devices:
       - "/dev/gpiomem:/dev/gpiomem"
       - "/dev/ttyAMA0:/dev/ttyAMA0"
+    privileged: true
     restart: always
 
   frontend:
