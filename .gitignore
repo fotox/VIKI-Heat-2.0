@@ -53,3 +53,4 @@ private_key.json
 regr.json
 meta.json
 .bkp
+/function/backend/database/resources/
