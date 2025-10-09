@@ -1,32 +1,203 @@
-# Install R4DCB08
+# V.I.K.I – Home Energy Management System
+© by Fotox
 
-## Schritt 1: Serielle Kommunikation vorbereiten
-Verbinde das R4DCB08-Modul über den USB-RS485-Adapter mit deinem Raspberry Pi.
+A modular open-source **hardware & software platform** designed for intelligent energy and heating management at home.
+This repository contains the documentation and setup instructions for the **hardware system** and its integration with the **V.I.K.I – Heat** software suite (frontend & backend).
 
-Aktiviere die serielle Schnittstelle auf dem Raspberry Pi:
+---
 
-Öffne das Konfigurationstool:
+## Table of Contents
+
+- [Overview](#overview)
+- [System Architecture](#system-architecture)
+- [Hardware Components](#hardware-components)
+- [Bill of Materials (BOM)](#bill-of-materials-bom)
+- [Installation & Wiring](#installation--wiring)
+- [Software Installation (Raspberry Pi)](#software-installation-raspberry-pi)
+- [Case & 3D Model](#case--3d-model)
+- [First Start-Up Procedure](#first-start-up-procedure)
+- [Testing the Temperature Sensors](#testing-the-temperature-sensors)
+- [Safety Notes](#safety-notes)
+- [Documentation References](#documentation-references)
+- [License](#license)
+
+---
+
+## Overview
+
+**V.I.K.I – Home Energy Management System (HEMS)** provides a centralized platform to monitor, control, and optimize heating and energy systems.
+This part of the project focuses on the **hardware integration** — including temperature measurement, relay control, and power distribution — built around a **Raspberry Pi 4**.
+
+The system interfaces with the **V.I.K.I – Heat** backend (Flask/Python) and frontend (React/TypeScript) to visualize sensor data and control outputs in real time.
+
+---
+
+## System Architecture
+
+The hardware consists of several core modules:
+
+- **Raspberry Pi 4** as the central controller
+- **R4DCB08** module for Modbus-RTU communication with temperature sensors
+- **3-way relay board** for controlling heating or auxiliary circuits
+- **ABB F204 A** RCD (FI) and **ABB B16** circuit breakers for safety
+- **Mean Well power supplies** for 5 V / 3 A (15 W) and 36 V / 1.5 A (36 W)
+- **Heschen CT1-25** for current measurement or switching
+- **DS18B20 temperature sensors** connected via the R4DCB08
+
+All components are mounted inside a **three-row distribution cabinet**, powered by a **400 V / 64 A** main line.
+
+Communication between the Raspberry Pi and the R4DCB08 occurs via a **USB–RS485 adapter** (Modbus RTU protocol).
+
+---
+
+## Hardware Components
+
+| Component | Model / Type | Description |
+|------------|---------------|--------------|
+| Control Unit | Raspberry Pi 4 (4 GB) | Central controller for system logic and API communication |
+| Temperature Module | R4DCB08 | 8-channel Modbus-RTU temperature input board |
+| Sensors | DS18B20 | Digital temperature probes connected to R4DCB08 |
+| Relay Board | 3-Channel Relay 5 V | Controls heating pumps, valves, or auxiliary outputs |
+| Circuit Protection | ABB F204 A + 3× B16 + 1× B16 | RCD and circuit breakers for AC protection |
+| Power Supply 1 | Mean Well 15 W 5 V 3 A | Powers Raspberry Pi and low-voltage logic |
+| Power Supply 2 | Mean Well 36 W 36 V 1.5 A | Powers high-voltage control circuits |
+| Current Switch | Heschen CT1-25 | Monitors current or serves as contactor for loads |
+| Communication | USB–RS485 Adapter | Connects R4DCB08 to Raspberry Pi serial port |
+| Cabinet | 3-Row Electrical Cabinet | Minimum 3 rows for DIN-rail components |
+| Mounting | DIN-rail | Case and components mounted on standard DIN-rail |
+
+---
+
+## Bill of Materials (BOM)
+
+Below is a suggested list for constructing the complete **V.I.K.I – Heat hardware system**.
+
+| Item | Description | Approx. Quantity | Cable Type |
+|------|--------------|------------------|-------------|
+| Raspberry Pi 4 (4 GB) | Main control board | 1 | – |
+| R4DCB08 module | Modbus temperature reader | 1 | RS-485 cable, 2×0.5 mm² |
+| USB–RS485 Adapter | Serial communication | 1 | USB A |
+| DS18B20 sensors | Temperature sensors | 6 pcs | Twisted-pair 2×0.5 mm² |
+| Relay Board (3-way) | Control output | 1 | GPIO → Relay 2×0.5 mm² |
+| Mean Well 5 V 3 A PSU | Low-voltage PSU | 1 | 230 V → 5 V |
+| Mean Well 36 V 1.5 A PSU | Secondary PSU | 1 | 230 V → 36 V |
+| ABB F204 A | 4-pole RCD | 1 | 400 V → main feed |
+| ABB B16 Breakers | 16 A protection | 4 | 230 V branch circuits |
+| Heschen CT1-25 | Current relay | 1 | Inline connection |
+| Cabinet ≥ 3 rows | Electrical housing | 1 | – |
+| Mounting rails, screws, connectors | For assembly | as required | – |
+| Wires (400 V side) | Supply / Relay / Load | – | 1.5–2.5 mm² Cu |
+| Low-voltage wiring | RS485 / GPIO / Sensors | – | 0.25–0.5 mm² Cu |
+
+> ⚙️ *Cable lengths depend on installation; use proper color coding and ensure sufficient isolation.*
+
+---
+
+## Installation & Wiring
+
+Detailed schematics and wiring diagrams are provided in:
+
+- `documentation/eplan.pdf` – Full electrical schematic
+- `documentation/wiring.pdf` – Visual wiring diagram with component layout
+
+### Summary
+
+1. Mount all components inside a **three-row DIN-rail cabinet**.
+2. Connect the **400 V feed** through the ABB F204 A FI and circuit breakers.
+3. Wire the **Mean Well** power supplies to distribute 5 V / 36 V lines.
+4. Connect the **Raspberry Pi 4** to:
+   - R4DCB08 via **USB–RS485 adapter**
+   - Relay board via **GPIO pins**
+   - Power via the 5 V supply
+5. Attach **temperature sensors** to the R4DCB08 according to the Modbus address mapping.
+6. Verify wiring continuity and polarity before energizing the system.
+
+> 🧠 **Note:** All RS485 and signal lines should be shielded to avoid interference.
+> Keep high-voltage and low-voltage cables separated in the cabinet.
+
+---
+
+## Software Installation (Raspberry Pi)
+
+After the wiring is complete, the Raspberry Pi must be prepared with the required libraries and runtime environment.
+
+### 1. Install BCM2835 Library
+
+The BCM2835 library is required for low-level GPIO access and relay control.
+
 ```bash
-sudo raspi-config
-
-Interfacing Options -> Serial und deaktiviere die serielle Konsole, aktiviere aber die serielle Schnittstelle.
-
+wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz
+tar zxvf bcm2835-1.71.tar.gz
+cd bcm2835-1.71/
+sudo ./configure && sudo make && sudo make check && sudo make install
 ```
-Installiere das Paket pymodbus, das für die Modbus-Kommunikation benötigt wird:
+
+More details are available on the official site:
+http://www.airspayce.com/mikem/bcm2835/
+
+### 2. Install Docker
+
+Docker is used to run the backend and frontend containers for the V.I.K.I – Heat system.
+
+```bash
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+```
+
+After re-login, you can verify installation with:
+
+```bash
+docker --version
+```
+### 3. Install Required Python Libraries
+
+The R4DCB08 temperature module requires pymodbus and pyserial.
+
 ```bash
 sudo apt update
 sudo apt install python3-pip python3-pymodbus python3-serial
 ```
 
-## Schritt 2: Python-Code zum Auslesen der Temperaturdaten
-Verwende das folgende Python-Skript, um die Temperatursensoren auszulesen. Das Skript verwendet die pymodbus-Bibliothek, um Modbus-RTU-Kommunikation über die serielle Schnittstelle durchzuführen.
+Once completed, the system is ready to run the V.I.K.I Heat app or Docker containers.
 
-Erstelle eine Python-Datei:
-```bash
-nano r4dcb08_read.py
-```
+### 4. Case & 3D Model
 
-Füge den folgenden Code in die Datei ein:
+The V.I.K.I Heat hardware case consists of a base and lid printed in PETG (white + blue).
+Alternatively, ABS or ASA may be used for higher temperature resistance.
+
+- Mounting type: DIN-rail (inside electrical cabinet)
+- Minimum cabinet size: 3 rows
+
+3D and construction files:
+
+- documentation/case.3mf – 3D model (print-ready)
+- documentation/technical_map_case_base.pdf – Base plate construction plan
+- documentation/technical_map_case_top.pdf – Top cover construction plan
+
+### 5. First Start-Up Procedure
+
+1. Connect the RJ-45 communication cable on the top side.
+2. Switch on the FI and circuit breakers.
+3. Boot the Raspberry Pi with the micro-SD containing the V.I.K.I – Heat image.
+4. Ensure BCM2835 and Docker are correctly installed (see section above).
+5. Access the web interface via your network using the Pi’s IP address on port 80.
+6. Configure your household and heating parameters in the Settings section.
+7. Verify temperature readings in the dashboard.
+
+The system currently operates via Ethernet only.
+WLAN functionality is planned for future revisions.
+
+### 6. Testing the Temperature Sensors
+
+There are two main ways to test the temperature readings:
+
+#### Option 1 – Using the Frontend Dashboard
+
+Sensor values appear on the dashboard under Heating → Temperature Sensors once the backend service is active.
+
+#### Option 2 – Using the Shell Script
+
+Run the provided Python script on the Raspberry Pi to verify Modbus readings manually:
 
 ```python
 import time
@@ -93,130 +264,36 @@ except Exception as e:
     print(f"Error by reading sensor: {e}")
 ```
 
-## Schritt 3: Skript ausführen
-Führe das Python-Skript aus:
+You should see temperature values for all connected DS18B20 sensors printed to the terminal.
 
-```bash
-python3 r4dcb08_read.py
-```
+If no values appear, verify RS485 connections and Modbus addressing on the R4DCB08.
 
-Du solltest nun die Temperaturwerte der angeschlossenen DS18B20-Sensoren im Terminal sehen.
+### 7. Safety Notes
 
+⚠️ Electrical Safety Warning
 
-# Install RPi Relay Board 3-way
+This system operates at 400 V AC and must be installed only by a qualified electrician.
+All wiring and installation of FI, circuit breakers, and power supplies must comply with local electrical regulations.
 
-## Schritt 1: Install BCM2835
+- Always disconnect power before wiring or service.
+- Use appropriate wire gauges (1.5 mm² min for 230 V).
+- Ensure all protective earth (PE) connections are continuous.
+- Keep signal and power cables separated.
 
-Open the Raspberry Pi terminal and run the following command
+Improper installation can result in electric shock, fire, or equipment damage.
 
-```bash
-wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz
-tar zxvf bcm2835-1.71.tar.gz
-cd bcm2835-1.71/
-sudo ./configure && sudo make && sudo make check && sudo make install
-```
-For more information, please refer to the official website: http://www.airspayce.com/mikem/bcm2835/
+### 8. Documentation References
 
+- Electrical plan: documentation/eplan.pdf
+- Wiring diagram: documentation/verkabelung.pdf
+- 3D model: documentation/case.3mf
+- Case base: documentation/base.pdf
+- Case head: documentation/head.pdf
+- Software setup: see
+  - frontend/README.md
+  - backend/README.md
 
-# Button and LED Basis
+### 9. License
 
-```python
-from gpiozero import LED, Button
-from time import sleep
-
-button_wifi = Button(12)
-button_state = Button(16)
-led_wifi = LED(19)
-led_state = LED(13)
-
-while True:
-    print(f"LED WIFI: {led_wifi.is_active}")
-    print(f"LED STATE: {led_state.is_active}")
-
-    if button_wifi.is_pressed:
-        if led_wifi.is_active is True:
-            led_wifi.off()
-        else:
-            led_wifi.on()
-        print("Button Wifi is pressed")
-
-    if button_state.is_pressed:
-        if led_state.is_active is True:
-            led_state.off()
-        else:
-            led_state.on()
-        print("Button State is pressed")
-    sleep(1)
-```
-
-# Install V.I.K.I - Heat App
-
-Open the Raspberry Pi terminal and run the following command
-
-```bash
-sudo apt install python3-flask
-sudo mkdir /viki
-sudo mkdir /viki/heat
-```
-
-Copy code to /viki/heat
-
-```bash
-python3 /viki/heat/app.py &
-```
-
-
-# Install V.I.K.I - WiFi-Connect
-
-Open the Raspberry Pi terminal and run the following command
-
-```bash
-sudo mkdir /viki/wifi-manager
-```
-
-Copy code to /viki/wifi-manager
-
-To test the code run:
-```bash
-python3 /viki/wifi-manager/app.py &
-```
-
-Add viki-wifi-manager to rc.local
-```bash
-sudo nano /etc/rc.local
-```
-
-```bash
-#!/bin/sh -e
-_IP=$(hostname -I) || true
-if [ "$_IP" ]; then
-  printf "My IP address is %s\n" "$_IP"
-fi
-
-python3 /viki/wifi-manager/main.py &
-python3 /viki/heat/app.py &
-
-exit 0
-```
-
-# Docker
-## Install on raspberry pi
-
-```bash
-curl -sSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-logout
-```
-
-## Docker Image
-### Build / Save / Load / Run
-
-!Important: Before saving, change from powershell to cmd console. When the save command runs in the powershell console,
-the error "archive/tar: invalid tar header" code comas when your want to load the image on the raspberry pi.
-
-```bash
-docker build --platform linux/arm64 -t viki-heat_arm:<VERSIONSNUMMER> -t viki-heat:latest .
-docker save viki-heat:latest > viki-heat.tar
-docker load < viki-heat_<VERSIONSNUMMER>.tar.gz
-docker-compose up -d
-```
+This hardware documentation and associated software are licensed under the MIT License.
+See the [LICENSE](LICENSE) file for full terms.
