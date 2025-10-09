@@ -285,10 +285,10 @@ Improper installation can result in electric shock, fire, or equipment damage.
 ### 8. Documentation References
 
 - Electrical plan: documentation/eplan.pdf
-- Wiring diagram: documentation/verkabelung.pdf
+- Wiring diagram: documentation/wiring.pdf
 - 3D model: documentation/case.3mf
-- Case base: documentation/base.pdf
-- Case head: documentation/head.pdf
+- Case base: documentation/technical_map_case_base.pdf
+- Case head: documentation/technical_map_case_top.pdf
 - Software setup: see
   - frontend/README.md
   - backend/README.md
