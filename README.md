@@ -1,9 +1,12 @@
 # V.I.K.I-HEAT – Home Energy Management System
 © by Fotox
 
+![](documentation/landing_page.jpg)
+
 A modular open-source **hardware & software platform** designed for intelligent energy and heating management at home.
 This repository contains the documentation and setup instructions for the **hardware system** and its integration with the **V.I.K.I – Heat** software suite (frontend & backend).
 
+> Status: **Open Source** project with basic functionalities under development and ready for further development.
 ---
 
 ## Table of Contents
@@ -76,23 +79,24 @@ Communication between the Raspberry Pi and the R4DCB08 occurs via a **USB–RS48
 
 Below is a suggested list for constructing the complete **V.I.K.I – Heat hardware system**.
 
-| Item                               | Description | Approx. Quantity | Cable Type              |
-|------------------------------------|--------------|------------------|-------------------------|
-| Raspberry Pi 4 (4 GB)              | Main control board | 1                | –                       |
-| R4DCB08 module                     | Modbus temperature reader | 1                | RS-485 cable, 2×0.5 mm² |
-| USB–RS485 Adapter                  | Serial communication | 1                | USB A                   |
-| DS18B20 sensors                    | Temperature sensors | 6 pcs            | Twisted-pair 2×0.5 mm²  |
-| Relay Board (3-way)                | Control output | 1                | GPIO → HAT              |
-| Mean Well 5 V 3 A PSU              | Low-voltage PSU | 1                | 230 V → 5 V             |
-| Mean Well 36 V 1.5 A PSU           | Secondary PSU | 1                | 230 V → 36 V            |
-| ABB F204 A                         | 4-pole RCD | 1                | 400 V → main feed       |
-| ABB B16 Breakers                   | 16 A protection | 4                | 230 V branch circuits   |
-| Heschen CT1-25                     | Current relay | 3                | 1,5 mm² Copper          |
-| Cabinet ≥ 3 rows                   | Electrical housing | 1                | –                       |
-| Mounting rails, screws, connectors | For assembly | as required      | –                       |
-| Wires (400 V side)                 | Load | 1                | 6 mm² Copper            |
-| Wires (230 V side)                 | Supply / Relay / Load | –                | 1,5 mm² Copper          |
-| Low-voltage wiring                 | RS485 / GPIO / Sensors | –                | 0.25–0.5 mm² Copper     |
+| Item                                          | Description                                          | Approx. Quantity | Cable Type              |
+|-----------------------------------------------|------------------------------------------------------|------------------|-------------------------|
+| Raspberry Pi 4 (4 GB)                         | Main control board                                   | 1                | –                       |
+| R4DCB08 module                                | Modbus temperature reader                            | 1                | RS-485 cable, 2×0.5 mm² |
+| USB–RS485 Adapter                             | Serial communication                                 | 1                | USB A                   |
+| DS18B20 sensors                               | Temperature sensors                                  | 6 pcs            | Twisted-pair 2×0.5 mm²  |
+| Relay Board (3-way)                           | Control output                                       | 1                | GPIO → HAT              |
+| Mean Well 5 V 3 A PSU                         | Low-voltage PSU                                      | 1                | 230 V → 5 V             |
+| Mean Well 36 V 1.5 A PSU                      | Secondary PSU                                        | 1                | 230 V → 36 V            |
+| ABB F204 A                                    | 4-pole RCD                                           | 1                | 400 V → main feed       |
+| ABB B16 Breakers                              | 16 A protection                                      | 4                | 230 V branch circuits   |
+| Heschen CT1-25                                | Current relay                                        | 3                | 1,5 mm² Copper          |
+| Cabinet ≥ 3 rows                              | Electrical housing                                   | 1                | –                       |
+| Mounting rails, screws, connectors            | For assembly                                         | as required      | –                       |
+| RJ45 cable and adapter with platform mounting | Transition between switch cabinet inside and outside | as required      | RJ45                    |
+| Wires (400 V side)                            | Load                                                 | 1                | 6 mm² Copper            |
+| Wires (230 V side)                            | Supply / Relay / Load                                | –                | 1,5 mm² Copper          |
+| Low-voltage wiring                            | RS485 / GPIO / Sensors                               | –                | 0.25–0.5 mm² Copper     |
 
 > ⚙️ *Cable lengths depend on installation; use proper color coding and ensure sufficient isolation.*
 
@@ -102,8 +106,8 @@ Below is a suggested list for constructing the complete **V.I.K.I – Heat hardw
 
 Detailed schematics and wiring diagrams are provided in:
 
-- `documentation/eplan.pdf` – Full electrical schematic
-- `documentation/wiring.pdf` – Visual wiring diagram with component layout
+- [documentation/eplan.pdf](documentation/eplan.pdf) – Full electrical schematic
+- [documentation/wiring.pdf](documentation/wiring.pdf) – Visual wiring diagram with component layout
 
 ### Summary
 
@@ -179,7 +183,7 @@ The V.I.K.I Heat hardware case consists of a base and lid printed in PETG (white
 1. Connect the RJ-45 communication cable on the top side.
 2. Switch on the FI and circuit breakers.
 3. Boot the Raspberry Pi with the micro-SD containing the [V.I.K.I–HEAT](documentation/viki_heat.img) image.
-4. Ensure BCM2835 and Docker are correctly installed (see section above).
+4. Ensure BCM2835 and Docker are correctly running (see section above).
 5. Access the web interface via your network using the Pi’s IP address on port 80.
 6. Configure your household and heating parameters in the Settings section.
 7. Verify temperature readings in the dashboard.
