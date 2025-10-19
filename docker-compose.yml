@@ -1,18 +1,68 @@
-version: '3.8'
-
 services:
-  flask-app:
-    image: python_project:latest
-    container_name: python_project
-    hostname: python_project
-    build:
-      context: .
-      dockerfile: Dockerfile
+  db:
+    image: postgres:14-alpine
+    container_name: viki-db
+    hostname: db
     environment:
-      - FLASK_ENV=production
-    ports:
-      - "80:5000"
-    restart: always
-    privileged: true
+      POSTGRES_USER: viki
+      POSTGRES_PASSWORD: viki-secret
+      POSTGRES_DB: viki
+      TZ: Europe/Berlin
     volumes:
-      - /var/log/python_project:/app/logs
+      - db-data:/var/lib/postgresql/data
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.2
+    ports:
+      - "5432:5432"
+    restart: always
+
+  backend:
+    image: viki-heat_arm_backend:latest
+    container_name: viki-backend
+    hostname: viki-backend
+    depends_on:
+      - db
+    volumes:
+      - viki-log:/app/logs
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.4
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=dev-secret
+      - JWT_SECRET_KEY=super-secret
+      - MASTER_RESET_KEY=viki-masterkey
+      - DATABASE_URL=postgresql://viki:viki-secret@db:5432/viki
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+      - "/dev/ttyAMA0:/dev/ttyAMA0"
+    privileged: true
+    restart: always
+
+  frontend:
+    image: viki-heat_arm_frontend:latest
+    container_name: viki-frontend
+    hostname: viki-frontend
+    networks:
+      custom_net:
+        ipv4_address: 172.20.0.5
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  db-data:
+    name: db-data
+  viki-log:
+    name: viki-log
+
+networks:
+  custom_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/29

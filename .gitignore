@@ -45,4 +45,12 @@ ENV/
 *.tar
 *.gz
 *zip
-/function/.env
+.env
+package-lock.json
+node_modules/
+.certbot.lock
+private_key.json
+regr.json
+meta.json
+.bkp
+*.csv

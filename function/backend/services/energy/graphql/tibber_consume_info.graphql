@@ -1,0 +1,12 @@
+{
+  viewer {
+    homes {
+      consumption(resolution: HOURLY, last: 24) {
+        nodes {
+          to
+          consumption
+        }
+      }
+    }
+  }
+}
