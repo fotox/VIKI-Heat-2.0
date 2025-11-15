@@ -12,11 +12,20 @@ Built with **Flask**, served via **Flask-SocketIO**, documented with **Swagger (
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [API Overview](#api-overview)
-- [Configuration](#configuration)
+- [Prerequisites](#prerequisites)
 - [Getting Started (Local Development)](#getting-started-local-development)
-- [Docker](#docker)
+  - [Step 1: Clone Repository](#step-1-clone-repository)
+  - [Step 2: Start Database with Docker Compose](#step-2-start-database-with-docker-compose)
+  - [Step 3: Setup Virtual Environment](#step-3-setup-virtual-environment)
+  - [Step 4: Install Dependencies](#step-4-install-dependencies)
+  - [Step 5: Configure Environment](#step-5-configure-environment)
+  - [Step 6: Start the Backend](#step-6-start-the-backend)
+- [Using the Makefile](#using-the-makefile)
+- [Docker (Full Stack)](#docker-full-stack)
+- [API Overview](#api-overview)
 - [Swagger / API Docs](#swagger--api-docs)
+- [Database Seeding](#database-seeding)
+- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -51,7 +60,7 @@ Built with **Flask**, served via **Flask-SocketIO**, documented with **Swagger (
 ## Project Structure
 
 ```
-src/
+function/backend/
   .env
   app.py
   config.py
@@ -60,12 +69,14 @@ src/
   requirements.txt
   swagger_config.yml
   api/
-    api/
-      auth/
-      dashboard/
-      settings/
+    auth/
+    dashboard/
+    settings/
   database/
+    init_db.py
     resources/
+      manufacturer.csv
+      category.csv
   logs/
   services/
     energy/
@@ -85,144 +96,367 @@ _Notable files:_
 
 ---
 
-## API Overview
+## Prerequisites
 
-- **Auth** (`/api/auth`):
-  - `/login` (POST),
-  - `/register` (POST),
-  - `/profile` (GET/PUT),
-  - `/profile/photo` (GET),
-  - `/reset-password` (POST)
-- **Dashboard** (`/api/dashboard`):
-  - `/modules` (GET/POST/DELETE),
-  - `/modules/reorder` (POST)
-- **Modules** (`/api/dashboard`):
-  - `/energy_data` (GET),
-  - `/energy_price` (GET),
-  - `/heat_pipes` (GET),
-  - `/heat_pipe/<id>` (GET/PUT),
-  - `/heating_mode` (GET/PUT),
-  - `/inverter_data` (GET),
-  - `/heating_tank_temp` (GET),
-  - `/buffer_tank_temp` (GET)
-- **Settings** (`/api/settings`):
-  - category,
-  - energy,
-  - heating,
-  - location,
-  - manufacturer,
-  - photovoltaic,
-  - sensors,
-  - tanks,
-  - weather
+Before starting, ensure you have the following installed:
 
-> Full, interactive documentation is available via **Swagger UI** (see below). Some endpoint docs are still being completed.
-
----
-
-## Configuration
-
-Create a `.env` file (or use the provided example) in the project root:
-
-```env
-SECRET_KEY=dev-secret
-JWT_SECRET_KEY=super-secret
-MASTER_RESET_KEY=viki-masterkey
-DATABASE_URL=postgresql://viki:viki-secret@viki-data:5432/viki
-```
-
-- `DATABASE_URL` points to a **PostgreSQL** instance. Postgres itself is documented in the main [README.md](../../README.md).
-- JWTs are stored in **cookies** (`JWT_TOKEN_LOCATION = ["cookies"]`), CSRF protection is currently **disabled** for JWT cookies.
-- CORS is enabled (see `app.py` for policy).
-- Default port: **5000**.
+- **Python 3.11** ([Download](https://www.python.org/downloads/))
+- **Docker & Docker Compose** ([Download](https://docs.docker.com/get-docker/))
+- **Git** ([Download](https://git-scm.com/downloads))
 
 ---
 
 ## Getting Started (Local Development)
 
-### Prerequisites
-- Python **3.11**
-- PostgreSQL (connection available via `DATABASE_URL`)
-- Virtual environment tool (`venv`)
+Follow these steps to run the backend locally on your machine:
 
-### 1) Create & activate a virtual environment
+### Step 1: Clone Repository
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+git clone https://github.com/fotox/VIKI-Heat-2.0.git
+cd VIKI-Heat-2.0
 ```
 
-### 2) Install dependencies
+### Step 2: Start Database with Docker Compose
+
+The backend requires a PostgreSQL database. Start it using Docker Compose from the **root directory**:
+
 ```bash
-pip install --upgrade pip
+# From the root directory of the project
+docker-compose up -d db
+```
+
+This will:
+- Start PostgreSQL on port `5432`
+- Create a database named `viki`
+- Username: `viki`
+- Password: `viki-secret`
+
+Verify the database is running:
+```bash
+docker ps | grep viki-db
+```
+
+### Step 3: Setup Virtual Environment
+
+Navigate to the backend directory and create a virtual environment:
+
+```bash
+cd function/backend
+```
+
+**Option A: Using Makefile (Windows)**
+
+If you're on Windows and have the Makefile setup:
+```bash
+# From root directory
+make init_venv
+```
+
+**Option B: Manual Setup (All Platforms)**
+
+```bash
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On Windows:
+.venv\Scripts\activate
+
+# On Linux/macOS:
+source .venv/bin/activate
+
+# Upgrade pip
+python -m pip install --upgrade pip
+```
+
+### Step 4: Install Dependencies
+
+With the virtual environment activated, install all required packages:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3) Configure environment
-Create `.env` as shown above and ensure your Postgres is reachable.
+### Step 5: Configure Environment
 
-### 4) Initialize database (optional seeds)
-The directory `database\resources` contains CSV files that import the manufacturer data and categories initially. If
-the manufacturer database is expanded, please remember to also expand the CSV file `manufacturer.csv` with this data
-in order to continuously expand the cross-manufacturer functionality.
+Create a `.env` file in the `function/backend/` directory:
 
-Users and their roles are initially loaded at startup by calling the file `database\init_db.py`.
+```bash
+# Copy from example or create new
+touch .env
+```
 
-### 5) Run the server
+Add the following configuration to `.env`:
+
+```env
+SECRET_KEY=dev-secret
+JWT_SECRET_KEY=super-secret
+MASTER_RESET_KEY=viki-masterkey
+DATABASE_URL=postgresql://viki:viki-secret@localhost:5432/viki
+```
+
+**Important Notes:**
+- When running **locally** (not in Docker), use `localhost` as the database host
+- When running **inside Docker**, the hostname is `db` (as configured in docker-compose.yml)
+
+### Step 6: Start the Backend
+
+Start the Flask application:
+
 ```bash
 python app.py
-# or explicitly with Socket.IO and no reloader:
-# python -c "import app as a; a.socketio.run(a.create_app(), host='0.0.0.0', port=5000, debug=True, use_reloader=False)"
 ```
-Server starts on **http://localhost:5000**.
+
+The backend should now be running at: **http://localhost:5000**
+
+You should see output similar to:
+```
+ * Running on http://0.0.0.0:5000
+```
+
+Test the API:
+```bash
+curl http://localhost:5000/
+# Expected response: {"message": "VIKI Backend API läuft"}
+```
 
 ---
 
-## Docker
+## Using the Makefile
 
-### Build the image
+The root directory contains a `Makefile` with helpful commands for Windows development:
+
+### Available Commands
+
 ```bash
-docker build -t viki-heat-backend:latest .
+# Initialize complete environment (venv + pre-commit)
+make init
+
+# Create only virtual environment
+make init_venv
+
+# Install/update dependencies
+make update
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-cov
+
+# Clean virtual environment
+make clean
+
+# Reinitialize everything
+make re-init
 ```
 
-### Run with Docker only (Postgres external)
-Assuming your Postgres is reachable (see `DATABASE_URL`), start the API:
+### Example Workflow
+
 ```bash
-docker run -d --name viki-heat-backend -p 5000:5000 \
-  --env-file .env \
-  viki-heat-backend:latest
+# 1. Initialize project
+make init
+
+# 2. Activate virtual environment
+.venv\Scripts\activate
+
+# 3. Navigate to backend
+cd function/backend
+
+# 4. Start database
+docker-compose up -d db
+
+# 5. Run backend
+python app.py
 ```
 
-### Run in a Docker network (with the frontend)
+---
+
+## Docker (Full Stack)
+
+To run the entire stack (database + backend + frontend) with Docker:
+
+### Build Backend Image
+
+From the **backend directory**:
 ```bash
-docker network create viki-net || true
-
-# Start Postgres separately, or use your existing DB container (name: viki-data)
-# docker run -d --name viki-data --network viki-net -e POSTGRES_DB=viki -e POSTGRES_USER=viki -e POSTGRES_PASSWORD=viki-secret postgres:16
-
-# Start backend on the same network
-docker run -d --name viki-heat-backend --network viki-net -p 5000:5000 \
-  --env-file .env \
-  viki-heat-backend:latest
+cd function/backend
+docker build -t viki-heat_arm_backend:latest .
 ```
 
-When running together with the frontend, the frontend proxies `/api` to `http://viki-backend:5000`.
-Make sure the backend container is named **`viki-heat-backend`** or create an alias **`viki-backend`** on the network:
+### Start Full Stack
+
+From the **root directory**:
 ```bash
-docker network connect viki-net viki-heat-backend --alias viki-backend
+docker-compose up -d
 ```
+
+This will start:
+- **Database** (viki-db) on port `5432`
+- **Backend** (viki-backend) on port `5000`
+- **Frontend** (viki-frontend) on port `80`
+
+Access the application:
+- Frontend: http://localhost
+- Backend API: http://localhost:5000
+- Swagger Docs: http://localhost:5000/docs
+
+### Stop Services
+
+```bash
+docker-compose down
+```
+
+### View Logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f backend
+```
+
+---
+
+## API Overview
+
+- **Auth** (`/api/auth`):
+  - `/login` (POST)
+  - `/register` (POST)
+  - `/profile` (GET/PUT)
+  - `/profile/photo` (GET)
+  - `/reset-password` (POST)
+
+- **Dashboard** (`/api/dashboard`):
+  - `/modules` (GET/POST/DELETE)
+  - `/modules/reorder` (POST)
+
+- **Modules** (`/api/modules`):
+  - `/energy_data` (GET)
+  - `/energy_price` (GET)
+  - `/heat_pipes` (GET)
+  - `/heat_pipe/<id>` (GET/PUT)
+  - `/heating_mode` (GET/PUT)
+  - `/inverter_data` (GET)
+  - `/heating_tank_temp` (GET)
+  - `/buffer_tank_temp` (GET)
+
+- **Settings** (`/api/settings`):
+  - `/category`, `/energy`, `/heating`, `/location`, `/manufacturer`
+  - `/photovoltaic`, `/sensors`, `/tanks`, `/weather`
 
 ---
 
 ## Swagger / API Docs
 
-- **Swagger UI** (Flasgger) is available at: `http://localhost:5000/docs`
-- Base config: `swagger_config.yml`
+Interactive API documentation is available via **Swagger UI**:
 
-Example UI (will be added to repo at `../../documentation/swagger_ui.jpg`):
+**URL:** http://localhost:5000/docs
 
-- ![](../../documentation/swagger_ui.jpg)
+The Swagger interface allows you to:
+- View all available endpoints
+- Test API calls directly from the browser
+- See request/response schemas
+- Understand authentication requirements
 
-> Endpoint docstrings are partially present and will be completed over time.
+> Some endpoint docstrings are still being completed.
+
+---
+
+## Database Seeding
+
+The application automatically seeds the database on startup with:
+
+1. **User Roles** (Admin, User, etc.)
+2. **Default Users**
+3. **Categories**
+4. **Manufacturers** (from `database/resources/manufacturer.csv`)
+5. **Location data**
+
+The seeding happens in `app.py` via `create_app()`:
+```python
+with app.app_context():
+    db.create_all()
+    seed_roles()
+    seed_users()
+    seed_category()
+    seed_manufacturers()
+    seed_location()
+```
+
+**To expand manufacturer data:**
+1. Edit `database/resources/manufacturer.csv`
+2. Restart the application
+3. The new data will be imported automatically
+
+---
+
+## Troubleshooting
+
+### Problem: "could not translate host name 'viki-data' to address"
+
+**Cause:** The app is trying to connect to a Docker hostname, but you're running locally.
+
+**Solution:** Check your `.env` file and ensure it uses `localhost`:
+```env
+DATABASE_URL=postgresql://viki:viki-secret@localhost:5432/viki
+```
+
+### Problem: Database connection refused
+
+**Cause:** PostgreSQL is not running.
+
+**Solution:**
+```bash
+# Start database
+docker-compose up -d db
+
+# Check if it's running
+docker ps | grep viki-db
+
+# Check logs
+docker-compose logs db
+```
+
+### Problem: Port 5432 already in use
+
+**Cause:** Another PostgreSQL instance is running.
+
+**Solution:**
+```bash
+# Stop local PostgreSQL
+# Windows: Services → PostgreSQL → Stop
+# Linux: sudo systemctl stop postgresql
+
+# Or change port in docker-compose.yml:
+ports:
+  - "5433:5432"  # Use different host port
+
+# Then update .env:
+DATABASE_URL=postgresql://viki:viki-secret@localhost:5433/viki
+```
+
+### Problem: ModuleNotFoundError
+
+**Cause:** Dependencies not installed or wrong virtual environment.
+
+**Solution:**
+```bash
+# Ensure virtual environment is activated
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/macOS
+
+# Reinstall dependencies
+pip install -r requirements.txt
+```
+
+### Problem: Permission denied on GPIO devices
+
+**Cause:** Running without proper permissions for hardware access.
+
+**Solution:** This is expected when running locally without Raspberry Pi hardware. The GPIO functionality is only needed in production.
 
 ---
 
@@ -234,13 +468,28 @@ Contributions are welcome! Suggested workflow:
    ```bash
    git checkout -b feat/your-topic
    ```
+
 2. Setup environment & run locally:
    ```bash
-   python -m venv .venv && source .venv/bin/activate
+   # Initialize with Makefile
+   make init
+
+   # Or manually
+   python -m venv .venv
+   source .venv/bin/activate  # or .venv\Scripts\activate on Windows
    pip install -r requirements.txt
+
+   # Start database
+   docker-compose up -d db
+
+   # Run backend
+   cd function/backend
    python app.py
    ```
-3. Open a Pull Request and document changes (especially API docs/Swagger and DB migrations if any).
+
+3. Make your changes and test thoroughly
+
+4. Open a Pull Request and document changes (especially API docs/Swagger and DB migrations if any)
 
 _Tests_: There are **no tests yet**. PRs adding unit/integration tests are very welcome.
 
@@ -248,5 +497,5 @@ _Tests_: There are **no tests yet**. PRs adding unit/integration tests are very 
 
 ## License
 
-This project is licensed under the **MIT License** (same as the frontend).
+This project is licensed under the **MIT License**.
 See [LICENSE](../../LICENSE) for details.
