@@ -27,7 +27,11 @@ def pull_price_info_from_tibber_api() -> list:
         - Any ``requests.RequestException`` is swallowed and mapped to ``[]``.
     """
     url: str = fetch_values("manufacturer", "Tibber Strompreis Info", "url")
-
+    
+    if not url:
+        logging.error("[Tibber] URL not found in database")
+        return []
+    
     try:
         graphql_path = Path(__file__).parent / "graphql" / "tibber_price_info.graphql"
         with open(graphql_path, "r") as file:
@@ -35,6 +39,11 @@ def pull_price_info_from_tibber_api() -> list:
 
         response: Response = requests.post(url, headers=load_tibber_auth(), json={'query': query})
         api: str = fetch_values("manufacturer", "Tibber Strompreis Info", "api")
+        
+        if not api:
+            logging.error("[Tibber] API path not found in database")
+            return []
+        
         data: dict = extract_datapoints_from_json_with_api(api, response.json())
 
     except FileNotFoundError as fnfe:
@@ -65,6 +74,10 @@ def pull_consume_information_from_tibber_api() -> float:
     try:
         url: str = fetch_values("manufacturer", "Tibber Stromverbrauch", "url")
         api: str = fetch_values("manufacturer", "Tibber Stromverbrauch", "api")
+        
+        if not url or not api:
+            logging.error("[Tibber] Configuration incomplete in database")
+            return 0.0
 
     except Exception as err:
         logging.error(f"[Tibber] DB-Lookup failed: {err}")
@@ -105,11 +118,17 @@ def pull_consume_information_from_tibber_api() -> float:
         logging.error(f"[Tibber] Invalid data format: {calc_err}")
         return 0.0
 
-# TODO: Load by manufacturer id not by description
-
 
 def load_tibber_auth() -> dict:
     access_token = fetch_values("energy_settings", "Tibber Clouddienst", "api_key")
+    
+    if not access_token:
+        logging.error("[Tibber] API key not found in database")
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '
+        }
+    
     headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + access_token

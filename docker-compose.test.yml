@@ -1,0 +1,36 @@
+version: '3.8'
+
+# Override für Tests
+# Verwendung: docker-compose -f docker-compose.yml -f docker-compose.test.yml up
+
+services:
+  db:
+    environment:
+      POSTGRES_DB: viki_test
+      POSTGRES_USER: viki_test
+      POSTGRES_PASSWORD: test-secret
+    ports:
+      - "5433:5432"  # Anderer Port für Test-DB
+
+  redis:
+    ports:
+      - "6380:6379"  # Anderer Port für Test-Redis
+
+  backend:
+    build:
+      target: test
+    container_name: viki-backend-test
+    environment:
+      - FLASK_ENV=testing
+      - FLASK_DEBUG=0
+      - DATABASE_URL=postgresql://viki_test:test-secret@db:5432/viki_test
+      - REDIS_URL=redis://redis:6379/1  # Andere Redis DB
+      - LOG_LEVEL=INFO
+    command: pytest -v --cov=. --cov-report=html --cov-report=term
+    volumes:
+      - ./function/backend:/app
+      - ./test-results:/app/test-results
+      - ./coverage:/app/htmlcov
+
+  # Test Database kann nach Tests gelöscht werden
+  # docker-compose -f docker-compose.yml -f docker-compose.test.yml down -v

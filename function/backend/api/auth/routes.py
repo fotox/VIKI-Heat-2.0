@@ -39,10 +39,9 @@ def login():
         logging.info("Invalid username or password")
         return jsonify(msg="Invalid username or password"), 401
 
-    additional: dict = {"role": user.role}
     token: str = create_access_token(
         identity=str(user.id),
-        additional_claims=additional
+        additional_claims={"role": user.role}
     )
 
     resp: Response = jsonify(user=user.to_dict())
@@ -70,9 +69,13 @@ def profile_photo():
             download_name="avatar.png",
         )
 
+    from flask_jwt_extended import get_jwt, get_jwt_identity
+
     identity = get_jwt_identity()
-    if not identity:
-        return _fallback()
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        logging.info("Only admins can register new users.")
+        return jsonify(msg="Only admins can register new users."), 403
 
     user = User.query.get(identity)
     if not user or not user.photo:

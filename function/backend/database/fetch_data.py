@@ -27,6 +27,23 @@ def fetch_values(table_name: str, description: str, value_column: str):
         sqlalchemy.exc.SQLAlchemyError: If a database error occurs (connection, syntax, etc.).
         TypeError, IndexError: If the result set is not in the expected format.
     """
+    ALLOWED_TABLES = {
+        'manufacturer', 'energy_settings', 'heating_settings', 
+        'sensors', 'tank_settings', 'location'
+    }
+    ALLOWED_COLUMNS = {
+        'url', 'api', 'ip', 'api_key', 'price', 'description',
+        'manufacturer', 'model_type', 'power_factor', 'power_size'
+    }
+    
+    if table_name not in ALLOWED_TABLES:
+        logging.error(f"Invalid table name: {table_name}")
+        return None
+    
+    if value_column not in ALLOWED_COLUMNS:
+        logging.error(f"Invalid column name: {value_column}")
+        return None
+    
     try:
         engine = create_engine(DATABASE_URI)
         with engine.connect() as connection:
@@ -70,20 +87,36 @@ def fetch_r4dcb08_sensor_setting() -> dict | None:
                 JOIN
                     manufacturer m ON s.manufacturer = m.id
                 LEFT JOIN
-                    tank_settings t ON s.measuring_device = t.id;
+                    tank_settings t ON s.measuring_device = t.id
+                WHERE
+                    m.model_type = 'DS18B20'
+                LIMIT 1;
             """)
-            result = connection.execute(query).fetchall()
+            result = connection.execute(query).fetchone()
 
-        if result:
-            try:
-                connection_data: dict = ast.literal_eval(result[0][3])
-                connection_data['port'] = result[0][2]
-                return connection_data
-            except (ValueError, SyntaxError, TypeError, IndexError) as e:
-                logging.error(f"WEITERLEITUNGSFEHLER: {e}")
+        if not result:
+            logging.warning("Keine R4DCB08 Temperatursensordaten vorhanden")
+            return None
+
+        try:
+            api_data = result[3]
+            if not api_data:
+                logging.error("API-Feld ist leer")
                 return None
-        else:
-            logging.warning(f"Keine Temperatursensordaten vorhanden")
+                
+            connection_data: dict = ast.literal_eval(api_data)
+            connection_data['port'] = result[2]
+            
+            required_fields = ['baudrate', 'timeout', 'parity', 'stopbits', 'bytesize']
+            for field in required_fields:
+                if field not in connection_data:
+                    logging.error(f"Erforderliches Feld fehlt: {field}")
+                    return None
+                    
+            return connection_data
+            
+        except (ValueError, SyntaxError, TypeError) as e:
+            logging.error(f"WEITERLEITUNGSFEHLER beim Parsen der API-Daten: {e}")
             return None
 
     except (OperationalError, ProgrammingError, InterfaceError, StatementError, DBAPIError, ArgumentError) as e:
@@ -121,35 +154,37 @@ def fetch_heat_pipe_setting() -> dict | None:
                     heating_settings h
                 JOIN
                     manufacturer m ON h.manufacturer = m.id
+                WHERE
+                    m.description LIKE '%Heizstab%'
+                ORDER BY h.id
+                LIMIT 3;
             """)
             result = connection.execute(query).fetchall()
 
-        if result:
-            try:
-                heat_pipe_values = [
-                    (value[-2], value[-1]) for value in result
-                    if isinstance(value[0], str) and "Heizstab" in value[0]
-                ]
-
-                if len(heat_pipe_values) >= 3:
-                    return {
-                        'pipe_1': heat_pipe_values[0][0],
-                        'pipe_2': heat_pipe_values[1][0],
-                        'pipe_3': heat_pipe_values[2][0],
-                        'buffer_1': heat_pipe_values[0][1],
-                        'buffer_2': heat_pipe_values[1][1],
-                        'buffer_3': heat_pipe_values[2][1]
-                    }
-                else:
-                    logging.warning(f"Nicht genug Heizstabdaten vorhanden")
-                    return None
-
-            except (IndexError, TypeError, AttributeError) as e:
-                logging.error(f"WEITERLEITUNGSFEHLER: {e}")
-                return None
-        else:
-            logging.warning(f"Keine Heizstabdaten vorhanden")
+        if not result:
+            logging.warning("Keine Heizstabdaten vorhanden")
             return None
+
+        heat_pipe_config = {}
+        
+        for idx, row in enumerate(result, start=1):
+            try:
+                power_factor = row[3] if row[3] is not None else 1.0
+                power_size = row[4] if row[4] is not None else 2000
+                buffer = row[5] if row[5] is not None else 0
+                
+                heat_pipe_config[f'pipe_{idx}'] = int(power_factor * power_size)
+                heat_pipe_config[f'buffer_{idx}'] = int(buffer)
+                
+            except (TypeError, ValueError, IndexError) as e:
+                logging.error(f"Fehler beim Verarbeiten von Heizstab {idx}: {e}")
+                continue
+        
+        if len(heat_pipe_config) < 2:  # Mindestens 1 Heizstab (pipe_1 + buffer_1 = 2 Einträge)
+            logging.warning(f"Nicht genug gültige Heizstabdaten: {len(heat_pipe_config)//2} gefunden")
+            return None
+            
+        return heat_pipe_config
 
     except (OperationalError, ProgrammingError, InterfaceError, StatementError, DBAPIError, ArgumentError) as e:
         logging.error(f"DATENBANKFEHLER: {e}")

@@ -107,12 +107,22 @@ def pull_live_data_from_inverter():
         RequestException: If the HTTP request to the inverter fails.
         ValueError:       If the response body is not valid JSON.
     """
-    data = pull_and_fromatted_inverter_data('Livedaten')
+    def pull_live_data_from_inverter():
+        data = pull_and_fromatted_inverter_data('Livedaten')
+        
+        if not data:
+            logging.warning("[Inverter] No data available")
+            return {
+                "consume": 0,
+                "production": 0,
+                "cover": 0,
+                "accu_capacity": 0.0,
+            }
 
-    consume: int = round(-data.get("P_Load", 0.0) or 0.0, 0)
-    production: int = round(data.get("P_PV", 0.0) or 0.0, 0)
-    cover: int = round(-data.get("P_Grid", 0.0) or 0.0, 0)
-    accu_capacity: float = round(data.get("P_Akku", 0.0) or 0.0, 1)
+        consume: int = round(-data.get("P_Load", 0.0) or 0.0, 0)
+        production: int = round(data.get("P_PV", 0.0) or 0.0, 0)
+        cover: int = round(-data.get("P_Grid", 0.0) or 0.0, 0)
+        accu_capacity: float = round(data.get("P_Akku", 0.0) or 0.0, 1)
 
     try:
         automatic_control(cover)

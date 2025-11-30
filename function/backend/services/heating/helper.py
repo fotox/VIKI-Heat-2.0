@@ -1,8 +1,12 @@
 import json
+import threading
 
 from services.temperature.modbus_temp_module import read_temp_sensors_from_r4dcb08
 from utils.logging_service import LoggingService
+
 MEMORY_FILE = "memory.json"
+_memory_lock = threading.Lock()
+DEV_MODE: bool = False
 
 logging = LoggingService()
 RELAY_PINS: dict = {1: 20, 2: 21, 3: 26}
@@ -20,20 +24,28 @@ IS_RPi: bool = is_raspberry_pi()
 
 
 def load_memory() -> dict:
-    try:
-        with open(MEMORY_FILE, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logging.error(f"[MEMORY] Mode file not found: {MEMORY_FILE}")
-        return dict()
+    with _memory_lock:
+        try:
+            with open(MEMORY_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            logging.error(f"[MEMORY] Mode file not found: {MEMORY_FILE}")
+            # Erstelle Default-Memory wenn nicht vorhanden
+            default_memory = {
+                "heat_pipes": {"1": False, "2": False, "3": False},
+                "mode": "Automatik"
+            }
+            save_memory(default_memory)
+            return default_memory
 
 
 def save_memory(memory: dict) -> None:
-    try:
-        with open(MEMORY_FILE, 'w') as f:
-            json.dump(memory, f)
-    except FileNotFoundError:
-        logging.error(f"[MEMORY] Mode file not found: {MEMORY_FILE}")
+    with _memory_lock:
+        try:
+            with open(MEMORY_FILE, 'w', encoding='utf-8') as f:
+                json.dump(memory, f, indent=2, ensure_ascii=False)
+        except (FileNotFoundError, IOError) as e:
+            logging.error(f"[MEMORY] Error saving memory file: {e}")
 
 
 def toggle_all_relais(state: bool) -> None:
@@ -48,43 +60,53 @@ def toggle_all_relais(state: bool) -> None:
         save_memory(memory)
 
     except Exception as err:
-        logging.error(f"[TOGGLEALLRELAIS] Failed to toogle relay: {err}")
+        logging.error(f"[TOGGLEALLRELAIS] Failed to toggle relay: {err}")
 
 
-def toogle_relay(pin: int, state: bool) -> bool:
+def toggle_relay(pin: int, state: bool) -> bool:
     gpio = get_gpio()
+    
+    if pin not in RELAY_PINS:
+        logging.error(f"[TOGGLERELAY] Invalid pin: {pin}")
+        return False
+        
     try:
         memory: dict = load_memory()
+        
+        if not memory.get("heat_pipes"):
+            logging.error("[TOGGLERELAY] Heat pipes not initialized in memory")
+            return False
 
-        if memory["heat_pipes"][str(pin)] != state:
+        if memory["heat_pipes"].get(str(pin)) != state:
             gpio.output(RELAY_PINS[pin], not state)
             memory["heat_pipes"][str(pin)] = state
-
             save_memory(memory)
+            logging.info(f"[TOGGLERELAY] Pipe {pin} set to {state}")
             return state
         else:
-            return not state
+            logging.debug(f"[TOGGLERELAY] Pipe {pin} already in state {state}")
+            return state
 
-    except Exception as err:
-        logging.error(f"[TOGGLERELAY] Failed to toogle relay: {err}")
-        return not state
+    except (KeyError, TypeError, ValueError) as err:
+        logging.error(f"[TOGGLERELAY] Failed to toggle relay {pin}: {err}")
+        return False
 
 
-# TODO: Build tank temp function
 def read_sensors_by_tank_with_heat_pipe() -> dict:
     # TODO: Add selector to get active heat pipe tank
     tank_with_sensor = 0
 
     if tank_with_sensor == 0:
-        tank: dict = read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(0, 3))))
+        tank: dict = read_temp_sensors_from_r4dcb08({0: 0.0, 1: 0.0, 2: 0.0})
         dest_temp: float = 50.0  # TODO: Load from database
-
     else:
-        tank: dict = read_temp_sensors_from_r4dcb08(dict.fromkeys(list(range(3, 6))))
+        tank: dict = read_temp_sensors_from_r4dcb08({3: 0.0, 4: 0.0, 5: 0.0})
         dest_temp: float = 35.0  # TODO: Load from database
 
-    # TODO: DEBUG DEV
-    tank: dict = {0: 25.7, 1: 38.4, 2: 49.1}
+    # DEBUG Modus nur wenn gewünscht:
+    if DEV_MODE and False:  # Explizit deaktiviert, aktiviere mit True
+        tank = {0: 25.7, 1: 38.4, 2: 49.1}
+        logging.debug("[SENSORS] Using DEBUG data")
 
     return {"tank": tank, "dest_temp": dest_temp}
 

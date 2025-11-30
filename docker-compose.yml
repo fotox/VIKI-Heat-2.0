@@ -1,68 +1,89 @@
+version: '3.8'
+
 services:
+  # PostgreSQL Database
   db:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     container_name: viki-db
-    hostname: db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: viki
-      POSTGRES_PASSWORD: viki-secret
-      POSTGRES_DB: viki
-      TZ: Europe/Berlin
+      POSTGRES_DB: ${POSTGRES_DB:-viki}
+      POSTGRES_USER: ${POSTGRES_USER:-viki}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-viki-secret}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=de_DE.UTF-8"
     volumes:
-      - db-data:/var/lib/postgresql/data
-    networks:
-      custom_net:
-        ipv4_address: 172.20.0.2
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
-    restart: always
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-viki}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - viki-network
 
+  # Redis Cache (optional, für Rate Limiting)
+  redis:
+    image: redis:7-alpine
+    container_name: viki-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - viki-network
+
+  # Backend Service
   backend:
-    image: viki-heat_arm_backend:latest
+    build:
+      context: ./function/backend
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET:-development}
     container_name: viki-backend
-    hostname: viki-backend
-    depends_on:
-      - db
-    volumes:
-      - viki-log:/app/logs
-    networks:
-      custom_net:
-        ipv4_address: 172.20.0.4
-    ports:
-      - "5000:5000"
+    restart: unless-stopped
     environment:
-      - SECRET_KEY=dev-secret
-      - JWT_SECRET_KEY=super-secret
-      - MASTER_RESET_KEY=viki-masterkey
-      - DATABASE_URL=postgresql://viki:viki-secret@db:5432/viki
-    devices:
-      - "/dev/gpiomem:/dev/gpiomem"
-      - "/dev/ttyAMA0:/dev/ttyAMA0"
-    privileged: true
-    restart: always
-
-  frontend:
-    image: viki-heat_arm_frontend:latest
-    container_name: viki-frontend
-    hostname: viki-frontend
-    networks:
-      custom_net:
-        ipv4_address: 172.20.0.5
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_DEBUG=${FLASK_DEBUG:-1}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-viki}:${POSTGRES_PASSWORD:-viki-secret}@db:5432/${POSTGRES_DB:-viki}
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev-secret}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-super-secret}
+      - MASTER_RESET_KEY=${MASTER_RESET_KEY:-viki-masterkey}
+    volumes:
+      - ./function/backend:/app
+      - backend_logs:/app/logs
     ports:
-      - "80:80"
+      - "${BACKEND_PORT:-5000}:5000"
     depends_on:
-      - backend
-    restart: always
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - viki-network
 
 volumes:
-  db-data:
-    name: db-data
-  viki-log:
-    name: viki-log
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_logs:
+    driver: local
 
 networks:
-  custom_net:
+  viki-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/29

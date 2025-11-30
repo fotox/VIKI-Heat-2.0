@@ -36,7 +36,12 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     socketio.init_app(app, cors_allowed_origins="*")
-    CORS(app)
+    
+    CORS(app, 
+         resources={r"/api/*": {"origins": "*"}},
+         supports_credentials=True,
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization"])
 
     # Blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -59,8 +64,15 @@ def create_app():
         return {"message": "VIKI Backend API läuft"}
 
     if not sched.running:
-        sched.add_job(safe_job, trigger='interval', seconds=1, max_instances=1)
+        sched.add_job(
+            safe_job, 
+            trigger='interval', 
+            seconds=30,
+            max_instances=1,
+            id='inverter_data_pull'
+        )
         sched.start()
+        logging.info("[SCHEDULER] Background scheduler started")
 
     @app.teardown_appcontext
     def shutdown_scheduler(exception=None):

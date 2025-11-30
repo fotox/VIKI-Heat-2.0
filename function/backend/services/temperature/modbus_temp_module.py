@@ -21,8 +21,12 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
             The same dictionary instance with any successfully read channels overwritten. If the serial connection cannot
             be established or a read error occurs, the original values are returned unchanged.
     """
-
     client_con_data: dict = fetch_r4dcb08_sensor_setting()
+    
+    if not client_con_data:
+        logging.error("[R4DCB08] No sensor configuration found")
+        return temp_sensor_data
+    
     client = ModbusClient(
         port=client_con_data['port'],
         baudrate=client_con_data['baudrate'],
@@ -32,25 +36,33 @@ def read_temp_sensors_from_r4dcb08(temp_sensor_data: dict) -> dict:
         bytesize=client_con_data['bytesize']
     )
 
-    if not client.connect():
-        return temp_sensor_data
-
+    connection_successful = False
     try:
-        response: ModbusPDU = client.read_holding_registers(0x0000, slave=1)
-        if not response.isError():
-            temperatures: list[int] = response.registers
-            for i, temp in enumerate(temperatures[:6]):
-                if temp < 30000:
-                    if i in temp_sensor_data.keys():
-                        temp_sensor_data[i] = temp / 10.0
-            client.close()
+        connection_successful = client.connect()
+        if not connection_successful:
+            logging.error("[R4DCB08] Could not connect to Modbus device")
             return temp_sensor_data
 
+        response: ModbusPDU = client.read_holding_registers(0x0000, count=6, slave=1)
+        
+        if response.isError():
+            logging.error(f"[R4DCB08] Modbus read error: {response}")
+            return temp_sensor_data
+            
+        temperatures: list[int] = response.registers
+        for i, temp in enumerate(temperatures[:6]):
+            if temp < 30000:
+                temp_sensor_data[i] = temp / 10.0
+                
     except Exception as e:
-        logging.error(f"Error by reading sensor: {e}")
+        logging.error(f"[R4DCB08] Error reading sensor: {e}")
 
     finally:
-        client.close()
+        if connection_successful:
+            try:
+                client.close()
+            except Exception as e:
+                logging.error(f"[R4DCB08] Error closing connection: {e}")
 
     return temp_sensor_data
 
