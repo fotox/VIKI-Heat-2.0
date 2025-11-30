@@ -46,6 +46,7 @@ ENV/
 *.gz
 *zip
 .env
+env
 package-lock.json
 node_modules/
 .certbot.lock
